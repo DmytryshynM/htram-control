@@ -6,89 +6,65 @@
   <title>HTRAM Full Controller</title>
   <style>
     :root {
-      --bg: #111827;
-      --card: #1f2937;
-      --text: #f9fafb;
-      --subtext: #9ca3af;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --danger: #dc2626;
-      --danger-hover: #b91c1c;
-      --success: #16a34a;
-      --warning: #d97706;
+      --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --subtext: #94a3b8;
+      --accent: #3b82f6; --accent-hover: #2563eb; --danger: #ef4444; 
+      --warning: #f59e0b; --success: #10b981; --purple: #8b5cf6;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
+      background-color: var(--bg); color: var(--text); margin: 0; padding: 15px;
+      display: flex; justify-content: center;
     }
     .container { max-width: 550px; width: 100%; }
     .header { text-align: center; margin-bottom: 20px; }
     .card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      background: var(--card); border-radius: 12px; padding: 20px;
+      margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
     }
-    h3 { margin-top: 0; font-size: 18px; }
+    h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
     .btn {
-      width: 100%;
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 15px;
-      transition: background 0.2s;
+      width: 100%; background: var(--accent); color: white; border: none;
+      padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;
+      font-size: 15px; transition: 0.2s; margin-top: 8px;
     }
     .btn:hover { background: var(--accent-hover); }
     .btn-danger { background: var(--danger); }
-    .btn-danger:hover { background: var(--danger-hover); }
-    .btn-warning { background: var(--warning); }
-    .btn:disabled { background: #4b5563; cursor: not-allowed; }
-    .status { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; background: #6b7280; }
-    .dot.connected { background: var(--success); }
+    .btn-warning { background: var(--warning); color: #000; }
+    .btn-purple { background: var(--purple); }
+    .btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+    .status { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-weight: bold; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: #64748b; }
+    .dot.connected { background: var(--success); box-shadow: 0 0 8px var(--success); }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .metric { font-size: 32px; font-weight: 700; color: #60a5fa; margin-top: 8px; }
+    .metric { font-size: 36px; font-weight: bold; color: #38bdf8; margin-top: 5px; }
     label { display: block; font-size: 13px; color: var(--subtext); margin-bottom: 4px; }
     input, select {
-      width: 100%; padding: 10px; border-radius: 6px;
-      border: 1px solid #374151; background: #111827; color: white;
-      font-size: 14px; box-sizing: border-box; margin-bottom: 12px;
+      width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155;
+      background: #0f172a; color: white; font-size: 14px; box-sizing: border-box;
     }
     .log-box {
-      background: #0f172a; border-radius: 8px; padding: 10px;
-      font-family: monospace; font-size: 12px; height: 120px;
-      overflow-y: auto; color: #94a3b8;
+      background: #020617; border-radius: 8px; padding: 10px; font-family: monospace;
+      font-size: 11px; height: 150px; overflow-y: auto; color: #cbd5e1;
     }
+    .grid-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h2>HTRAM Full Control Panel 🇺🇦</h2>
-    <p style="color: var(--subtext);">Повний функціонал налаштувань Honeywell HTRAM</p>
+    <h2 style="margin-bottom: 5px;">HTRAM Control Panel 🇺🇦</h2>
+    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Повний набір налаштувань Honeywell</p>
   </div>
 
-  <!-- Статус підключення -->
   <div class="card">
     <div class="status">
       <div id="statusDot" class="dot"></div>
       <span id="statusText">Стан: Не підключено</span>
     </div>
-    <button id="connectBtn" class="btn">Підключити HTRAM</button>
+    <button id="connectBtn" class="btn">📡 Підключити HTRAM</button>
   </div>
 
-  <!-- Монітор показників -->
   <div class="card grid">
     <div>
       <label>Рівень CO₂</label>
@@ -96,27 +72,21 @@
     </div>
     <div>
       <label>Статус Ризику</label>
-      <div id="riskStatus" class="metric" style="color: var(--success); font-size: 22px; margin-top: 14px;">--</div>
+      <div id="riskStatus" class="metric" style="color: var(--success); font-size: 24px; margin-top: 15px;">--</div>
     </div>
   </div>
 
-  <!-- 1. Керування зумером -->
   <div class="card">
-    <h3>1. Звукове оповіщення (Buzzer Mute)</h3>
-    <button id="muteBtn" class="btn btn-danger" disabled>Увімкнути / Вимкнути звук</button>
+    <h3>1. Швидкі налаштування апаратури</h3>
+    <div class="grid-btns">
+      <button id="muteBtn" class="btn btn-danger" disabled>🔇 Зумер (Увімк/Вимк)</button>
+      <button id="displayBtn" class="btn btn-warning" disabled>💡 Дисплей (Увімк/Вимк)</button>
+      <button id="tempBtn" class="btn btn-purple" disabled>🌡 Температура (°C / °F)</button>
+    </div>
   </div>
 
-  <!-- 2. Керування дисплеєм / підсвіткою -->
   <div class="card">
-    <h3>2. Керування дисплеєм та світлодіодами</h3>
-    <p style="color: var(--subtext); font-size: 13px;">Вимкнення екрана/індикаторів для нічного режиму</p>
-    <button id="displayBtn" class="btn btn-warning" disabled>Увімкнути / Вимкнути Дисплей</button>
-  </div>
-
-  <!-- 3. Налаштування профілю діяльності -->
-  <div class="card">
-    <h3>3. Профіль діяльності (Activity Level)</h3>
-    <label for="profileSelect">Оберіть сценарій приміщення:</label>
+    <h3>2. Профіль приміщення (Activity Level)</h3>
     <select id="profileSelect" disabled>
       <option value="0">Низька активність (Офіс / Дім: 800 - 1100 ppm)</option>
       <option value="1">Середня активність (Школа / Кафе: 1000 - 1400 ppm)</option>
@@ -125,26 +95,24 @@
     <button id="setProfileBtn" class="btn" disabled>Застосувати профіль</button>
   </div>
 
-  <!-- 4. Кастомні пороги тривоги -->
   <div class="card">
-    <h3>4. Власні пороги CO₂ (Alarm Thresholds)</h3>
+    <h3>3. Власні пороги (Custom Thresholds)</h3>
     <div class="grid">
       <div>
-        <label for="yellowLimit">Жовтий рівень (ppm):</label>
-        <input type="number" id="yellowLimit" value="800" min="400" max="2000" disabled>
+        <label>Жовтий рівень (ppm):</label>
+        <input type="number" id="yellowLimit" value="800" min="400" max="3000" disabled>
       </div>
       <div>
-        <label for="redLimit">Червоний рівень (ppm):</label>
+        <label>Червоний рівень (ppm):</label>
         <input type="number" id="redLimit" value="1100" min="600" max="5000" disabled>
       </div>
     </div>
-    <button id="setLimitsBtn" class="btn" disabled>Записати нові пороги</button>
+    <button id="setLimitsBtn" class="btn" disabled>Записати пороги</button>
   </div>
 
-  <!-- Системний лог -->
   <div class="card">
-    <h3>Системний лог</h3>
-    <div id="log" class="log-box">Очікування дій...<br></div>
+    <h3>Системний лог та діагностика</h3>
+    <div id="log" class="log-box">Очікування підключення...<br></div>
   </div>
 </div>
 
@@ -154,25 +122,36 @@
   const READ_CHAR_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
 
   let writeChar = null;
-  let isMuted = false;
-  let isDisplayOff = false;
+  let isMuted = false, isDisplayOff = false, isFahrenheit = false;
 
   function log(msg) {
     const logBox = document.getElementById('log');
-    logBox.innerHTML += `> ${msg}<br>`;
+    const time = new Date().toLocaleTimeString();
+    logBox.innerHTML += `[${time}] ${msg}<br>`;
     logBox.scrollTop = logBox.scrollHeight;
   }
 
-  // Підключення до HTRAM
+  // Централізована відправка команд
+  async function sendCommand(name, hexArray) {
+    if (!writeChar) { log('❌ Не підключено!'); return; }
+    try {
+      const data = new Uint8Array(hexArray);
+      await writeChar.writeValue(data);
+      log(`✅ Команда [${name}] успішно надіслана: ${hexArray.map(x=>x.toString(16).padStart(2,'0')).join(' ')}`);
+    } catch (err) {
+      log(`❌ Помилка [${name}]: ${err.message}`);
+    }
+  }
+
   document.getElementById('connectBtn').addEventListener('click', async () => {
     try {
-      log('Пошук пристрою HTRAM...');
+      log('Запит доступу до Bluetooth...');
       const device = await navigator.bluetooth.requestDevice({
         acceptAllDevices: true,
         optionalServices: [SERVICE_UUID]
       });
 
-      log(`Підключення до ${device.name}...`);
+      log(`Зв'язування з ${device.name}...`);
       const server = await device.gatt.connect();
       
       document.getElementById('statusDot').classList.add('connected');
@@ -181,121 +160,89 @@
       const service = await server.getPrimaryService(SERVICE_UUID);
       writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
       
-      // Активація кнопок керування
-      document.getElementById('muteBtn').disabled = false;
-      document.getElementById('displayBtn').disabled = false;
-      document.getElementById('profileSelect').disabled = false;
-      document.getElementById('setProfileBtn').disabled = false;
-      document.getElementById('yellowLimit').disabled = false;
-      document.getElementById('redLimit').disabled = false;
-      document.getElementById('setLimitsBtn').disabled = false;
+      // Розблокування інтерфейсу
+      ['muteBtn','displayBtn','tempBtn','profileSelect','setProfileBtn','yellowLimit','redLimit','setLimitsBtn'].forEach(id => {
+        document.getElementById(id).disabled = false;
+      });
+      log('✅ Канал керування відкрито.');
 
-      log('Підключення успішне!');
-
-      // Активація сповіщень телеметрії
+      // Підписка на отримання даних
       const readChar = await service.getCharacteristic(READ_CHAR_UUID);
       await readChar.startNotifications();
       readChar.addEventListener('characteristicvaluechanged', handleData);
-      log('Зчитування даних активовано.');
+      log('✅ Стрімінг показників CO₂ активовано.');
 
     } catch (err) {
-      log(`❌ Помилка: ${err.message}`);
+      log(`❌ Помилка з'єднання: ${err.message}`);
     }
   });
 
-  // Розпакування пакетів CO2
+  // Розширений парсер CO2 (відсіює сміття з пам'яті ESP32)
   function handleData(event) {
     const value = event.target.value;
-    let co2 = 0;
+    let hexStr = [];
+    for (let i = 0; i < value.byteLength; i++) {
+      hexStr.push(value.getUint8(i).toString(16).padStart(2, '0'));
+    }
+    
+    // Логуємо отриманий пакет для діагностики, якщо він короткий, щоб не спамити
+    if(value.byteLength < 20) log(`Вхідні дані: ${hexStr.join(' ')}`);
 
-    // Шукаємо валідне значення ppm у 16-бітному представленні
+    let co2 = 0;
+    // Шукаємо 16-бітне значення від 400 до 5000 ppm
     for (let i = 0; i < value.byteLength - 1; i++) {
-      let val = value.getUint16(i, false);
-      if (val >= 400 && val <= 5000) {
-        co2 = val;
-        break;
-      }
+      // Ігноруємо службові маркери пам'яті ESP32 (0x3F, 0xFE)
+      if (value.getUint8(i) === 0xFE || value.getUint8(i) === 0x3F) continue;
+      
+      let valBE = value.getUint16(i, false);
+      let valLE = value.getUint16(i, true);
+      
+      if (valBE >= 400 && valBE <= 5000) { co2 = valBE; break; }
+      if (valLE >= 400 && valLE <= 5000) { co2 = valLE; break; }
     }
 
     if (co2 > 0) {
       document.getElementById('co2Value').innerText = `${co2} ppm`;
       
       const riskElem = document.getElementById('riskStatus');
-      const yellow = parseInt(document.getElementById('yellowLimit').value);
-      const red = parseInt(document.getElementById('redLimit').value);
+      const yellow = parseInt(document.getElementById('yellowLimit').value) || 800;
+      const red = parseInt(document.getElementById('redLimit').value) || 1100;
 
       if (co2 < yellow) {
-        riskElem.innerText = 'Низький';
-        riskElem.style.color = '#16a34a';
+        riskElem.innerText = 'Низький'; riskElem.style.color = '#10b981';
       } else if (co2 >= yellow && co2 < red) {
-        riskElem.innerText = 'Середній';
-        riskElem.style.color = '#d97706';
+        riskElem.innerText = 'Середній'; riskElem.style.color = '#f59e0b';
       } else {
-        riskElem.innerText = 'Високий';
-        riskElem.style.color = '#dc2626';
+        riskElem.innerText = 'Високий'; riskElem.style.color = '#ef4444';
       }
     }
   }
 
-  // 1. Керування зумером (Mute)
-  document.getElementById('muteBtn').addEventListener('click', async () => {
-    if (!writeChar) return;
-    try {
-      isMuted = !isMuted;
-      const val = isMuted ? 0x00 : 0x01;
-      const command = new Uint8Array([0x02, val, 0x00]);
-      await writeChar.writeValue(command);
-      log(`✅ Звуковий сигнал: ${isMuted ? 'ВИМКНЕНО (Mute)' : 'УВІМКНЕНО'}`);
-    } catch (err) {
-      log(`❌ Помилка зумера: ${err.message}`);
-    }
+  // Обробники кнопок з точними 2-байтовими командами
+  document.getElementById('muteBtn').addEventListener('click', () => {
+    isMuted = !isMuted;
+    sendCommand('Зумер Mute', [0x02, isMuted ? 0x00 : 0x01]);
   });
 
-  // 2. Керування дисплеєм / світлодіодами
-  document.getElementById('displayBtn').addEventListener('click', async () => {
-    if (!writeChar) return;
-    try {
-      isDisplayOff = !isDisplayOff;
-      const val = isDisplayOff ? 0x00 : 0x01; // 0x00 - Off, 0x01 - On
-      const command = new Uint8Array([0x05, val]);
-      await writeChar.writeValue(command);
-      log(`✅ Дисплей / підсвітка: ${isDisplayOff ? 'ВИМКНЕНО' : 'УВІМКНЕНО'}`);
-    } catch (err) {
-      log(`❌ Помилка дисплея: ${err.message}`);
-    }
+  document.getElementById('displayBtn').addEventListener('click', () => {
+    isDisplayOff = !isDisplayOff;
+    sendCommand('Дисплей', [0x05, isDisplayOff ? 0x00 : 0x01]);
   });
 
-  // 3. Запис профілю діяльності
-  document.getElementById('setProfileBtn').addEventListener('click', async () => {
-    if (!writeChar) return;
-    try {
-      const profile = parseInt(document.getElementById('profileSelect').value);
-      const command = new Uint8Array([0x03, profile]);
-      await writeChar.writeValue(command);
-      log(`✅ Профіль діяльності встановлено: ${profile}`);
-    } catch (err) {
-      log(`❌ Помилка профілю: ${err.message}`);
-    }
+  document.getElementById('tempBtn').addEventListener('click', () => {
+    isFahrenheit = !isFahrenheit;
+    sendCommand('Одиниці температури', [0x06, isFahrenheit ? 0x01 : 0x00]);
   });
 
-  // 4. Запис користувацьких порогів CO2
-  document.getElementById('setLimitsBtn').addEventListener('click', async () => {
-    if (!writeChar) return;
-    try {
-      const yellow = parseInt(document.getElementById('yellowLimit').value);
-      const red = parseInt(document.getElementById('redLimit').value);
+  document.getElementById('setProfileBtn').addEventListener('click', () => {
+    const prof = parseInt(document.getElementById('profileSelect').value);
+    sendCommand('Профіль активності', [0x03, prof]);
+  });
 
-      const command = new Uint8Array([
-        0x04,
-        (yellow >> 8) & 0xFF, yellow & 0xFF,
-        (red >> 8) & 0xFF, red & 0xFF
-      ]);
-
-      await writeChar.writeValue(command);
-      log(`✅ Записано нові пороги: Жовтий=${yellow} ppm, Червоний=${red} ppm`);
-    } catch (err) {
-      log(`❌ Помилка порогів: ${err.message}`);
-    }
+  document.getElementById('setLimitsBtn').addEventListener('click', () => {
+    const y = parseInt(document.getElementById('yellowLimit').value);
+    const r = parseInt(document.getElementById('redLimit').value);
+    sendCommand('Користувацькі пороги', [0x04, (y >> 8) & 0xFF, y & 0xFF, (r >> 8) & 0xFF, r & 0xFF]);
   });
 </script>
 
