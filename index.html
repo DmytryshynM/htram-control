@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTRAM Control & Monitor</title>
+  <title>HTRAM Full Controller</title>
   <style>
     :root {
       --bg: #111827;
@@ -13,6 +13,7 @@
       --accent: #2563eb;
       --accent-hover: #1d4ed8;
       --danger: #dc2626;
+      --danger-hover: #b91c1c;
       --success: #16a34a;
       --warning: #d97706;
     }
@@ -34,6 +35,7 @@
       margin-bottom: 16px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
     }
+    h3 { margin-top: 0; font-size: 18px; }
     .btn {
       width: 100%;
       background: var(--accent);
@@ -48,6 +50,8 @@
     }
     .btn:hover { background: var(--accent-hover); }
     .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: var(--danger-hover); }
+    .btn-warning { background: var(--warning); }
     .btn:disabled { background: #4b5563; cursor: not-allowed; }
     .status { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
     .dot { width: 12px; height: 12px; border-radius: 50%; background: #6b7280; }
@@ -55,7 +59,7 @@
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .metric { font-size: 32px; font-weight: 700; color: #60a5fa; margin-top: 8px; }
     label { display: block; font-size: 13px; color: var(--subtext); margin-bottom: 4px; }
-    select {
+    input, select {
       width: 100%; padding: 10px; border-radius: 6px;
       border: 1px solid #374151; background: #111827; color: white;
       font-size: 14px; box-sizing: border-box; margin-bottom: 12px;
@@ -71,10 +75,11 @@
 
 <div class="container">
   <div class="header">
-    <h2>HTRAM Controller 🇺🇦</h2>
-    <p style="color: var(--subtext);">Панель моніторингу та керування</p>
+    <h2>HTRAM Full Control Panel 🇺🇦</h2>
+    <p style="color: var(--subtext);">Повний функціонал налаштувань Honeywell HTRAM</p>
   </div>
 
+  <!-- Статус підключення -->
   <div class="card">
     <div class="status">
       <div id="statusDot" class="dot"></div>
@@ -83,6 +88,7 @@
     <button id="connectBtn" class="btn">Підключити HTRAM</button>
   </div>
 
+  <!-- Монітор показників -->
   <div class="card grid">
     <div>
       <label>Рівень CO₂</label>
@@ -94,25 +100,51 @@
     </div>
   </div>
 
+  <!-- 1. Керування зумером -->
   <div class="card">
-    <h3>Частота оновлення інтерфейсу сайту</h3>
-    <label for="filterInterval">Відображати нові дані на екрані:</label>
-    <select id="filterInterval">
-      <option value="0">В реальному часі (кожні 5 сек)</option>
-      <option value="60">Раз на 1 хвилину</option>
-      <option value="300">Раз на 5 хвилин</option>
-      <option value="600" selected>Раз на 10 хвилин</option>
+    <h3>1. Звукове оповіщення (Buzzer Mute)</h3>
+    <button id="muteBtn" class="btn btn-danger" disabled>Увімкнути / Вимкнути звук</button>
+  </div>
+
+  <!-- 2. Керування дисплеєм / підсвіткою -->
+  <div class="card">
+    <h3>2. Керування дисплеєм та світлодіодами</h3>
+    <p style="color: var(--subtext); font-size: 13px;">Вимкнення екрана/індикаторів для нічного режиму</p>
+    <button id="displayBtn" class="btn btn-warning" disabled>Увімкнути / Вимкнути Дисплей</button>
+  </div>
+
+  <!-- 3. Налаштування профілю діяльності -->
+  <div class="card">
+    <h3>3. Профіль діяльності (Activity Level)</h3>
+    <label for="profileSelect">Оберіть сценарій приміщення:</label>
+    <select id="profileSelect" disabled>
+      <option value="0">Низька активність (Офіс / Дім: 800 - 1100 ppm)</option>
+      <option value="1">Середня активність (Школа / Кафе: 1000 - 1400 ppm)</option>
+      <option value="2">Висока активність (Спортзал: 1200 - 1600 ppm)</option>
     </select>
+    <button id="setProfileBtn" class="btn" disabled>Застосувати профіль</button>
   </div>
 
+  <!-- 4. Кастомні пороги тривоги -->
   <div class="card">
-    <h3>Керування зумером</h3>
-    <button id="muteBtn" class="btn btn-danger" disabled>Вимкнути / Увімкнути звук</button>
+    <h3>4. Власні пороги CO₂ (Alarm Thresholds)</h3>
+    <div class="grid">
+      <div>
+        <label for="yellowLimit">Жовтий рівень (ppm):</label>
+        <input type="number" id="yellowLimit" value="800" min="400" max="2000" disabled>
+      </div>
+      <div>
+        <label for="redLimit">Червоний рівень (ppm):</label>
+        <input type="number" id="redLimit" value="1100" min="600" max="5000" disabled>
+      </div>
+    </div>
+    <button id="setLimitsBtn" class="btn" disabled>Записати нові пороги</button>
   </div>
 
+  <!-- Системний лог -->
   <div class="card">
     <h3>Системний лог</h3>
-    <div id="log" class="log-box">Очікування дії...<br></div>
+    <div id="log" class="log-box">Очікування дій...<br></div>
   </div>
 </div>
 
@@ -123,7 +155,7 @@
 
   let writeChar = null;
   let isMuted = false;
-  let lastUIUpdate = 0;
+  let isDisplayOff = false;
 
   function log(msg) {
     const logBox = document.getElementById('log');
@@ -131,6 +163,7 @@
     logBox.scrollTop = logBox.scrollHeight;
   }
 
+  // Підключення до HTRAM
   document.getElementById('connectBtn').addEventListener('click', async () => {
     try {
       log('Пошук пристрою HTRAM...');
@@ -147,35 +180,37 @@
 
       const service = await server.getPrimaryService(SERVICE_UUID);
       writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
+      
+      // Активація кнопок керування
       document.getElementById('muteBtn').disabled = false;
+      document.getElementById('displayBtn').disabled = false;
+      document.getElementById('profileSelect').disabled = false;
+      document.getElementById('setProfileBtn').disabled = false;
+      document.getElementById('yellowLimit').disabled = false;
+      document.getElementById('redLimit').disabled = false;
+      document.getElementById('setLimitsBtn').disabled = false;
 
-      // Підписка на стрімінг даних
+      log('Підключення успішне!');
+
+      // Активація сповіщень телеметрії
       const readChar = await service.getCharacteristic(READ_CHAR_UUID);
       await readChar.startNotifications();
       readChar.addEventListener('characteristicvaluechanged', handleData);
-      
-      log('✅ Підключено успішно! Зчитування даних активовано.');
+      log('Зчитування даних активовано.');
 
     } catch (err) {
       log(`❌ Помилка: ${err.message}`);
     }
   });
 
-  // Універсальний парсер байтів CO2
+  // Розпакування пакетів CO2
   function handleData(event) {
     const value = event.target.value;
-    const now = Date.now();
-    const intervalMs = parseInt(document.getElementById('filterInterval').value) * 1000;
-
-    // Перевірка часового фільтра для інтерфейсу
-    if (intervalMs > 0 && (now - lastUIUpdate) < intervalMs) {
-      return; 
-    }
-
     let co2 = 0;
-    // Парсинг байтового масиву
+
+    // Шукаємо валідне значення ppm у 16-бітному представленні
     for (let i = 0; i < value.byteLength - 1; i++) {
-      let val = value.getUint16(i, false); // Big-Endian
+      let val = value.getUint16(i, false);
       if (val >= 400 && val <= 5000) {
         co2 = val;
         break;
@@ -183,25 +218,26 @@
     }
 
     if (co2 > 0) {
-      lastUIUpdate = now;
       document.getElementById('co2Value').innerText = `${co2} ppm`;
       
       const riskElem = document.getElementById('riskStatus');
-      if (co2 < 800) {
+      const yellow = parseInt(document.getElementById('yellowLimit').value);
+      const red = parseInt(document.getElementById('redLimit').value);
+
+      if (co2 < yellow) {
         riskElem.innerText = 'Низький';
         riskElem.style.color = '#16a34a';
-      } else if (co2 >= 800 && co2 < 1100) {
+      } else if (co2 >= yellow && co2 < red) {
         riskElem.innerText = 'Середній';
         riskElem.style.color = '#d97706';
       } else {
         riskElem.innerText = 'Високий';
         riskElem.style.color = '#dc2626';
       }
-      log(`Отримано показник: ${co2} ppm`);
     }
   }
 
-  // Керування зумером
+  // 1. Керування зумером (Mute)
   document.getElementById('muteBtn').addEventListener('click', async () => {
     if (!writeChar) return;
     try {
@@ -209,9 +245,56 @@
       const val = isMuted ? 0x00 : 0x01;
       const command = new Uint8Array([0x02, val, 0x00]);
       await writeChar.writeValue(command);
-      log(`✅ Команда звуку відправлена: ${isMuted ? 'Mute' : 'Unmute'}`);
+      log(`✅ Звуковий сигнал: ${isMuted ? 'ВИМКНЕНО (Mute)' : 'УВІМКНЕНО'}`);
     } catch (err) {
-      log(`❌ Помилка звуку: ${err.message}`);
+      log(`❌ Помилка зумера: ${err.message}`);
+    }
+  });
+
+  // 2. Керування дисплеєм / світлодіодами
+  document.getElementById('displayBtn').addEventListener('click', async () => {
+    if (!writeChar) return;
+    try {
+      isDisplayOff = !isDisplayOff;
+      const val = isDisplayOff ? 0x00 : 0x01; // 0x00 - Off, 0x01 - On
+      const command = new Uint8Array([0x05, val]);
+      await writeChar.writeValue(command);
+      log(`✅ Дисплей / підсвітка: ${isDisplayOff ? 'ВИМКНЕНО' : 'УВІМКНЕНО'}`);
+    } catch (err) {
+      log(`❌ Помилка дисплея: ${err.message}`);
+    }
+  });
+
+  // 3. Запис профілю діяльності
+  document.getElementById('setProfileBtn').addEventListener('click', async () => {
+    if (!writeChar) return;
+    try {
+      const profile = parseInt(document.getElementById('profileSelect').value);
+      const command = new Uint8Array([0x03, profile]);
+      await writeChar.writeValue(command);
+      log(`✅ Профіль діяльності встановлено: ${profile}`);
+    } catch (err) {
+      log(`❌ Помилка профілю: ${err.message}`);
+    }
+  });
+
+  // 4. Запис користувацьких порогів CO2
+  document.getElementById('setLimitsBtn').addEventListener('click', async () => {
+    if (!writeChar) return;
+    try {
+      const yellow = parseInt(document.getElementById('yellowLimit').value);
+      const red = parseInt(document.getElementById('redLimit').value);
+
+      const command = new Uint8Array([
+        0x04,
+        (yellow >> 8) & 0xFF, yellow & 0xFF,
+        (red >> 8) & 0xFF, red & 0xFF
+      ]);
+
+      await writeChar.writeValue(command);
+      log(`✅ Записано нові пороги: Жовтий=${yellow} ppm, Червоний=${red} ppm`);
+    } catch (err) {
+      log(`❌ Помилка порогів: ${err.message}`);
     }
   });
 </script>
