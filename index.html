@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTRAM Web Controller</title>
+  <style>
+    :root {
+      --bg: #121824;
+      --card: #1e2638;
+      --text: #f0f4f8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --danger: #dc2626;
+      --success: #16a34a;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 500px;
+      width: 100%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+    .btn {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: #b91c1c; }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #64748b;
+    }
+    .dot.connected { background: var(--success); }
+    .metric {
+      font-size: 32px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+    .log-box {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      height: 120px;
+      overflow-y: auto;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h2>Honeywell HTRAM Controller 🇺🇦</h2>
+    <p style="color: #94a3b8;">Веб-панель керування та моніторингу CO₂</p>
+  </div>
+
+  <!-- Блок підключення -->
+  <div class="card">
+    <div class="status">
+      <div id="statusDot" class="dot"></div>
+      <span id="statusText">Стан: Не підключено</span>
+    </div>
+    <button id="connectBtn" class="btn">Підключити HTRAM</button>
+  </div>
+
+  <!-- Керування зумером -->
+  <div class="card">
+    <h3>Керування зумером (Buzzer Mute)</h3>
+    <p style="color: #94a3b8; font-size: 14px;">Вимкнення постійного писку при тривозі</p>
+    <button id="muteBtn" class="btn btn-danger" disabled>Вимкнути звук (Mute)</button>
+  </div>
+
+  <!-- Моніторинг -->
+  <div class="card">
+    <h3>Рівень CO₂ (ppm)</h3>
+    <div id="co2Value" class="metric">-- ppm</div>
+  </div>
+
+  <!-- Консоль логів -->
+  <div class="card">
+    <h3>Системний лог</h3>
+    <div id="log" class="log-box">Очікування дії...<br></div>
+  </div>
+</div>
+
+<script>
+  // UUID сервісів та характеристик Honeywell HTRAM
+  const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
+  const WRITE_CHAR_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
+  const READ_CHAR_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
+
+  let writeChar = null;
+
+  function log(msg) {
+    const logBox = document.getElementById('log');
+    logBox.innerHTML += `> ${msg}<br>`;
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  document.getElementById('connectBtn').addEventListener('click', async () => {
+    try {
+      log('Запит підключення Bluetooth...');
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [SERVICE_UUID]
+      });
+
+      log(`Пристрій обрано: ${device.name}`);
+      const server = await device.gatt.connect();
+      
+      document.getElementById('statusDot').classList.add('connected');
+      document.getElementById('statusText').innerText = 'Стан: Підключено до ' + device.name;
+
+      const service = await server.getPrimaryService(SERVICE_UUID);
+      writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
+      document.getElementById('muteBtn').disabled = false;
+      log('Характеристику запису знайдено!');
+
+      // Підписка на сповіщення
+      const readChar = await service.getCharacteristic(READ_CHAR_UUID);
+      await readChar.startNotifications();
+      readChar.addEventListener('characteristicvaluechanged', handleData);
+      log('Стрімінг даних увімкнено!');
+
+    } catch (err) {
+      log(`Помилка: ${err.message}`);
+    }
+  });
+
+  // Обробка отриманих даних
+  function handleData(event) {
+    const value = event.target.value;
+    // Декодування сирих байтів CO2 (зазвичай у 16-бітному значенні)
+    if (value.byteLength >= 4) {
+      const co2 = value.getUint16(2, false); // Big-Endian
+      if (co2 > 300 && co2 < 10000) {
+        document.getElementById('co2Value').innerText = `${co2} ppm`;
+      }
+    }
+  }
+
+  // Відправка команди Mute
+  document.getElementById('muteBtn').addEventListener('click', async () => {
+    if (!writeChar) return;
+    try {
+      log('Надсилання команди вимкнення звуку...');
+      // Кадр команди Mute для HTRAM
+      const command = new Uint8Array([0x02, 0x01, 0x00]);
+      await writeChar.writeValue(command);
+      log('✅ Звук успішно вимкнено!');
+    } catch (err) {
+      log(`Помилка запису: ${err.message}`);
+    }
+  });
+</script>
+
+</body>
+</html>
