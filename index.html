@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTRAM Ultimate Auto-Sync</title>
+  <title>HTRAM Stable Controller</title>
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --subtext: #94a3b8;
@@ -57,8 +57,8 @@
 
 <div class="container">
   <div class="header">
-    <h2 style="margin-bottom: 5px;">HTRAM Ultimate Panel 🇺🇦</h2>
-    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Двигун автопошуку каналів даних</p>
+    <h2 style="margin-bottom: 5px;">HTRAM Stable Panel 🇺🇦</h2>
+    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Стабільна версія (Фіксовані канали)</p>
   </div>
 
   <div class="card">
@@ -134,6 +134,9 @@
   window.onerror = function(msg, url, line) { log(`🔴 JS Помилка: ${msg}`); return false; };
   
   const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
+  const WRITE_CHAR_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
+  const READ_CHAR_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
+  
   let writeChar = null;
 
   function log(msg) {
@@ -145,11 +148,16 @@
   }
 
   async function sendCommand(name, hexArray) {
-    if (!writeChar) { log('❌ Не підключено або канал запису не знайдено!'); return; }
+    if (!writeChar) { log('❌ Канал запису не підключено!'); return; }
     try {
       const data = new Uint8Array(hexArray);
-      await writeChar.writeValue(data);
-      log(`✅ Команда [${name}] надіслана: ${hexArray.map(x=>x.toString(16).padStart(2,'0').toUpperCase()).join(' ')}`);
+      // Спочатку пробуємо стандартний запис, якщо пристрій не підтримує - запис без відповіді
+      try {
+        await writeChar.writeValue(data);
+      } catch (e) {
+        await writeChar.writeValueWithoutResponse(data);
+      }
+      log(`✅ Команда [${name}] надіслана успішно.`);
     } catch (err) {
       log(`❌ Помилка [${name}]: ${err.message}`);
     }
@@ -157,9 +165,9 @@
 
   document.getElementById('connectBtn').addEventListener('click', async () => {
     try {
-      log('Пошук пристрою...');
+      log('Пошук пристрою HTRAM...');
       const device = await navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
+        filters: [{ namePrefix: 'HTRAM' }],
         optionalServices: [SERVICE_UUID]
       });
 
@@ -170,31 +178,16 @@
       document.getElementById('statusText').innerText = 'Підключено: ' + device.name;
 
       const service = await server.getPrimaryService(SERVICE_UUID);
-      log('✅ Сервіс знайдено. Запуск автосканування каналів...');
+      log('✅ Сервіс знайдено. Підключення до каналів...');
 
-      // Автоматичний пошук усіх доступних характеристик (динамічний підхід)
-      const characteristics = await service.getCharacteristics();
-      for (const char of characteristics) {
-        
-        // Шукаємо канал для відправки команд (Write)
-        if (char.properties.write || char.properties.writeWithoutResponse) {
-            writeChar = char;
-            log(`✅ Канал керування знайдено: ${char.uuid.split('-')[0]}`);
-        }
-        
-        // Підписуємося на всі канали, які віддають дані (Notify / Indicate)
-        if (char.properties.notify || char.properties.indicate) {
-            try {
-                await char.startNotifications();
-                char.addEventListener('characteristicvaluechanged', handleData);
-                log(`✅ Підключено потік даних з: ${char.uuid.split('-')[0]}`);
-            } catch(e) {
-                log(`⚠️ Не вдалося підписатись на ${char.uuid.split('-')[0]}`);
-            }
-        }
-      }
+      // ЖОРСТКА прив'язка до правильних каналів (без автопошуку)
+      writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
+      log(`✅ Канал керування підключено: ${WRITE_CHAR_UUID.split('-')[0]}`);
 
-      if (!writeChar) log('⚠️ Увага: Канал керування не знайдено. Команди можуть не працювати.');
+      const readChar = await service.getCharacteristic(READ_CHAR_UUID);
+      await readChar.startNotifications();
+      readChar.addEventListener('characteristicvaluechanged', handleData);
+      log(`✅ Канал даних підключено: ${READ_CHAR_UUID.split('-')[0]}`);
 
       // Розблокування кнопок
       const controls = [
@@ -218,14 +211,12 @@
       const value = event.target.value;
       if (!value || value.byteLength < 2) return;
       
-      // Виведення сирих HEX даних на радар
       let hexArr = [];
       for (let i = 0; i < value.byteLength; i++) {
         hexArr.push(value.getUint8(i).toString(16).padStart(2, '0').toUpperCase());
       }
       document.getElementById('rawPayload').innerText = hexArr.join(' ');
       
-      // Пошук значення CO2 (просто шукаємо перше адекватне значення 400-10000 ppm)
       let co2 = 0;
       for (let i = 0; i < value.byteLength - 1; i++) {
         let valBE = value.getUint16(i, false);
@@ -255,9 +246,9 @@
     }
   }
 
-  // Прив'язка кнопок
-  document.getElementById('muteOnBtn').onclick = () => sendCommand('Зумер Вимк', [0x02, 0x00, 0x00]);
-  document.getElementById('muteOffBtn').onclick = () => sendCommand('Зумер Увімк', [0x02, 0x01, 0x00]);
+  // Прив'язка кнопок (додано 3-й нульовий байт для сумісності пакетів)
+  document.getElementById('muteOnBtn').onclick = () => sendCommand('Зумер Вимк', [0x02, 0x01, 0x00]);
+  document.getElementById('muteOffBtn').onclick = () => sendCommand('Зумер Увімк', [0x02, 0x00, 0x00]);
   
   document.getElementById('displayOffBtn').onclick = () => sendCommand('Дисплей Вимк', [0x05, 0x00, 0x00]);
   document.getElementById('displayOnBtn').onclick = () => sendCommand('Дисплей Увімк', [0x05, 0x01, 0x00]);
