@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTRAM Ultimate Controller</title>
+  <title>HTRAM Ultimate Auto-Sync</title>
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --subtext: #94a3b8;
@@ -57,8 +57,8 @@
 
 <div class="container">
   <div class="header">
-    <h2 style="margin-bottom: 5px;">HTRAM PRO Panel 🇺🇦</h2>
-    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Повний набір налаштувань Honeywell</p>
+    <h2 style="margin-bottom: 5px;">HTRAM Ultimate Panel 🇺🇦</h2>
+    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Двигун автопошуку каналів даних</p>
   </div>
 
   <div class="card">
@@ -81,7 +81,12 @@
   </div>
 
   <div class="card">
-    <h3>1. Швидкі налаштування апаратури</h3>
+    <h3>Радар даних (Raw BLE Payload)</h3>
+    <div id="rawPayload" class="raw-data">Очікування підключення...</div>
+  </div>
+
+  <div class="card">
+    <h3>1. Керування апаратурою</h3>
     <div class="grid">
       <button id="muteOnBtn" class="btn btn-danger" disabled>🔇 Вимкнути звук</button>
       <button id="muteOffBtn" class="btn btn-success" disabled>🔊 Увімкнути звук</button>
@@ -120,39 +125,15 @@
   </div>
 
   <div class="card">
-    <h3>Радар даних (Raw BLE Payload)</h3>
-    <div id="rawPayload" class="raw-data">Очікування підключення...</div>
-  </div>
-
-  <div class="card">
-    <h3>🔧 Інженерне меню (Custom HEX)</h3>
-    <label>Якщо стандартна кнопка дисплею не діє, надішліть інший код вручну (напр. 05 01 або 07 00):</label>
-    <div style="display: flex; gap: 10px; margin-top: 10px;">
-      <input type="text" id="customHex" placeholder="05 00" value="05 00" disabled>
-      <button id="sendCustomBtn" class="btn" style="width: auto; margin-top: 0;" disabled>Надіслати</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Системний лог та діагностика</h3>
-    <div id="log" class="log-box">Очікування...<br></div>
+    <h3>Системний лог</h3>
+    <div id="log" class="log-box">Готово до роботи.<br></div>
   </div>
 </div>
 
 <script>
-  // Перехоплення будь-яких помилок JavaScript
-  window.onerror = function(msg, url, line) {
-    log(`🔴 JS Помилка: ${msg} (Рядок: ${line})`);
-    return false;
-  };
-  window.onunhandledrejection = function(e) {
-    log(`🔴 Promise Помилка: ${e.reason}`);
-  };
-
+  window.onerror = function(msg, url, line) { log(`🔴 JS Помилка: ${msg}`); return false; };
+  
   const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
-  const WRITE_CHAR_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
-  const READ_CHAR_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
-
   let writeChar = null;
 
   function log(msg) {
@@ -164,7 +145,7 @@
   }
 
   async function sendCommand(name, hexArray) {
-    if (!writeChar) { log('❌ Не підключено!'); return; }
+    if (!writeChar) { log('❌ Не підключено або канал запису не знайдено!'); return; }
     try {
       const data = new Uint8Array(hexArray);
       await writeChar.writeValue(data);
@@ -176,61 +157,80 @@
 
   document.getElementById('connectBtn').addEventListener('click', async () => {
     try {
-      log('Запит доступу до Bluetooth...');
+      log('Пошук пристрою...');
       const device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: 'HTRAM' }],
+        acceptAllDevices: true,
         optionalServices: [SERVICE_UUID]
       });
 
-      log(`Зв'язування з ${device.name}...`);
+      log(`Підключення до ${device.name}...`);
       const server = await device.gatt.connect();
       
       document.getElementById('statusDot').classList.add('connected');
       document.getElementById('statusText').innerText = 'Підключено: ' + device.name;
 
       const service = await server.getPrimaryService(SERVICE_UUID);
-      writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
-      
-      // Розблокування всіх кнопок (безпечне)
+      log('✅ Сервіс знайдено. Запуск автосканування каналів...');
+
+      // Автоматичний пошук усіх доступних характеристик (динамічний підхід)
+      const characteristics = await service.getCharacteristics();
+      for (const char of characteristics) {
+        
+        // Шукаємо канал для відправки команд (Write)
+        if (char.properties.write || char.properties.writeWithoutResponse) {
+            writeChar = char;
+            log(`✅ Канал керування знайдено: ${char.uuid.split('-')[0]}`);
+        }
+        
+        // Підписуємося на всі канали, які віддають дані (Notify / Indicate)
+        if (char.properties.notify || char.properties.indicate) {
+            try {
+                await char.startNotifications();
+                char.addEventListener('characteristicvaluechanged', handleData);
+                log(`✅ Підключено потік даних з: ${char.uuid.split('-')[0]}`);
+            } catch(e) {
+                log(`⚠️ Не вдалося підписатись на ${char.uuid.split('-')[0]}`);
+            }
+        }
+      }
+
+      if (!writeChar) log('⚠️ Увага: Канал керування не знайдено. Команди можуть не працювати.');
+
+      // Розблокування кнопок
       const controls = [
         'muteOnBtn', 'muteOffBtn', 'displayOffBtn', 'displayOnBtn', 
         'tempFBtn', 'tempCBtn', 'profileSelect', 'setProfileBtn', 
-        'yellowLimit', 'redLimit', 'setLimitsBtn', 'customHex', 'sendCustomBtn'
+        'yellowLimit', 'redLimit', 'setLimitsBtn'
       ];
       controls.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.disabled = false;
       });
-      log('✅ Канал керування відкрито.');
-
-      const readChar = await service.getCharacteristic(READ_CHAR_UUID);
-      await readChar.startNotifications();
-      readChar.addEventListener('characteristicvaluechanged', handleData);
-      log('✅ Стрімінг показників CO₂ активовано.');
 
     } catch (err) {
       log(`❌ Помилка з'єднання: ${err.message}`);
     }
   });
 
-  // Універсальний парсер даних
+  // Універсальний парсер даних (БЕЗ ФІЛЬТРІВ)
   function handleData(event) {
     try {
       const value = event.target.value;
+      if (!value || value.byteLength < 2) return;
       
-      // Виведення сирих HEX даних
+      // Виведення сирих HEX даних на радар
       let hexArr = [];
       for (let i = 0; i < value.byteLength; i++) {
         hexArr.push(value.getUint8(i).toString(16).padStart(2, '0').toUpperCase());
       }
-      const rawEl = document.getElementById('rawPayload');
-      if (rawEl) rawEl.innerText = hexArr.join(' ');
+      document.getElementById('rawPayload').innerText = hexArr.join(' ');
       
-      // Глибокий пошук значення CO2 (400-10000 ppm)
+      // Пошук значення CO2 (просто шукаємо перше адекватне значення 400-10000 ppm)
       let co2 = 0;
       for (let i = 0; i < value.byteLength - 1; i++) {
         let valBE = value.getUint16(i, false);
         let valLE = value.getUint16(i, true);
+        
         if (valBE >= 400 && valBE <= 10000) { co2 = valBE; break; }
         if (valLE >= 400 && valLE <= 10000) { co2 = valLE; break; }
       }
@@ -256,35 +256,24 @@
   }
 
   // Прив'язка кнопок
-  document.getElementById('muteOnBtn').onclick = () => sendCommand('Зумер Вимк', [0x02, 0x00]);
-  document.getElementById('muteOffBtn').onclick = () => sendCommand('Зумер Увімк', [0x02, 0x01]);
+  document.getElementById('muteOnBtn').onclick = () => sendCommand('Зумер Вимк', [0x02, 0x00, 0x00]);
+  document.getElementById('muteOffBtn').onclick = () => sendCommand('Зумер Увімк', [0x02, 0x01, 0x00]);
   
-  document.getElementById('displayOffBtn').onclick = () => sendCommand('Дисплей Вимк', [0x05, 0x00]);
-  document.getElementById('displayOnBtn').onclick = () => sendCommand('Дисплей Увімк', [0x05, 0x01]);
+  document.getElementById('displayOffBtn').onclick = () => sendCommand('Дисплей Вимк', [0x05, 0x00, 0x00]);
+  document.getElementById('displayOnBtn').onclick = () => sendCommand('Дисплей Увімк', [0x05, 0x01, 0x00]);
   
-  document.getElementById('tempFBtn').onclick = () => sendCommand('Темп °F', [0x06, 0x01]);
-  document.getElementById('tempCBtn').onclick = () => sendCommand('Темп °C', [0x06, 0x00]);
+  document.getElementById('tempFBtn').onclick = () => sendCommand('Темп °F', [0x06, 0x01, 0x00]);
+  document.getElementById('tempCBtn').onclick = () => sendCommand('Темп °C', [0x06, 0x00, 0x00]);
 
   document.getElementById('setProfileBtn').onclick = () => {
     const prof = parseInt(document.getElementById('profileSelect').value);
-    sendCommand('Профіль', [0x03, prof]);
+    sendCommand('Профіль', [0x03, prof, 0x00]);
   };
 
   document.getElementById('setLimitsBtn').onclick = () => {
     const y = parseInt(document.getElementById('yellowLimit').value);
     const r = parseInt(document.getElementById('redLimit').value);
     sendCommand('Пороги', [0x04, (y >> 8) & 0xFF, y & 0xFF, (r >> 8) & 0xFF, r & 0xFF]);
-  };
-
-  document.getElementById('sendCustomBtn').onclick = () => {
-    const hexStr = document.getElementById('customHex').value.trim();
-    if (!hexStr) return;
-    try {
-      const bytes = hexStr.split(/[\s,-]+/).map(s => parseInt(s, 16));
-      sendCommand('Custom Hex', bytes);
-    } catch(err) {
-      log('❌ Невірний формат HEX (використовуйте пробіли)!');
-    }
   };
 </script>
 
