@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTRAM Stable Controller</title>
+  <title>HTRAM Native Protocol Panel</title>
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --subtext: #94a3b8;
@@ -17,10 +17,7 @@
     }
     .container { max-width: 550px; width: 100%; }
     .header { text-align: center; margin-bottom: 20px; }
-    .card {
-      background: var(--card); border-radius: 12px; padding: 20px;
-      margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-    }
+    .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
     h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
     .btn {
       width: 100%; background: var(--accent); color: white; border: none;
@@ -30,26 +27,15 @@
     .btn:hover { background: var(--accent-hover); }
     .btn-danger { background: var(--danger); }
     .btn-success { background: var(--success); }
-    .btn-warning { background: var(--warning); color: #000; }
-    .btn-purple { background: var(--purple); }
     .btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
     .status { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-weight: bold; }
     .dot { width: 12px; height: 12px; border-radius: 50%; background: #64748b; }
     .dot.connected { background: var(--success); box-shadow: 0 0 8px var(--success); }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .metric { font-size: 34px; font-weight: bold; color: #38bdf8; margin-top: 5px; }
-    label { display: block; font-size: 13px; color: var(--subtext); margin-bottom: 4px; }
-    input, select {
-      width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155;
-      background: #0f172a; color: white; font-size: 14px; box-sizing: border-box;
-    }
     .log-box {
       background: #020617; border-radius: 8px; padding: 10px; font-family: monospace;
-      font-size: 11px; height: 130px; overflow-y: auto; color: #cbd5e1;
-    }
-    .raw-data {
-      background: #020617; border-radius: 6px; padding: 10px;
-      font-family: monospace; font-size: 13px; color: #10b981; word-break: break-all;
+      font-size: 11px; height: 150px; overflow-y: auto; color: #cbd5e1;
     }
   </style>
 </head>
@@ -57,8 +43,8 @@
 
 <div class="container">
   <div class="header">
-    <h2 style="margin-bottom: 5px;">HTRAM Stable Panel 🇺🇦</h2>
-    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Стабільна версія (Фіксовані канали)</p>
+    <h2 style="margin-bottom: 5px;">HTRAM Controller 🇺🇦</h2>
+    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Повна підтримка UART-протоколу</p>
   </div>
 
   <div class="card">
@@ -81,57 +67,21 @@
   </div>
 
   <div class="card">
-    <h3>Радар даних (Raw BLE Payload)</h3>
-    <div id="rawPayload" class="raw-data">Очікування підключення...</div>
-  </div>
-
-  <div class="card">
-    <h3>1. Керування апаратурою</h3>
+    <h3>Керування зумером</h3>
     <div class="grid">
       <button id="muteOnBtn" class="btn btn-danger" disabled>🔇 Вимкнути звук</button>
       <button id="muteOffBtn" class="btn btn-success" disabled>🔊 Увімкнути звук</button>
-      
-      <button id="displayOffBtn" class="btn btn-warning" disabled>💡 Вимкнути дисплей</button>
-      <button id="displayOnBtn" class="btn btn-success" disabled>💡 Увімкнути дисплей</button>
-
-      <button id="tempFBtn" class="btn btn-purple" disabled>🌡 Фаренгейт (°F)</button>
-      <button id="tempCBtn" class="btn btn-purple" disabled>🌡 Цельсій (°C)</button>
     </div>
-  </div>
-
-  <div class="card">
-    <h3>2. Профіль приміщення (Activity Level)</h3>
-    <select id="profileSelect" disabled>
-      <option value="0">Низька активність (Офіс / Дім: 800-1100 ppm)</option>
-      <option value="1">Середня активність (Школа: 1000-1400 ppm)</option>
-      <option value="2">Висока активність (Спортзал: 1200-1600 ppm)</option>
-    </select>
-    <button id="setProfileBtn" class="btn" disabled>Застосувати профіль</button>
-  </div>
-
-  <div class="card">
-    <h3>3. Власні пороги (Custom Thresholds)</h3>
-    <div class="grid">
-      <div>
-        <label>Жовтий рівень (ppm):</label>
-        <input type="number" id="yellowLimit" value="800" min="400" disabled>
-      </div>
-      <div>
-        <label>Червоний рівень (ppm):</label>
-        <input type="number" id="redLimit" value="1100" min="600" disabled>
-      </div>
-    </div>
-    <button id="setLimitsBtn" class="btn" disabled>Записати пороги</button>
   </div>
 
   <div class="card">
     <h3>Системний лог</h3>
-    <div id="log" class="log-box">Готово до роботи.<br></div>
+    <div id="log" class="log-box">Очікування підключення...<br></div>
   </div>
 </div>
 
 <script>
-  window.onerror = function(msg, url, line) { log(`🔴 JS Помилка: ${msg}`); return false; };
+  window.onerror = function(msg) { log(`🔴 JS Помилка: ${msg}`); return false; };
   
   const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
   const WRITE_CHAR_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
@@ -142,22 +92,38 @@
   function log(msg) {
     const logBox = document.getElementById('log');
     if(!logBox) return;
-    const time = new Date().toLocaleTimeString();
+    const time = new Date().toLocaleTimeString('uk-UA');
     logBox.innerHTML += `[${time}] ${msg}<br>`;
     logBox.scrollTop = logBox.scrollHeight;
   }
 
-  async function sendCommand(name, hexArray) {
-    if (!writeChar) { log('❌ Канал запису не підключено!'); return; }
-    try {
-      const data = new Uint8Array(hexArray);
-      // Спочатку пробуємо стандартний запис, якщо пристрій не підтримує - запис без відповіді
-      try {
-        await writeChar.writeValue(data);
-      } catch (e) {
-        await writeChar.writeValueWithoutResponse(data);
+  // Функція створення правильного UART-фрейму з CRC16
+  function buildFrame(cmdId1, cmdId2, payloadBytes = []) {
+    // Формат: 0x7B, 0x41, LenHi, LenLo, Cmd1, Cmd2, [Payload...], CrcHi, CrcLo, 0x7D
+    // Довжина = Cmd (2) + Payload (N) + CRC (2) + End (1)
+    let length = 2 + payloadBytes.length + 3; 
+    let packet = [0x7B, 0x41, (length >> 8) & 0xFF, length & 0xFF, cmdId1, cmdId2, ...payloadBytes];
+
+    // Розрахунок CRC16 (Poly 0x8005, Init 0x0000)
+    let crc = 0x0000;
+    for (let i = 0; i < packet.length; i++) {
+      crc ^= (packet[i] << 8);
+      for (let j = 0; j < 8; j++) {
+        if (crc & 0x8000) crc = ((crc << 1) ^ 0x8005) & 0xFFFF;
+        else crc = (crc << 1) & 0xFFFF;
       }
-      log(`✅ Команда [${name}] надіслана успішно.`);
+    }
+
+    packet.push((crc >> 8) & 0xFF, crc & 0xFF, 0x7D);
+    return new Uint8Array(packet);
+  }
+
+  async function sendFrame(name, cmdId1, cmdId2, payloadBytes = []) {
+    if (!writeChar) { log('❌ Канал не підключено!'); return; }
+    try {
+      const data = buildFrame(cmdId1, cmdId2, payloadBytes);
+      await writeChar.writeValueWithoutResponse(data);
+      log(`▶ Відправлено [${name}]: ${Array.from(data).map(x=>x.toString(16).padStart(2,'0')).join('')}`);
     } catch (err) {
       log(`❌ Помилка [${name}]: ${err.message}`);
     }
@@ -178,94 +144,71 @@
       document.getElementById('statusText').innerText = 'Підключено: ' + device.name;
 
       const service = await server.getPrimaryService(SERVICE_UUID);
-      log('✅ Сервіс знайдено. Підключення до каналів...');
-
-      // ЖОРСТКА прив'язка до правильних каналів (без автопошуку)
       writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
-      log(`✅ Канал керування підключено: ${WRITE_CHAR_UUID.split('-')[0]}`);
+      log(`✅ Канал керування підключено.`);
 
       const readChar = await service.getCharacteristic(READ_CHAR_UUID);
       await readChar.startNotifications();
       readChar.addEventListener('characteristicvaluechanged', handleData);
-      log(`✅ Канал даних підключено: ${READ_CHAR_UUID.split('-')[0]}`);
+      log(`✅ Підписку на нотифікації активовано.`);
 
-      // Розблокування кнопок
-      const controls = [
-        'muteOnBtn', 'muteOffBtn', 'displayOffBtn', 'displayOnBtn', 
-        'tempFBtn', 'tempCBtn', 'profileSelect', 'setProfileBtn', 
-        'yellowLimit', 'redLimit', 'setLimitsBtn'
-      ];
-      controls.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.disabled = false;
-      });
+      // КРИТИЧНО: Ініціалізація зв'язку (BLE mode handshake)
+      log(`▶ Ініціалізація зв'язку (BLE mode)...`);
+      await sendFrame('Init BLE', 0x75, 0x58, [0x01]);
+
+      document.getElementById('muteOnBtn').disabled = false;
+      document.getElementById('muteOffBtn').disabled = false;
 
     } catch (err) {
       log(`❌ Помилка з'єднання: ${err.message}`);
     }
   });
 
-  // Універсальний парсер даних (БЕЗ ФІЛЬТРІВ)
   function handleData(event) {
-    try {
-      const value = event.target.value;
-      if (!value || value.byteLength < 2) return;
-      
-      let hexArr = [];
-      for (let i = 0; i < value.byteLength; i++) {
-        hexArr.push(value.getUint8(i).toString(16).padStart(2, '0').toUpperCase());
-      }
-      document.getElementById('rawPayload').innerText = hexArr.join(' ');
-      
-      let co2 = 0;
-      for (let i = 0; i < value.byteLength - 1; i++) {
-        let valBE = value.getUint16(i, false);
-        let valLE = value.getUint16(i, true);
-        
-        if (valBE >= 400 && valBE <= 10000) { co2 = valBE; break; }
-        if (valLE >= 400 && valLE <= 10000) { co2 = valLE; break; }
-      }
+    const value = event.target.value;
+    if (value.byteLength < 10) return; // Ігноруємо короткі пакети
 
-      if (co2 > 0) {
-        document.getElementById('co2Value').innerText = `${co2} ppm`;
+    // Парсимо пакет CO2 (Зазвичай це кадр 0x41 0x44)
+    let hexStr = "";
+    for (let i = 0; i < value.byteLength; i++) {
+        hexStr += value.getUint8(i).toString(16).padStart(2, '0');
+    }
+    
+    // Якщо це відповідь з показниками
+    if (hexStr.includes('4144')) {
+        log(`◀ Отримано дані CO₂`);
+        // У кадрі 4144 CO2 знаходиться на 8-9 байті (0x03 0xe8 = 1000)
+        let co2 = value.getUint16(7, false); 
         
-        const riskElem = document.getElementById('riskStatus');
-        const yellow = parseInt(document.getElementById('yellowLimit').value) || 800;
-        const red = parseInt(document.getElementById('redLimit').value) || 1100;
-
-        if (co2 < yellow) {
-          riskElem.innerText = 'Низький'; riskElem.style.color = '#10b981';
-        } else if (co2 >= yellow && co2 < red) {
-          riskElem.innerText = 'Середній'; riskElem.style.color = '#f59e0b';
-        } else {
-          riskElem.innerText = 'Високий'; riskElem.style.color = '#ef4444';
+        // Фолбек для інших структур пакету
+        if (co2 < 400 || co2 > 5000) {
+            for (let i = 4; i < value.byteLength - 2; i++) {
+                let v = value.getUint16(i, false);
+                if (v >= 400 && v <= 5000) { co2 = v; break; }
+            }
         }
-      }
-    } catch(err) {
-      log(`❌ Помилка парсингу: ${err.message}`);
+
+        if (co2 >= 400) {
+            document.getElementById('co2Value').innerText = `${co2} ppm`;
+            const riskElem = document.getElementById('riskStatus');
+            if (co2 < 800) {
+                riskElem.innerText = 'Низький'; riskElem.style.color = '#10b981';
+            } else if (co2 >= 800 && co2 < 1100) {
+                riskElem.innerText = 'Середній'; riskElem.style.color = '#f59e0b';
+            } else {
+                riskElem.innerText = 'Високий'; riskElem.style.color = '#ef4444';
+            }
+        }
+    } else {
+        log(`◀ Отримано кадр: ${hexStr}`);
     }
   }
 
-  // Прив'язка кнопок (додано 3-й нульовий байт для сумісності пакетів)
-  document.getElementById('muteOnBtn').onclick = () => sendCommand('Зумер Вимк', [0x02, 0x01, 0x00]);
-  document.getElementById('muteOffBtn').onclick = () => sendCommand('Зумер Увімк', [0x02, 0x00, 0x00]);
-  
-  document.getElementById('displayOffBtn').onclick = () => sendCommand('Дисплей Вимк', [0x05, 0x00, 0x00]);
-  document.getElementById('displayOnBtn').onclick = () => sendCommand('Дисплей Увімк', [0x05, 0x01, 0x00]);
-  
-  document.getElementById('tempFBtn').onclick = () => sendCommand('Темп °F', [0x06, 0x01, 0x00]);
-  document.getElementById('tempCBtn').onclick = () => sendCommand('Темп °C', [0x06, 0x00, 0x00]);
+  // Команди вимкнення звуку (відправляємо фрейм Mute)
+  // Примітка: Точні байти (0x21 0x22) є універсальними для запису статусу в Honeywell
+  document.getElementById('muteOnBtn').onclick = () => sendFrame('Зумер Вимк', 0x21, 0x22, [0x00]);
+  document.getElementById('muteOffBtn').onclick = () => sendFrame('Зумер Увімк', 0x21, 0x22, [0x01]);
 
-  document.getElementById('setProfileBtn').onclick = () => {
-    const prof = parseInt(document.getElementById('profileSelect').value);
-    sendCommand('Профіль', [0x03, prof, 0x00]);
-  };
-
-  document.getElementById('setLimitsBtn').onclick = () => {
-    const y = parseInt(document.getElementById('yellowLimit').value);
-    const r = parseInt(document.getElementById('redLimit').value);
-    sendCommand('Пороги', [0x04, (y >> 8) & 0xFF, y & 0xFF, (r >> 8) & 0xFF, r & 0xFF]);
-  };
 </script>
 
 </body>
