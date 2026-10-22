@@ -48,6 +48,7 @@
   </div>
 
 <button id="openArchive" class="btn" style="margin-bottom:16px">📈 Історія та графік</button>
+<p id="bootStatus" role="alert" style="padding:12px;border:1px solid #f59e0b;border-radius:8px">Запуск HTRAM… Якщо повідомлення залишається, відкрийте сайт у Chrome або Edge.</p>
 <main id="monitorPage">
   <div class="card">
     <div class="status">
@@ -145,7 +146,794 @@
 
 </div>
 
-<script type="module" src="app.js"></script>
+<!-- Protocol adapted from reidMaks/htram-web, MIT License. See LICENSE. -->
+<script>
+(function(){'use strict';
+const boot=document.getElementById('bootStatus');
+const fail=message=>{boot.hidden=false;boot.textContent='Не вдалося запустити сайт: '+message;};
+window.addEventListener('error',e=>fail(e.message||'помилка JavaScript'));
+window.addEventListener('unhandledrejection',e=>fail(e.reason?.message||String(e.reason)));
+try{
+const P=(()=>{
+/**
+ * HTRAM Web Configurator & Monitor
+ * Wire protocol implementation for Honeywell Transmission Risk Air Monitor (HTRAM-V1-W).
+ * 
+ * Frame Format:
+ *   7B 41 00 <len> <cmd_be_u16> <body...> <crc16_be_u16> 7D
+ * 
+ * Length byte = 2 (cmd) + len(body) + 3 (crc16 + 0x7D). Total frame = 4 + len.
+ * CRC-16: polynomial 0x8005, initial 0x0000, MSB-first.
+ */
+
+const FRAME_START = 0x7B;
+const FRAME_END = 0x7D;
+const FRAME_TYPE = 0x41;
+
+const CRC_POLY = 0x8005;
+
+const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
+const WRITE_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
+const NOTIFY_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
+
+// Sentinels during sensor warm-up
+const CO2_INVALID = 0xFFFE;
+const TEMP_INVALID = 0x81;
+const HUM_INVALID = 0xFE;
+
+// Protocol command opcodes (Big-Endian uint16)
+const CMD_REALTIME = [0x40, 0x44];
+const CMD_HEARTBEAT = [0x24, 0x01];
+const CMD_SOUND_GET = [0x26, 0x23];
+const CMD_SOUND_SET = [0x26, 0x43];
+const CMD_SETTINGS_GET = [0x40, 0x43];
+const CMD_SETTINGS_SET = [0x42, 0x43];
+const CMD_TEMP_UNIT_GET = [0x20, 0x6E];
+const CMD_TEMP_UNIT_SET = [0x22, 0x32];
+const CMD_SERIAL = [0x20, 0x20];
+const CMD_SKU = [0x20, 0x21];
+const CMD_FIRMWARE = [0x20, 0x23];
+const CMD_LINK_STATUS = [0x74, 0x00];
+const CMD_RADIO_MODE = [0x74, 0x58];
+const CMD_TIME_SYNC = [0x22, 0x42];
+const CMD_FETCH_DATALOG = [0x20, 0x93];
+
+
+// Precompute CRC-16 table (0x8005, MSB-first)
+function buildCrc16Table(poly = CRC_POLY) {
+  const table = new Uint16Array(256);
+  for (let i = 0; i < 256; i++) {
+    let crc = i << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? (((crc << 1) ^ poly) & 0xFFFF) : ((crc << 1) & 0xFFFF);
+    }
+    table[i] = crc;
+  }
+  return table;
+}
+
+const CRC16_TABLE = buildCrc16Table();
+
+/**
+ * Calculate CRC-16 (poly 0x8005, init 0, MSB-first)
+ * @param {Uint8Array|Array<number>} data
+ * @returns {number} uint16
+ */
+function crc16(data) {
+  let crc = 0;
+  for (let i = 0; i < data.length; i++) {
+    crc = ((crc << 8) ^ CRC16_TABLE[((crc >> 8) ^ data[i]) & 0xFF]) & 0xFFFF;
+  }
+  return crc;
+}
+
+/**
+ * Build a full vendor frame: 7B 41 00 <len> <cmd> <body> <crc16 BE> 7D
+ * @param {Array<number>|Uint8Array} cmd 2 bytes
+ * @param {Array<number>|Uint8Array} [body=[]]
+ * @returns {Uint8Array}
+ */
+function buildFrame(cmd, body = []) {
+  const cmdArr = Array.from(cmd);
+  const bodyArr = Array.from(body);
+  const length = 2 + bodyArr.length + 3;
+  if (length > 0xFF) {
+    throw new Error(`Body length too large: ${bodyArr.length}`);
+  }
+
+  const preCrc = new Uint8Array(4 + 2 + bodyArr.length);
+  preCrc[0] = FRAME_START;
+  preCrc[1] = FRAME_TYPE;
+  preCrc[2] = 0x00;
+  preCrc[3] = length;
+  preCrc[4] = cmdArr[0];
+  preCrc[5] = cmdArr[1];
+  for (let i = 0; i < bodyArr.length; i++) {
+    preCrc[6 + i] = bodyArr[i];
+  }
+
+  const crc = crc16(preCrc);
+  const frame = new Uint8Array(preCrc.length + 3);
+  frame.set(preCrc, 0);
+  frame[frame.length - 3] = (crc >> 8) & 0xFF;
+  frame[frame.length - 2] = crc & 0xFF;
+  frame[frame.length - 1] = FRAME_END;
+  return frame;
+}
+
+/**
+ * Verify frame start, end delimiters and CRC-16
+ * @param {Uint8Array} frame
+ * @returns {boolean}
+ */
+function frameIsValid(frame) {
+  if (!frame || frame.length < 9 || frame[1] !== FRAME_TYPE || ((frame[2] << 8) | frame[3]) + 4 !== frame.length) return false;
+  if (frame[0] !== FRAME_START || frame[frame.length - 1] !== FRAME_END) return false;
+  const expectedCrc = (frame[frame.length - 3] << 8) | frame[frame.length - 2];
+  const actualCrc = crc16(frame.subarray(0, frame.length - 3));
+  return expectedCrc === actualCrc;
+}
+
+/**
+ * Get opcode of a frame as uint16
+ * @param {Uint8Array} frame
+ * @returns {number|null}
+ */
+function frameOpcode(frame) {
+  if (!frame || frame.length < 6) return null;
+  return (frame[4] << 8) | frame[5];
+}
+
+/**
+ * Calculate expected response opcode for a given command opcode (cmd + 0x0100)
+ * @param {number|Array<number>} cmd
+ * @returns {number} uint16
+ */
+function expectedResponseOpcode(cmd) {
+  const opcode = Array.isArray(cmd) ? ((cmd[0] << 8) | cmd[1]) : cmd;
+  return (opcode + 0x0100) & 0xFFFF;
+}
+
+/**
+ * Convert bytes to hex string
+ * @param {Uint8Array|Array<number>} bytes
+ * @returns {string}
+ */
+function bytesToHex(bytes) {
+  return Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+/**
+ * Convert hex string to Uint8Array
+ * @param {string} hex
+ * @returns {Uint8Array}
+ */
+function hexToBytes(hex) {
+  const cleanHex = hex.replace(/\s+/g, '');
+  const bytes = new Uint8Array(cleanHex.length / 2);
+  for (let i = 0; i < cleanHex.length; i += 2) {
+    bytes[i / 2] = parseInt(cleanHex.substr(i, 2), 16);
+  }
+  return bytes;
+}
+
+// ------------------------------------------------------------- Command Builders
+
+function buildRealtimeRequest() {
+  return buildFrame(CMD_REALTIME, [0x02, 0x00]);
+}
+
+function buildHeartbeatRequest() {
+  return buildFrame(CMD_HEARTBEAT, [0x01]);
+}
+
+function buildSoundGetRequest() {
+  return buildFrame(CMD_SOUND_GET, [0x01, 0x00]);
+}
+
+function buildSoundSetRequest(enabled) {
+  return buildFrame(CMD_SOUND_SET, [0x01, 0x00, 0x00, enabled ? 0x01 : 0x00]);
+}
+
+function buildSettingsGetRequest() {
+  return buildFrame(CMD_SETTINGS_GET, [0x04, 0x00, 0x60, 0x06]);
+}
+
+function buildSettingsSetRequest(low, high, screenOff) {
+  return buildFrame(CMD_SETTINGS_SET, [
+    0x04, 0x00, 0x40, 0x06,
+    (low >> 8) & 0xFF, low & 0xFF,
+    (high >> 8) & 0xFF, high & 0xFF,
+    (screenOff >> 8) & 0xFF, screenOff & 0xFF,
+  ]);
+}
+
+function buildScreenOffSetRequest(minutes) {
+  return buildFrame(CMD_SETTINGS_SET, [
+    0x04, 0x00, 0x20, 0x00,
+    (minutes >> 8) & 0xFF, minutes & 0xFF,
+  ]);
+}
+
+function buildTempUnitGetRequest() {
+  return buildFrame(CMD_TEMP_UNIT_GET, [0x02, 0x06]);
+}
+
+function buildTempUnitSetRequest(celsius) {
+  return buildFrame(CMD_TEMP_UNIT_SET, [0x02, 0x06, celsius ? 0x00 : 0x01]);
+}
+
+function buildSerialRequest() {
+  return buildFrame(CMD_SERIAL, [0x03]);
+}
+
+function buildSkuRequest() {
+  return buildFrame(CMD_SKU, [0x01]);
+}
+
+function buildFirmwareRequest() {
+  return buildFrame(CMD_FIRMWARE, [0x01]);
+}
+
+function buildLinkStatusRequest() {
+  return buildFrame(CMD_LINK_STATUS, [0x02]);
+}
+
+function buildRadioModeRequest(wifi) {
+  return buildFrame(CMD_RADIO_MODE, [0x01, 0x01, wifi ? 0x01 : 0x00]);
+}
+
+/**
+ * Sync device clock to a given Date (defaults to local time so desk clock matches)
+ * Format: 01 YY MM DD HH MM SS as plain decimal integers
+ * @param {Date} [date=new Date()]
+ * @param {boolean} [useUtc=false]
+ * @returns {Uint8Array}
+ */
+function buildTimeSyncRequest(date = new Date(), useUtc = false) {
+  const year = (useUtc ? date.getUTCFullYear() : date.getFullYear()) % 100;
+  const month = (useUtc ? date.getUTCMonth() : date.getMonth()) + 1;
+  const day = useUtc ? date.getUTCDate() : date.getDate();
+  const hour = useUtc ? date.getUTCHours() : date.getHours();
+  const minute = useUtc ? date.getUTCMinutes() : date.getMinutes();
+  const second = useUtc ? date.getUTCSeconds() : date.getSeconds();
+
+  return buildFrame(CMD_TIME_SYNC, [0x01, year, month, day, hour, minute, second]);
+}
+
+/**
+ * Request a block of historical sensor records from SPI Flash memory.
+ * Initial address starts at [0xFF, 0xFF, 0xFF, 0xFF].
+ * Subsequent requests pass the 4-byte nextAddress returned by the device.
+ * @param {Array<number>|Uint8Array} [address=[0xFF, 0xFF, 0xFF, 0xFF]] 4-byte flash address
+ * @returns {Uint8Array}
+ */
+function buildDataLogRequest(address = [0xFF, 0xFF, 0xFF, 0xFF]) {
+  const addrBytes = Array.from(address);
+  if (addrBytes.length !== 4) {
+    throw new Error(`Invalid flash address length: ${addrBytes.length}, expected 4 bytes`);
+  }
+  return buildFrame(CMD_FETCH_DATALOG, [0x01, ...addrBytes]);
+}
+
+// ------------------------------------------------------------- Response Parsers
+
+/**
+ * Parse 0x4144 realtime response
+ * @param {Uint8Array} frame
+ * @returns {{co2: number|null, temperature: number|null, humidity: number|null, battery: number, batteryBars: number, charging: boolean}|null}
+ */
+function parseRealtime(frame) {
+  if (!frame || frame.length < 16) return null;
+  const co2Raw = (frame[7] << 8) | frame[8];
+  const tempRaw = frame[9];
+  const temp = tempRaw > 128 ? tempRaw - 256 : tempRaw;
+  const humidity = frame[10];
+  const batteryBars = frame[11];
+  const charging = frame[12] === 1;
+
+  return {
+    co2: co2Raw === CO2_INVALID ? null : co2Raw,
+    temperature: tempRaw === TEMP_INVALID ? null : temp,
+    humidity: humidity === HUM_INVALID ? null : humidity,
+    battery: Math.min(batteryBars * 25, 100),
+    batteryBars: batteryBars,
+    charging: charging,
+  };
+}
+
+/**
+ * Parse 0x4143 settings response
+ * @param {Uint8Array} frame
+ * @returns {{alarmLow: number, alarmHigh: number, screenOff: number}|null}
+ */
+function parseSettings(frame) {
+  if (!frame || frame.length < 16) return null;
+  const alarmLow = (frame[7] << 8) | frame[8];
+  const alarmHigh = (frame[9] << 8) | frame[10];
+  const screenOff = (frame[11] << 8) | frame[12];
+  return { alarmLow, alarmHigh, screenOff };
+}
+
+/**
+ * Parse 0x2723 sound status response
+ * @param {Uint8Array} frame
+ * @returns {boolean|null} true = sound enabled, false = sound muted
+ */
+function parseSound(frame) {
+  if (!frame || frame.length < 13) return null;
+  return frame[9] === 0 ? false : frame[9] === 1 ? true : null;
+}
+
+/**
+ * Parse 0x216E temperature unit response
+ * @param {Uint8Array} frame
+ * @returns {boolean|null} true = Celsius, false = Fahrenheit
+ */
+function parseTempUnit(frame) {
+  if (!frame || frame.length < 13) return null;
+  return frame[9] === 0 ? true : frame[9] === 1 ? false : null;
+}
+
+/**
+ * Parse 0x2121 SKU response
+ * @param {Uint8Array} frame
+ * @returns {string|null}
+ */
+function parseSku(frame) {
+  if (!frame || frame.length < 9) return null;
+  const hex = ((frame[7] << 8) | frame[8]).toString(16).padStart(4, '0');
+  return parseInt(hex, 16).toString();
+}
+
+/**
+ * Parse 0x2123 Firmware version response
+ * @param {Uint8Array} frame
+ * @returns {string|null}
+ */
+function parseFirmware(frame) {
+  if (!frame || frame.length < 16) return null;
+  try {
+    const text = new TextDecoder('ascii')
+      .decode(frame.subarray(7, 13))
+      .replace(/\0/g, '')
+      .trim();
+    return text || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Parse 0x7500 Link status response
+ * @param {Uint8Array} frame
+ * @returns {number|null}
+ */
+function parseLinkStatus(frame) {
+  if (!frame || frame.length < 8) return null;
+  return frame[7];
+}
+
+/**
+ * Parse 0x2193 historical datalog response frame
+ * @param {Uint8Array} frame
+ * @returns {{nextAddress: number[], isComplete: boolean, records: Array<{timestamp: number, time: Date, co2: number|null, temperature: number|null, humidity: number|null}>}|null}
+ */
+function parseDataLogResponse(frame) {
+  if (!frame || frame.length < 14) return null;
+  const nextAddress = Array.from(frame.subarray(7, 11));
+  const isComplete = nextAddress.every((b) => b === 0xFF);
+  const records = [];
+
+  const payload = frame.subarray(11, frame.length - 3);
+  for (let i = 0; i + 8 <= payload.length; i += 8) {
+    const tsSec = (
+      ((payload[i] * 16777216) >>> 0) +
+      ((payload[i + 1] << 16) >>> 0) +
+      ((payload[i + 2] << 8) >>> 0) +
+      payload[i + 3]
+    ) >>> 0;
+
+    const co2Raw = (payload[i + 4] << 8) | payload[i + 5];
+    const tempRaw = payload[i + 6];
+    const humRaw = payload[i + 7];
+
+    // Skip uninitialized/erased flash entries
+    if (tsSec === 0xFFFFFFFF && co2Raw === 0xFFFF) {
+      continue;
+    }
+
+    const temp = tempRaw > 128 ? tempRaw - 256 : tempRaw;
+
+    records.push({
+      timestamp: tsSec,
+      time: new Date(tsSec * 1000),
+      co2: (co2Raw === CO2_INVALID || co2Raw === 0xFFFF) ? null : co2Raw,
+      temperature: (tempRaw === TEMP_INVALID || tempRaw === 0xFF) ? null : temp,
+      humidity: (humRaw === HUM_INVALID || humRaw === 0xFF) ? null : humRaw,
+    });
+  }
+
+  return {
+    nextAddress,
+    isComplete,
+    records,
+  };
+}
+
+// ------------------------------------------------------------- Frame Reassembly
+
+/**
+ * FrameAccumulator collects incoming notification chunks, handles packet
+ * fragmentation, coalescing, and synchronization.
+ */
+class FrameAccumulator {
+  constructor() {
+    this._buffer = [];
+  }
+
+  /**
+   * Feed new raw bytes into accumulator
+   * @param {Uint8Array|Array<number>} data
+   * @returns {Array<Uint8Array>} Array of complete, valid frames extracted
+   */
+  feed(data) {
+    for (let i = 0; i < data.length; i++) {
+      this._buffer.push(data[i]);
+    }
+
+    const frames = [];
+    while (true) {
+      const startIdx = this._buffer.indexOf(FRAME_START);
+      if (startIdx < 0) {
+        this._buffer = [];
+        break;
+      }
+
+      if (startIdx > 0) {
+        this._buffer.splice(0, startIdx);
+      }
+
+      if (this._buffer.length < 4) {
+        break;
+      }
+
+      if (this._buffer[1] !== FRAME_TYPE || ((this._buffer[2] << 8) | this._buffer[3]) < 5) { this._buffer.shift(); continue; }
+      const lengthByte = (this._buffer[2] << 8) | this._buffer[3];
+      const totalLen = 4 + lengthByte;
+
+      if (this._buffer.length < totalLen) {
+        break;
+      }
+
+      const candidate = new Uint8Array(this._buffer.slice(0, totalLen));
+      this._buffer.splice(0, totalLen);
+
+      if (candidate[candidate.length - 1] === FRAME_END) {
+        if (frameIsValid(candidate)) {
+          frames.push(candidate);
+        }
+      } else {
+        // Corrupted length byte: drop frame start and resync
+        this._buffer.unshift(...candidate.subarray(1));
+      }
+    }
+
+    return frames;
+  }
+
+  /**
+   * Reset buffer
+   */
+  reset() {
+    this._buffer = [];
+  }
+}
+
+
+
+return {FRAME_START,FRAME_END,FRAME_TYPE,CRC_POLY,SERVICE_UUID,WRITE_UUID,NOTIFY_UUID,CO2_INVALID,TEMP_INVALID,HUM_INVALID,CMD_REALTIME,CMD_HEARTBEAT,CMD_SOUND_GET,CMD_SOUND_SET,CMD_SETTINGS_GET,CMD_SETTINGS_SET,CMD_TEMP_UNIT_GET,CMD_TEMP_UNIT_SET,CMD_SERIAL,CMD_SKU,CMD_FIRMWARE,CMD_LINK_STATUS,CMD_RADIO_MODE,CMD_TIME_SYNC,CMD_FETCH_DATALOG,CRC16_TABLE,crc16,buildFrame,frameIsValid,frameOpcode,expectedResponseOpcode,bytesToHex,hexToBytes,buildRealtimeRequest,buildHeartbeatRequest,buildSoundGetRequest,buildSoundSetRequest,buildSettingsGetRequest,buildSettingsSetRequest,buildScreenOffSetRequest,buildTempUnitGetRequest,buildTempUnitSetRequest,buildSerialRequest,buildSkuRequest,buildFirmwareRequest,buildLinkStatusRequest,buildRadioModeRequest,buildTimeSyncRequest,buildDataLogRequest,parseRealtime,parseSettings,parseSound,parseTempUnit,parseSku,parseFirmware,parseLinkStatus,parseDataLogResponse,FrameAccumulator};})();
+const Link=(()=>{
+
+class Link extends EventTarget {
+  constructor() {
+    super(); this.device=null; this.writer=null; this.reader=null; this.ready=false;
+    this.acc=new P.FrameAccumulator(); this.pending=new Map(); this.queue=Promise.resolve(); this.epoch=0;
+    this.onData=e=>this.receive(e.target.value); this.onDisconnect=()=>this.cleanup();
+  }
+  emit(type, detail) { this.dispatchEvent(new CustomEvent(type,{detail})); }
+  log(message) { this.emit('log',message); }
+  async connect() {
+    if(this.device) throw Error('З’єднання вже існує');
+    const epoch=++this.epoch;
+    this.device=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'HTRAM'},{namePrefix:'Honeywell'},{services:[P.SERVICE_UUID]}],optionalServices:[P.SERVICE_UUID]});
+    this.device.addEventListener('gattserverdisconnected',this.onDisconnect);
+    try {
+      const server=await this.device.gatt.connect();
+      const service=await server.getPrimaryService(P.SERVICE_UUID);
+      this.writer=await service.getCharacteristic(P.WRITE_UUID);
+      this.reader=await service.getCharacteristic(P.NOTIFY_UUID);
+      this.reader.addEventListener('characteristicvaluechanged',this.onData);
+      await this.reader.startNotifications();
+      await this.send(P.buildRadioModeRequest(false));
+      await new Promise(r=>setTimeout(r,200));
+      if(epoch!==this.epoch || !this.device?.gatt.connected) throw Error('З’єднання перервано');
+      this.ready=true; this.emit('state',true);
+    } catch(e) { this.disconnect(); throw e; }
+  }
+  send(packet, opcode=null, timeout=3500) {
+    const epoch=this.epoch;
+    // Serialize complete transactions, including their responses.
+    const task=this.queue.catch(()=>{}).then(async()=>{
+      if(epoch!==this.epoch || !this.writer || !this.device?.gatt.connected) throw Error('Пристрій від’єднано');
+      let waiter;
+      const response=opcode===null ? null : new Promise((resolve,reject)=>{
+        waiter={resolve,reject,timer:setTimeout(()=>{this.pending.delete(opcode);reject(Error(`Немає відповіді 0x${opcode.toString(16)}`));},timeout)};
+        this.pending.set(opcode,waiter);
+      });
+      // Attach a handler immediately; the timer may fire while a GATT write is pending.
+      response?.catch(()=>{});
+      try {
+        this.log('TX '+P.bytesToHex(packet));
+        if(this.writer.properties.write) await this.writer.writeValueWithResponse(packet);
+        else if(this.writer.properties.writeWithoutResponse) await this.writer.writeValueWithoutResponse(packet);
+        else throw Error('Характеристика не підтримує запис');
+        return response ? await response : null;
+      } catch(e) {
+        if(waiter) { clearTimeout(waiter.timer); this.pending.delete(opcode); waiter.reject(e); }
+        throw e;
+      }
+    });
+    this.queue=task; return task;
+  }
+  receive(view) {
+    for(const frame of this.acc.feed(new Uint8Array(view.buffer,view.byteOffset,view.byteLength))) {
+      const op=P.frameOpcode(frame); this.log('RX '+P.bytesToHex(frame));
+      const waiter=this.pending.get(op);
+      if(waiter) {this.pending.delete(op);clearTimeout(waiter.timer);waiter.resolve(frame);}
+      this.emit('frame',{op,frame});
+    }
+  }
+  cleanup() {
+    ++this.epoch; this.ready=false;
+    this.reader?.removeEventListener('characteristicvaluechanged',this.onData);
+    this.device?.removeEventListener('gattserverdisconnected',this.onDisconnect);
+    this.writer=null; this.reader=null; this.device=null; this.acc.reset();
+    for(const w of this.pending.values()){clearTimeout(w.timer);w.reject(Error('Пристрій від’єднано'));}
+    this.pending.clear(); this.emit('state',false);
+  }
+  disconnect() { const device=this.device; this.cleanup(); if(device?.gatt.connected) device.gatt.disconnect(); }
+}
+
+return Link;})();
+const Core=(()=>{const {buildDataLogRequest,buildHeartbeatRequest,parseDataLogResponse}=P;
+
+function normalizeRecords(records) {
+  const unique=new Map();
+  for(const r of records){
+    if(!Number.isInteger(r.timestamp)||r.timestamp<0||r.timestamp>=0xffffffff)continue;
+    const record={timestamp:r.timestamp,co2:r.co2,temperature:r.temperature,humidity:r.humidity};
+    const key=[record.timestamp,record.co2,record.temperature,record.humidity].join('|');
+    unique.set(key,record);
+  }
+  return [...unique.values()].sort((a,b)=>a.timestamp-b.timestamp);
+}
+function nearestIndex(records,time){
+  if(!records.length)return -1;
+  let lo=0,hi=records.length;
+  while(lo<hi){const mid=(lo+hi)>>>1;if(records[mid].timestamp<time)lo=mid+1;else hi=mid;}
+  if(!lo)return 0;if(lo===records.length)return lo-1;
+  return time-records[lo-1].timestamp<=records[lo].timestamp-time?lo-1:lo;
+}
+function clampWindow(start,end,min,max){
+  const full=Math.max(1,max-min),width=Math.min(full,Math.max(Math.min(60,full),end-start));
+  const left=Math.max(min,Math.min(max-width,start));return [left,left+width];
+}
+function csv(records){
+  const rows=['timestamp_utc;date_utc;date_local;co2_ppm;temperature_c;humidity_percent'];
+  for(const r of records){const d=new Date(r.timestamp*1000);rows.push([r.timestamp,d.toISOString(),d.toLocaleString('uk-UA'),r.co2??'',r.temperature??'',r.humidity??''].join(';'));}
+  return '\ufeff'+rows.join('\r\n');
+}
+
+// No clock writes: reading an archive must not change timestamps on the sensor.
+async function fetchArchive(link,{signal,onBlock=()=>{},maxBlocks=10000,delayMs=180}={}){
+  let address=[255,255,255,255],blocks=0,lastHeartbeat=Date.now();const visited=new Set();
+  while(true){
+    if(signal?.aborted)throw new DOMException('Зчитування зупинено','AbortError');
+    if(!link.ready)throw Error('Датчик від’єднано');
+    const key=address.join(',');if(visited.has(key))throw Error('Датчик повторив адресу архіву; зчитування зупинене');
+    if(blocks>=maxBlocks)throw Error('Досягнуто ліміт блоків архіву');visited.add(key);
+    if(Date.now()-lastHeartbeat>=12000){await link.send(buildHeartbeatRequest());lastHeartbeat=Date.now();}
+    const frame=await link.send(buildDataLogRequest(address),0x2193,6000);
+    if(signal?.aborted)throw new DOMException('Зчитування зупинено','AbortError');
+    // Payload: status byte, 4-byte next address, then complete 8-byte records.
+    if(!frame||frame.length<14||(frame.length-14)%8!==0)throw Error('Некоректна довжина блоку архіву');
+    const parsed=parseDataLogResponse(frame);if(!parsed)throw Error('Не вдалося розібрати блок архіву');
+    ++blocks;await onBlock({records:parsed.records,blocks,complete:parsed.isComplete});
+    if(parsed.isComplete)return {blocks};
+    address=parsed.nextAddress;
+    if(delayMs)await new Promise(resolve=>setTimeout(resolve,delayMs));
+  }
+}
+
+return {fetchArchive,normalizeRecords,csv,nearestIndex,clampWindow};})();
+const HistoryChart=(()=>{const {nearestIndex,clampWindow}=Core;
+
+const metrics={co2:{label:'CO₂',unit:'ppm',color:'#38bdf8'},temperature:{label:'Температура',unit:'°C',color:'#fbbf24'},humidity:{label:'Вологість',unit:'%',color:'#34d399'}};
+const fmt=t=>new Date(t*1000).toLocaleString('uk-UA');
+class HistoryChart {
+  constructor(canvas,onSelect,onWindow){
+    this.canvas=canvas;this.onSelect=onSelect;this.onWindow=onWindow;this.records=[];this.metric='co2';this.selected=-1;this.pointers=new Map();
+    if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>this.draw()).observe(canvas);else window.addEventListener('resize',()=>this.draw());
+    canvas.addEventListener('wheel',e=>{if(!this.records.length)return;e.preventDefault();const rect=canvas.getBoundingClientRect();this.zoom(e.deltaY>0?1.25:0.8,Math.max(0,Math.min(1,(e.clientX-rect.left-55)/(rect.width-75))));},{passive:false});
+    canvas.addEventListener('pointerdown',e=>{if(!this.records.length)return;canvas.setPointerCapture(e.pointerId);this.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});this.drag={x:e.clientX,y:e.clientY,start:this.start,end:this.end,moved:false};this.pinchDistance=this.distance();});
+    canvas.addEventListener('pointermove',e=>{
+      if(!this.records.length)return;
+      if(this.pointers.has(e.pointerId)){
+        this.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+        if(this.pointers.size===2){const dist=this.distance();if(this.pinchDistance>0&&dist>0)this.zoom(this.pinchDistance/dist);this.pinchDistance=dist;this.drag.moved=true;}
+        else if(this.drag){const delta=e.clientX-this.drag.x;if(Math.abs(delta)>4||Math.abs(e.clientY-this.drag.y)>4)this.drag.moved=true;const shift=-delta/(canvas.getBoundingClientRect().width-75)*(this.drag.end-this.drag.start);this.setWindow(this.drag.start+shift,this.drag.end+shift);}
+      }else if(e.pointerType==='mouse')this.pick(e.clientX);
+    });
+    const release=e=>{if(this.drag&&!this.drag.moved)this.pick(e.clientX);this.pointers.delete(e.pointerId);if(this.pointers.size===1){const p=[...this.pointers.values()][0];this.drag={...p,start:this.start,end:this.end,moved:true};}else this.drag=null;this.pinchDistance=0;};
+    canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',e=>{this.pointers.delete(e.pointerId);this.drag=null;});
+    canvas.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();if(!this.records.length)return;this.selected=Math.max(0,Math.min(this.records.length-1,(this.selected<0?0:this.selected)+(e.key==='ArrowLeft'?-1:1)));const t=this.records[this.selected].timestamp;if(t<this.start||t>this.end){const width=this.end-this.start;this.setWindow(t-width/2,t+width/2);}this.showSelection();}if(e.key==='+'||e.key==='=')this.zoom(0.5);if(e.key==='-')this.zoom(2);});
+  }
+  distance(){if(this.pointers.size<2)return 0;const [a,b]=[...this.pointers.values()];return Math.hypot(a.x-b.x,a.y-b.y);}
+  setData(records){this.records=records;this.selected=-1;this.min=records[0]?.timestamp??0;this.max=Math.max(this.min+1,records.at(-1)?.timestamp??1);this.setWindow(this.min,this.max);}
+  setWindow(start,end){if(!this.records.length){this.start=0;this.end=1;this.draw();return;}[this.start,this.end]=clampWindow(start,end,this.min,this.max);this.draw();this.onWindow?.(this.start,this.end);}
+  zoom(factor,anchor=0.5){if(!this.records.length)return;const width=this.end-this.start,center=this.start+width*anchor;this.setWindow(center-width*factor*anchor,center+width*factor*(1-anchor));}
+  pan(fraction){const d=(this.end-this.start)*fraction;this.setWindow(this.start+d,this.end+d);}
+  pick(clientX){const rect=this.canvas.getBoundingClientRect(),fraction=Math.max(0,Math.min(1,(clientX-rect.left-55)/(rect.width-75)));this.selected=nearestIndex(this.records,this.start+fraction*(this.end-this.start));this.showSelection();}
+  showSelection(){this.onSelect?.(this.records[this.selected]);this.draw();}
+  draw(){
+    const rect=this.canvas.getBoundingClientRect();if(rect.width<1)return;
+    const w=rect.width,h=320,dpr=Math.min(3,window.devicePixelRatio||1);this.canvas.width=w*dpr;this.canvas.height=h*dpr;
+    const ctx=this.canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.fillStyle='#071121';ctx.fillRect(0,0,w,h);ctx.font='12px system-ui';ctx.fillStyle='#94a3b8';
+    if(!this.records.length){ctx.textAlign='center';ctx.fillText('Зчитайте архів із датчика або відкрийте демо',w/2,h/2);return;}
+    const left=55,right=w-20,top=25,bottom=h-48,pw=right-left,ph=bottom-top,m=metrics[this.metric];
+    const first=nearestIndex(this.records,this.start),last=nearestIndex(this.records,this.end);
+    const visible=this.records.slice(Math.max(0,first-1),Math.min(this.records.length,last+2));
+    let min=Infinity,max=-Infinity;for(const r of visible){const v=r[this.metric];if(v!==null&&Number.isFinite(v)){min=Math.min(min,v);max=Math.max(max,v);}}
+    if(!Number.isFinite(min)){min=0;max=1;}const pad=Math.max((max-min)*0.12,this.metric==='co2'?25:1);min-=pad;max+=pad;
+    const x=t=>left+(t-this.start)/(this.end-this.start)*pw,y=v=>bottom-(v-min)/(max-min)*ph;
+    ctx.fillStyle=m.color;ctx.fillText(`${m.label}, ${m.unit}`,left,16);
+    for(let i=0;i<5;i++){const v=min+(max-min)*i/4,py=y(v);ctx.strokeStyle='#203149';ctx.beginPath();ctx.moveTo(left,py);ctx.lineTo(right,py);ctx.stroke();ctx.fillStyle='#94a3b8';ctx.textAlign='right';ctx.fillText(v.toFixed(this.metric==='temperature'?1:0),left-7,py+4);}
+    ctx.save();ctx.beginPath();ctx.rect(left,top,pw,ph);ctx.clip();ctx.strokeStyle=m.color;ctx.lineWidth=1.6;ctx.beginPath();let pen=false;
+    // Reduce by horizontal pixel while preserving extrema and gaps; source records remain intact.
+    let bucket=[],column=null;
+    const flush=()=>{if(!bucket.length)return;let lo=0,hi=0;for(let i=1;i<bucket.length;i++){if(bucket[i][this.metric]<bucket[lo][this.metric])lo=i;if(bucket[i][this.metric]>bucket[hi][this.metric])hi=i;}const indices=[...new Set([0,lo,hi,bucket.length-1])].sort((a,b)=>a-b);for(const i of indices){const r=bucket[i];if(pen)ctx.lineTo(x(r.timestamp),y(r[this.metric]));else{ctx.moveTo(x(r.timestamp),y(r[this.metric]));pen=true;}}bucket=[];};
+    for(const r of visible){const v=r[this.metric];if(v===null||!Number.isFinite(v)){flush();pen=false;column=null;continue;}const c=Math.floor(x(r.timestamp));if(column!==null&&c!==column)flush();column=c;bucket.push(r);}flush();ctx.stroke();
+    if(visible.length<80){ctx.fillStyle=m.color;for(const r of visible){const v=r[this.metric];if(v!==null&&Number.isFinite(v)){ctx.beginPath();ctx.arc(x(r.timestamp),y(v),2.5,0,Math.PI*2);ctx.fill();}}}
+    if(this.selected>=0){const r=this.records[this.selected],px=x(r.timestamp);ctx.strokeStyle='#e2e8f0';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();}ctx.restore();
+    ctx.fillStyle='#94a3b8';ctx.textAlign='left';ctx.fillText(fmt(this.start),left,h-20);ctx.textAlign='right';ctx.fillText(fmt(this.end),right,h-4);
+  }
+}
+
+
+return HistoryChart;})();
+const HistoryUI=(()=>{const {fetchArchive,normalizeRecords,csv}=Core;
+
+
+const $=id=>document.getElementById(id),fmt=t=>new Date(t*1000).toLocaleString('uk-UA');
+function saveFile(name,body,type){const url=URL.createObjectURL(new Blob([body],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+async function cache(value){
+  return new Promise((resolve,reject)=>{const req=indexedDB.open('htram-archive',1);req.onupgradeneeded=()=>req.result.createObjectStore('archives');req.onerror=()=>reject(req.error);req.onsuccess=()=>{const db=req.result,tx=db.transaction('archives',value?'readwrite':'readonly'),store=tx.objectStore('archives');const op=value?store.put(value,'last'):store.get('last');let result;op.onsuccess=()=>result=op.result;tx.oncomplete=()=>{db.close();resolve(result);};tx.onerror=()=>{db.close();reject(tx.error);};};});
+}
+class HistoryUI {
+  constructor(onRead){
+    this.records=[];this.meta={};this.generation=0;this.chart=new HistoryChart($('archiveCanvas'),r=>this.details(r),(start,end)=>this.windowChanged(start,end));
+    $('fetchArchive').onclick=onRead;$('abortArchive').onclick=()=>{this.abort?.abort();$('archiveProgress').textContent='Зупиняємо після поточного запиту (до 6 секунд)…';};
+    $('metric').onchange=()=>{this.chart.metric=$('metric').value;this.chart.draw();};
+    $('zoomIn').onclick=()=>this.chart.zoom(0.5);$('zoomOut').onclick=()=>this.chart.zoom(2);$('panLeft').onclick=()=>this.chart.pan(-0.5);$('panRight').onclick=()=>this.chart.pan(0.5);$('allTime').onclick=()=>this.chart.setWindow(this.chart.min,this.chart.max);
+    for(const hours of [1,24,168])$('range'+hours).onclick=()=>this.chart.setWindow(this.chart.max-hours*3600,this.chart.max);
+    $('archivePosition').oninput=()=>{const width=this.chart.end-this.chart.start,span=this.chart.max-this.chart.min-width,start=this.chart.min+span*Number($('archivePosition').value)/1000;this.chart.setWindow(start,start+width);};
+    $('applyDates').onclick=()=>{const start=new Date($('dateFrom').value).getTime()/1000,end=new Date($('dateTo').value).getTime()/1000;if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start){$('archiveRange').textContent='Вкажіть коректний початок і кінець періоду';return;}if(!this.records.length||end<this.chart.min||start>this.chart.max){$('archiveRange').textContent='У цьому періоді немає записів';return;}this.chart.setWindow(start,end);};
+    $('csvAll').onclick=()=>this.export(false);$('csvView').onclick=()=>this.export(true);
+    $('jsonAll').onclick=()=>saveFile('htram-archive.json',JSON.stringify({version:1,meta:this.meta,records:this.records}), 'application/json');
+    $('demoArchive').onclick=()=>this.demo();
+    $('openArchive').onclick=()=>this.show(true);$('backMonitor').onclick=()=>this.show(false);
+    window.addEventListener('hashchange',()=>this.show(location.hash==='#history',false));
+    this.show(location.hash==='#history',false);this.buttons(false);
+    const generation=this.generation;cache().then(saved=>{if(saved&&this.generation===generation&&!this.abort){this.records=normalizeRecords(saved.records);this.meta=saved.meta;this.refresh();$('archiveProgress').textContent='Відновлено останній архів із цього браузера';}}).catch(()=>{});
+  }
+  show(open,update=true){$('monitorPage').hidden=open;$('historyPage').hidden=!open;document.querySelector('.container').classList.toggle('archive-wide',open);if(update)history.replaceState(null,'',open?'#history':location.pathname+location.search);if(open)requestAnimationFrame(()=>this.chart.draw());}
+  setConnected(enabled){this.enabled=enabled;$('fetchArchive').disabled=!enabled||!!this.abort;}
+  buttons(active){$('abortArchive').hidden=!active;$('demoArchive').disabled=active;$('fetchArchive').disabled=active||!this.enabled;}
+  refresh(){this.chart.setData(this.records);this.details(null);this.source();if(!this.records.length){$('archiveStats').textContent='Записів: 0';$('archiveRange').textContent='Архів порожній';}for(const id of ['csvAll','csvView','jsonAll'])$(id).disabled=!this.records.length;}
+  source(){const m=this.meta;$('archiveSource').textContent=m.demo?'ДЕМО • синтетичні дані':`${m.name??'Датчик'} • ${m.complete?'архів дочитано до кінця':'неповний архів'}${m.savedAt?' • '+new Date(m.savedAt).toLocaleString('uk-UA'):''}`;}
+  details(r){$('pointDetails').textContent=r?`${fmt(r.timestamp)} · CO₂: ${r.co2??'—'} ppm · температура: ${r.temperature??'—'} °C · вологість: ${r.humidity??'—'} %`:'Торкніться графіка або наведіть вказівник, щоб побачити точні значення. Клавіші ← → вибирають сусідні записи.';}
+  windowChanged(start,end){
+    $('archiveRange').textContent=`${fmt(start)} — ${fmt(end)}`;
+    const span=this.chart.max-this.chart.min-(end-start);$('archivePosition').disabled=span<=0;$('archivePosition').value=span>0?Math.round((start-this.chart.min)/span*1000):0;
+    const visible=this.records.filter(r=>r.timestamp>=start&&r.timestamp<=end);let count=0,min=Infinity,max=-Infinity,sum=0;for(const r of visible){if(r.co2!==null){++count;min=Math.min(min,r.co2);max=Math.max(max,r.co2);sum+=r.co2;}}
+    $('archiveStats').textContent=`Усього: ${this.records.length.toLocaleString('uk-UA')} · у видимому періоді: ${visible.length.toLocaleString('uk-UA')}${count?` · CO₂ мін. ${min}, серед. ${Math.round(sum/count)}, макс. ${max} ppm`:''}`;
+    const toInput=t=>{const d=new Date(t*1000);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,19);};$('dateFrom').value=toInput(start);$('dateTo').value=toInput(end);
+  }
+  export(view){const rows=view?this.records.filter(r=>r.timestamp>=this.chart.start&&r.timestamp<=this.chart.end):this.records;saveFile(`htram-${this.meta.demo?'demo-':''}${view?'period':'archive'}.csv`,csv(rows),'text/csv;charset=utf-8');}
+  async download(link){
+    ++this.generation;this.abort=new AbortController();this.buttons(true);this.show(true);
+    const incoming=[];let lastDraw=0,blocks=0,complete=false,error=null;
+    const meta={name:link.device?.name??'HTRAM',deviceId:link.device?.id??'',savedAt:new Date().toISOString(),complete:false};
+    $('archiveProgress').textContent='Запит першого блоку… Попередній архів залишається до отримання відповіді.';
+    try{
+      await fetchArchive(link,{signal:this.abort.signal,onBlock:part=>{
+        incoming.push(...part.records);blocks=part.blocks;
+        if(incoming.length>1500000)throw Error('Архів перевищив ліміт 1 500 000 записів');
+        if(Date.now()-lastDraw>700||part.complete){this.records=normalizeRecords(incoming);this.meta=meta;this.refresh();lastDraw=Date.now();}
+        $('archiveProgress').textContent=`Отримано блоків: ${blocks}; записів: ${incoming.length.toLocaleString('uk-UA')}. Загальна кількість наперед невідома.`;
+      }});complete=true;
+    }catch(e){error=e;}
+    finally{
+      if(blocks){this.records=normalizeRecords(incoming);this.meta={...meta,complete};this.refresh();try{await cache({meta:this.meta,records:this.records});}catch{$('archiveCache').textContent='Браузер не зміг зберегти архів локально. Завантажте CSV або JSON.';}}
+      this.abort=null;this.buttons(false);
+    }
+    const result=complete?`Архів дочитано: ${this.records.length.toLocaleString('uk-UA')} записів.`:error?.name==='AbortError'?`Зчитування зупинено. Отримані дані — неповний архів (${blocks} блоків).`:`Зчитування перервано: ${error?.message??'невідома помилка'}. Отримано ${blocks} блоків; архів неповний.`;
+    $('archiveProgress').textContent=result;return result;
+  }
+  demo(){
+    ++this.generation;const start=Date.UTC(2026,9,15)/1000;
+    this.records=Array.from({length:2016},(_,i)=>({timestamp:start+i*300,co2:i%301===0?null:Math.round(650+200*Math.sin(i/30)+450*Math.max(0,Math.sin(i/91))),temperature:Math.round((22+2*Math.sin(i/140))*10)/10,humidity:Math.round(47+8*Math.sin(i/70))}));
+    this.meta={demo:true};this.refresh();$('archiveProgress').textContent='Демонстраційний тиждень: це вигадані значення для перевірки графіка, не дані вашого датчика.';
+  }
+}
+
+
+return HistoryUI;})();
+
+
+
+const $=id=>document.getElementById(id), link=new Link();
+let settings=null, deviceUnit=null, latest=null, heartbeat=null, polling=null, busy=false, pollBusy=false;
+let pollInterval=5;
+const lines=[];
+const archive=new HistoryUI(()=>action(async()=>{stopTimers();try{return await archive.download(link);}finally{startTimers();}}));
+function log(text){const line=`[${new Date().toLocaleTimeString('uk-UA')}] ${text}`;lines.push(line);if(lines.length>1000)lines.shift();$('log').textContent=lines.join('\n');$('log').style.whiteSpace='pre-wrap';$('log').scrollTop=$('log').scrollHeight;}
+function controls(){const enabled=link.ready&&!busy;archive.setConnected(enabled);$('controls').disabled=!enabled;for(const id of ['muteOnBtn','muteOffBtn'])$(id).disabled=!enabled;$('saveScreen').disabled=!settings;$('saveThresholds').disabled=!settings;$('disconnectBtn').disabled=!link.device;}
+function stopTimers(){clearInterval(heartbeat);clearInterval(polling);heartbeat=polling=null;}
+function startTimers(){stopTimers();if(!link.ready)return;heartbeat=setInterval(()=>{if(!busy&&!pollBusy)link.send(P.buildHeartbeatRequest()).catch(e=>log(e.message));},15000);polling=setInterval(()=>poll(),pollInterval*1000);}
+async function poll(){if(!link.ready||busy||pollBusy)return;pollBusy=true;try{await link.send(P.buildRealtimeRequest(),0x4144);}catch(e){log(e.message);$('lastUpdate').textContent='Не отримано свіжі дані; останні показники можуть бути застарілими';}finally{pollBusy=false;}}
+function render(){if(!latest)return;const d=latest;$('co2Value').textContent=d.co2===null?'Прогрів':`${d.co2} ppm`;const low=settings?.alarmLow??800,high=settings?.alarmHigh??1000;$('riskStatus').textContent=d.co2===null?'—':d.co2<low?'Низький':d.co2<high?'Середній':'Високий';$('riskStatus').style.color=d.co2===null?'#94a3b8':d.co2<low?'#10b981':d.co2<high?'#f59e0b':'#ef4444';const c=$('webUnit').value==='C';$('temperature').textContent=d.temperature===null?'—':`${(c?d.temperature:d.temperature*9/5+32).toFixed(1)} °${c?'C':'F'}`;$('humidity').textContent=d.humidity===null?'—':d.humidity+' %';$('battery').textContent=`Акумулятор: приблизно ${d.battery}%${d.charging?' · заряджання':''}`;}
+async function readSettings(){
+  const f=await link.send(P.buildSettingsGetRequest(),0x4143);const s=P.parseSettings(f);if(!s)throw Error('Неповна відповідь налаштувань');
+  settings=s;$('low').value=s.alarmLow;$('high').value=s.alarmHigh;
+  // Keep unfamiliar firmware values visible instead of silently replacing them with 120.
+  for(const o of [...$('screen').options])if(!['0','120'].includes(o.value))o.remove();
+  if(![0,120].includes(s.screenOff))$('screen').add(new Option(`Поточне значення: ${s.screenOff} (одиниця не підтверджена)`,s.screenOff));
+  $('screen').value=String(s.screenOff);$('settingsState').textContent=`Зчитано: пороги ${s.alarmLow} / ${s.alarmHigh} ppm; таймер ${s.screenOff}`;render();controls();return s;
+}
+async function readUnit(){const f=await link.send(P.buildTempUnitGetRequest(),0x216e);const u=P.parseTempUnit(f);if(u===null)throw Error('Неповна відповідь одиниці температури');deviceUnit=u;$('unit').value=u?'C':'F';$('unitState').textContent=`Зчитано з пристрою: °${u?'C':'F'}`;return u;}
+async function action(fn){if(busy||!link.ready)return;busy=true;controls();$('actionStatus').textContent='Виконується…';try{$('actionStatus').textContent=await fn();}catch(e){$('actionStatus').textContent='Не підтверджено: '+e.message;log('ПОМИЛКА: '+e.message);}finally{busy=false;controls();}}
+link.addEventListener('log',e=>log(e.detail));
+link.addEventListener('frame',e=>{if(e.detail.op===0x4144){const d=P.parseRealtime(e.detail.frame);if(d){latest=d;render();$('lastUpdate').textContent='Оновлено: '+new Date().toLocaleTimeString('uk-UA');}}});
+link.addEventListener('state',e=>{if(!e.detail){stopTimers();settings=null;deviceUnit=null;latest=null;$('statusDot').classList.remove('connected');$('statusText').textContent='Не підключено';$('lastUpdate').textContent='З’єднання відсутнє';for(const id of ['co2Value','riskStatus','temperature','humidity'])$(id).textContent='—';$('battery').textContent='Акумулятор: —';$('settingsState').textContent='Налаштування ще не зчитано';$('unitState').textContent='Одиницю ще не зчитано';}controls();});
+$('connectBtn').onclick=async()=>{if(busy||link.ready)return;busy=true;$('connectBtn').disabled=true;try{
+  if(!navigator.bluetooth||!window.isSecureContext)throw Error('Потрібен браузер із Web Bluetooth та HTTPS або localhost');
+  $('statusText').textContent='Підключення…';await link.connect();$('statusDot').classList.add('connected');$('statusText').textContent='Підключено: '+link.device.name;
+  for(const query of [readSettings,readUnit,async()=>{const f=await link.send(P.buildSoundGetRequest(),0x2723);log('Зумер: '+(P.parseSound(f)?'увімкнений':'вимкнений'));},async()=>{const f=await link.send(P.buildFirmwareRequest(),0x2123);$('deviceInfo').textContent='Прошивка: '+(P.parseFirmware(f)??'невідома');}]){if(!link.ready)break;try{await query();}catch(e){log(e.message);}}
+}catch(e){log(e.message);$('statusText').textContent='Помилка: '+e.message;if(link.device)link.disconnect();}finally{busy=false;$('connectBtn').disabled=false;controls();startTimers();await poll();}};
+$('disconnectBtn').onclick=()=>link.disconnect();
+$('readSettings').onclick=()=>action(async()=>{await readSettings();await readUnit();return 'Налаштування зчитано з датчика';});
+$('saveThresholds').onclick=()=>action(async()=>{const low=Number($('low').value),high=Number($('high').value);if(!$('low').value||!$('high').value||!Number.isInteger(low)||!Number.isInteger(high)||low<400||high>5000||low>=high)throw Error('Потрібні цілі пороги 400–5000 ppm; нижній має бути меншим');if(!settings)throw Error('Спочатку зчитайте налаштування');await link.send(P.buildSettingsSetRequest(low,high,settings.screenOff),0x4343);const s=await readSettings();if(s.alarmLow!==low||s.alarmHigh!==high)throw Error('Повторне зчитування не підтвердило пороги');return 'Пороги підтверджено повторним зчитуванням';});
+$('saveScreen').onclick=()=>action(async()=>{const target=Number($('screen').value);if(![0,120].includes(target))throw Error('Оберіть 0 або 120');if(!settings)throw Error('Спочатку зчитайте налаштування');
+  // Dedicated screen mask 0x20 from the reference implementation. Hardware verification still required.
+  await link.send(P.buildScreenOffSetRequest(target),0x4343);const s=await readSettings();if(s.screenOff!==target)throw Error(`Датчик повернув ${s.screenOff} замість ${target}. Таймер не підтверджений для цієї прошивки`);return 'Значення таймера підтверджено зчитуванням. Перевірте дисплей фізично';});
+$('saveUnit').onclick=()=>action(async()=>{const target=$('unit').value==='C';await link.send(P.buildTempUnitSetRequest(target),0x2332);if(await readUnit()!==target)throw Error('Пристрій не підтвердив зміну °C/°F');return 'Одиницю температури підтверджено повторним зчитуванням';});
+for(const [id,enabled] of [['muteOnBtn',false],['muteOffBtn',true]])$(id).onclick=()=>action(async()=>{await link.send(P.buildSoundSetRequest(enabled),0x2743);const f=await link.send(P.buildSoundGetRequest(),0x2723);if(P.parseSound(f)!==enabled)throw Error('Стан зумера не підтверджений');return enabled?'Звук увімкнено: стан зчитано з датчика':'Звук вимкнено: стан зчитано з датчика';});
+$('syncTime').onclick=()=>action(async()=>{await link.send(P.buildTimeSyncRequest(new Date()),0x2342);return 'Отримано відповідь на синхронізацію локального часу браузера';});
+$('savePoll').onclick=()=>{const n=Number($('pollSeconds').value);if(!Number.isInteger(n)||n<1||n>300){$('actionStatus').textContent='Інтервал має бути цілим числом від 1 до 300';return;}pollInterval=n;try{localStorage.setItem('htram-poll',String(n));}catch{}startTimers();$('actionStatus').textContent=`Інтервал запитів сайту: ${n} с`;};
+$('webUnit').onchange=render;
+$('exportLog').onclick=()=>{const url=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='htram-diagnostic.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+try{const n=Number(localStorage.getItem('htram-poll'));if(Number.isInteger(n)&&n>=1&&n<=300){pollInterval=n;$('pollSeconds').value=n;}}catch{}
+window.addEventListener('pagehide',()=>link.disconnect());controls();
+
+
+
+boot.hidden=true;document.documentElement.dataset.htramVersion='history-fix-2';}catch(e){fail(e.message);console.error(e);}
+})();
+</script>
 
 </body>
 </html>
