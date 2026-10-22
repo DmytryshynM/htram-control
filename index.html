@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HTRAM Settings</title>
+  <title>HTRAM Native Pro</title>
   <style>
     :root {
       --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --subtext: #86868b;
@@ -25,7 +25,7 @@
     
     .dashboard { padding: 20px; text-align: center; background: var(--card); margin-bottom: 20px; }
     .gauge-value { font-size: 48px; font-weight: 800; display: flex; justify-content: center; align-items: baseline; gap: 5px; color: #000; }
-    .gauge-unit { font-size: 16px; font-weight: 600; color: var(--subtext); }
+    .gauge-unit { font-size: 16px; font-weight: 600; color: var(--subtext); text-align: left;}
     .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 5px; background: #e5e5ea; color: var(--subtext); }
     
     .section-title { font-size: 18px; font-weight: 700; margin: 25px 20px 10px; color: #000; }
@@ -42,6 +42,7 @@
       text-align: right; outline: none; appearance: none; width: 140px; direction: rtl; cursor: pointer;
     }
     
+    /* Тумблери iOS стилю */
     .switch { position: relative; display: inline-block; width: 50px; height: 30px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e5e5ea; transition: .4s; border-radius: 30px; }
@@ -54,24 +55,26 @@
     canvas { width: 100%; height: 120px; display: block; }
     
     .log-container { padding: 20px; }
-    .log-box { background: #1e1e1e; color: #a9b7c6; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; height: 100px; overflow-y: auto; }
-    .raw-box { background: #000; color: #0f0; font-family: monospace; font-size: 12px; padding: 8px; border-radius: 8px; margin-top: 10px; word-break: break-all; }
+    .log-box { background: #1e1e1e; color: #a9b7c6; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; height: 120px; overflow-y: auto; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
+  <!-- Верхня панель -->
   <div class="header">
     <span style="color:var(--accent); font-weight: 500;">&#10094; Back</span>
     <span>Settings</span>
     <button id="connectBtn" class="btn-connect">Connect</button>
   </div>
 
+  <!-- Дашборд -->
   <div class="dashboard">
     <div class="gauge-value"><span id="co2Value">--</span><span class="gauge-unit">CO2<br>PPM</span></div>
     <div id="riskStatus" class="status-badge">Waiting for data...</div>
   </div>
 
+  <!-- Графік (Data History) -->
   <div class="section-title">Data History</div>
   <div class="chart-container">
     <canvas id="co2Chart" width="400" height="120"></canvas>
@@ -85,10 +88,11 @@
     </div>
     <div class="setting-row">
       <span>Room</span>
-      <span class="setting-value">Class 1 Grade 2 &#10095;</span>
+      <span class="setting-value">My Room &#10095;</span>
     </div>
   </div>
 
+  <!-- Налаштування апаратури -->
   <div class="section-title">Device Settings</div>
   <div class="settings-group">
     
@@ -132,6 +136,7 @@
       </span>
     </div>
 
+    <!-- Блок власних порогів (ховається, якщо вибрано стандартний профіль) -->
     <div id="customLimits" style="display:none; background: #fafafa; border-top: 1px solid var(--border);">
       <div class="setting-row" style="padding-left: 40px;">
         <span>Medium Alarm (PPM)</span>
@@ -147,30 +152,19 @@
     </div>
   </div>
 
-  <div class="section-title">Device Information</div>
-  <div class="settings-group">
-    <div class="setting-row">
-      <span>Device SN</span>
-      <span class="setting-value" id="deviceSnUI">RM--------</span>
-    </div>
-    <div class="setting-row">
-      <span>Firmware Version</span>
-      <span class="setting-value">V1.00</span>
-    </div>
-  </div>
-
+  <!-- Лог (залишаємо для технічного контролю) -->
   <div class="log-container">
-    <div style="font-size: 13px; font-weight: 600; margin-bottom: 5px;">Raw Data Scanner</div>
-    <div id="rawBox" class="raw-box">No packets yet</div>
-    <div style="font-size: 13px; font-weight: 600; margin-top: 15px; margin-bottom: 5px;">Protocol Log</div>
-    <div id="log" class="log-box">Ready.<br></div>
+    <div style="font-size: 13px; font-weight: 600; margin-bottom: 5px;">Protocol Log</div>
+    <div id="log" class="log-box">Очікування підключення...<br></div>
   </div>
 </div>
 
 <script>
-  window.onerror = function(msg) { log(`🔴 JS Error: ${msg}`); return false; };
+  window.onerror = function(msg) { log(`🔴 JS Помилка: ${msg}`); return false; };
 
-  // Автономний графік 
+  // ==========================================
+  // 1. АВТОНОМНИЙ ГРАФІК (Native Canvas)
+  // ==========================================
   const co2History = [];
   const MAX_POINTS = 30;
   
@@ -206,33 +200,9 @@
     ctx.fill();
   }
 
-  // Обробка профілів
-  const thresholds = {
-    'low': { y: 800, r: 1100 },
-    'medium': { y: 700, r: 1000 },
-    'high': { y: 500, r: 800 }
-  };
-
-  document.getElementById('activityLevel').addEventListener('change', (e) => {
-    const val = e.target.value;
-    const customDiv = document.getElementById('customLimits');
-    if (val === 'custom') {
-      customDiv.style.display = 'block';
-    } else {
-      customDiv.style.display = 'none';
-      document.getElementById('yellowLimit').value = thresholds[val].y;
-      document.getElementById('redLimit').value = thresholds[val].r;
-      sendThresholds(thresholds[val].y, thresholds[val].r);
-    }
-  });
-
-  document.getElementById('saveLimitsBtn').addEventListener('click', () => {
-    const y = parseInt(document.getElementById('yellowLimit').value);
-    const r = parseInt(document.getElementById('redLimit').value);
-    sendThresholds(y, r);
-  });
-
-  // BLE ПРОтОКОЛ 
+  // ==========================================
+  // 2. ВАША РОБОЧА ЛОГІКА BLUETOOTH (UART)
+  // ==========================================
   const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
   const WRITE_CHAR_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
   const READ_CHAR_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
@@ -242,10 +212,12 @@
   function log(msg) {
     const logBox = document.getElementById('log');
     if(!logBox) return;
-    logBox.innerHTML += `> ${msg}<br>`;
+    const time = new Date().toLocaleTimeString('uk-UA');
+    logBox.innerHTML += `[${time}] ${msg}<br>`;
     logBox.scrollTop = logBox.scrollHeight;
   }
 
+  // ВАШ РОБОЧИЙ ФРЕЙМ-БІЛДЕР
   function buildFrame(cmdId1, cmdId2, payloadBytes = []) {
     let length = 2 + payloadBytes.length + 3; 
     let packet = [0x7B, 0x41, (length >> 8) & 0xFF, length & 0xFF, cmdId1, cmdId2, ...payloadBytes];
@@ -263,78 +235,86 @@
   }
 
   async function sendFrame(name, cmdId1, cmdId2, payloadBytes = []) {
-    if (!writeChar) return;
+    if (!writeChar) { log('❌ Канал не підключено!'); return; }
     try {
       const data = buildFrame(cmdId1, cmdId2, payloadBytes);
       await writeChar.writeValueWithoutResponse(data);
-      log(`${name} OK [${Array.from(data).map(x=>x.toString(16).padStart(2,'0')).join('')}]`);
-    } catch (err) { log(`Error [${name}]: ${err.message}`); }
+      log(`▶ Відправлено [${name}]: ${Array.from(data).map(x=>x.toString(16).padStart(2,'0')).join('')}`);
+    } catch (err) {
+      log(`❌ Помилка [${name}]: ${err.message}`);
+    }
   }
 
-  function sendThresholds(yellow, red) {
-    sendFrame('Set Alarm', 0x41, 0x42, [(yellow >> 8) & 0xFF, yellow & 0xFF, (red >> 8) & 0xFF, red & 0xFF]);
-  }
-
+  // ПІДКЛЮЧЕННЯ
   document.getElementById('connectBtn').addEventListener('click', async () => {
     try {
-      log('Requesting Bluetooth Device...');
+      log('Пошук пристрою HTRAM...');
       const device = await navigator.bluetooth.requestDevice({
         filters: [{ namePrefix: 'HTRAM' }],
         optionalServices: [SERVICE_UUID]
       });
 
       document.getElementById('deviceNameUI').innerText = device.name;
-      const snMatch = device.name.match(/RM\d+/);
-      if (snMatch) document.getElementById('deviceSnUI').innerText = snMatch[0];
 
-      log('Connecting to GATT Server...');
+      log(`Підключення до ${device.name}...`);
       const server = await device.gatt.connect();
-      const service = await server.getPrimaryService(SERVICE_UUID);
-      writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
-      const readChar = await service.getCharacteristic(READ_CHAR_UUID);
-      
-      await readChar.startNotifications();
-      readChar.addEventListener('characteristicvaluechanged', handleData);
       
       document.getElementById('connectBtn').innerText = 'Connected';
       document.getElementById('connectBtn').style.color = 'var(--success)';
 
+      const service = await server.getPrimaryService(SERVICE_UUID);
+      writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
+      log(`✅ Канал керування підключено.`);
+
+      const readChar = await service.getCharacteristic(READ_CHAR_UUID);
+      await readChar.startNotifications();
+      readChar.addEventListener('characteristicvaluechanged', handleData);
+      log(`✅ Підписку на нотифікації активовано.`);
+
+      // Ініціалізація зв'язку (BLE mode handshake)
+      log(`▶ Ініціалізація зв'язку (BLE mode)...`);
+      await sendFrame('Init BLE', 0x75, 0x58, [0x01]);
+
+      // РОЗБЛОКОВУЄМО ВСІ КНОПКИ ТА ПЕРЕМИКАЧІ В ІНТЕРФЕЙСІ
       document.querySelectorAll('input, select, button').forEach(el => el.disabled = false);
 
-      log('Init BLE Handshake...');
-      await sendFrame('Init', 0x75, 0x58, [0x01]);
-
     } catch (err) {
-      log(`Connection failed: ${err.message}`);
+      log(`❌ Помилка з'єднання: ${err.message}`);
     }
   });
 
-  // Виправлений і безпечний парсер даних
+  // ВАШ РОБОЧИЙ ПАРСЕР ДАНИХ
   function handleData(event) {
     const value = event.target.value;
-    if (value.byteLength < 6) return;
+    if (value.byteLength < 10) return; // Ігноруємо короткі пакети
 
-    let hexArr = [];
+    let hexStr = "";
     for (let i = 0; i < value.byteLength; i++) {
-        hexArr.push(value.getUint8(i).toString(16).padStart(2, '0').toUpperCase());
+        hexStr += value.getUint8(i).toString(16).padStart(2, '0');
     }
-    document.getElementById('rawBox').innerText = hexArr.join(' ');
     
-    // Перевіряємо, чи це саме пакет з показниками сенсорів (0x41 0x44)
-    // Структура кадру: [0x7B, 0x41, LenHi, LenLo, CmdHi (0x41), CmdLo (0x44)...]
-    if (value.byteLength >= 10 && value.getUint8(4) === 0x41 && value.getUint8(5) === 0x44) {
-        // У пакеті 0x41 0x44 значення CO2 лежить на 7 і 8 байті (Big-Endian)
+    // Якщо це відповідь з показниками
+    if (hexStr.includes('4144')) {
         let co2 = value.getUint16(7, false); 
         
-        if (co2 >= 400 && co2 <= 10000) {
+        // Фолбек для інших структур пакету
+        if (co2 < 400 || co2 > 5000) {
+            for (let i = 4; i < value.byteLength - 2; i++) {
+                let v = value.getUint16(i, false);
+                if (v >= 400 && v <= 5000) { co2 = v; break; }
+            }
+        }
+
+        if (co2 >= 400) {
+            // Оновлюємо цифру на екрані
             document.getElementById('co2Value').innerText = co2;
             
-            // Оновлення графіка
+            // Оновлюємо графік
             co2History.push(co2);
             if (co2History.length > MAX_POINTS) co2History.shift();
             drawChart();
 
-            // Оновлення статусу ризику
+            // Оновлюємо бейдж ризику згідно з поточними налаштуваннями
             const riskElem = document.getElementById('riskStatus');
             const yellow = parseInt(document.getElementById('yellowLimit').value) || 800;
             const red = parseInt(document.getElementById('redLimit').value) || 1100;
@@ -356,18 +336,60 @@
     }
   }
 
-  // Відправка команд налаштувань
+  // ==========================================
+  // 3. ОБРОБНИКИ НАЛАШТУВАНЬ (UI -> Bluetooth)
+  // ==========================================
+  
+  // Керування звуком (як у вашому робочому коді, але через тумблер)
+  // У вашому коді Вимкнути = 0x00, Увімкнути = 0x01
   document.getElementById('muteToggle').addEventListener('change', (e) => {
-    sendFrame('Mute Toggle', 0x21, 0x22, [e.target.checked ? 0x01 : 0x00]);
+    // Якщо тумблер увімкнено (Mute Active), шлемо 0x00. Якщо вимкнено - 0x01.
+    const isMuted = e.target.checked;
+    sendFrame('Mute Device', 0x21, 0x22, [isMuted ? 0x00 : 0x01]);
   });
 
+  // Керування дисплеєм
   document.getElementById('displayToggle').addEventListener('change', (e) => {
-    sendFrame('Display Toggle', 0x21, 0x24, [e.target.checked ? 0x01 : 0x00]);
+    // Відправляємо експериментальну команду екрана
+    const isDisplayOff = e.target.checked;
+    sendFrame('Turn off Display', 0x21, 0x24, [isDisplayOff ? 0x00 : 0x01]);
   });
 
+  // Одиниці вимірювання температури
   document.getElementById('tempUnit').addEventListener('change', (e) => {
     const val = e.target.value === 'F' ? 0x01 : 0x00;
     sendFrame('Temp Unit', 0x21, 0x6D, [val]);
+  });
+
+  // Логіка зміни профілів і порогів (Alarm Settings)
+  const thresholds = {
+    'low': { y: 800, r: 1100 },
+    'medium': { y: 700, r: 1000 },
+    'high': { y: 500, r: 800 }
+  };
+
+  function sendThresholds(yellow, red) {
+    sendFrame('Set Alarm Limits', 0x41, 0x42, [(yellow >> 8) & 0xFF, yellow & 0xFF, (red >> 8) & 0xFF, red & 0xFF]);
+  }
+
+  document.getElementById('activityLevel').addEventListener('change', (e) => {
+    const val = e.target.value;
+    const customDiv = document.getElementById('customLimits');
+    
+    if (val === 'custom') {
+      customDiv.style.display = 'block';
+    } else {
+      customDiv.style.display = 'none';
+      document.getElementById('yellowLimit').value = thresholds[val].y;
+      document.getElementById('redLimit').value = thresholds[val].r;
+      sendThresholds(thresholds[val].y, thresholds[val].r);
+    }
+  });
+
+  document.getElementById('saveLimitsBtn').addEventListener('click', () => {
+    const y = parseInt(document.getElementById('yellowLimit').value);
+    const r = parseInt(document.getElementById('redLimit').value);
+    sendThresholds(y, r);
   });
 </script>
 
