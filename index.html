@@ -38,7 +38,7 @@
       font-size: 11px; height: 150px; overflow-y: auto; color: #cbd5e1;
     }
   input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin:8px 0 16px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f8fafc;font:inherit}p{font-size:14px;color:#94a3b8;line-height:1.5}.metric{overflow-wrap:anywhere}@media(max-width:380px){.grid{grid-template-columns:1fr}} [hidden]{display:none!important}.archive-wide{max-width:1100px}.archive-actions{display:flex;flex-wrap:wrap;gap:8px}.archive-actions .btn{width:auto;flex:1;min-width:130px}.archive-chart{display:block;width:100%;height:240px;box-sizing:border-box;touch-action:none;border:1px solid #334155;border-radius:12px;cursor:crosshair}#pointDetails{min-height:44px;color:#e2e8f0;background:#0f172a;padding:12px;border-radius:8px}#archivePosition{padding:0;accent-color:#38bdf8}#historyPage h2{margin-top:24px}.chart-panel{margin:20px 0;padding:12px;background:#0f172a;border:1px solid #334155;border-radius:12px}.chart-panel h3{display:flex;justify-content:space-between;gap:12px;margin:0}.chart-panel p{margin:8px 0 12px;font-size:12px}.chart-panel span{font-variant-numeric:tabular-nums}.battery-panel{margin:14px 0;padding:16px;border-radius:14px;border:1px solid #334155;background:#101d31}.battery-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;color:#cbd5e1}.battery-heading strong{font-size:30px;color:#34d399;font-variant-numeric:tabular-nums}.battery-track{height:9px;background:#334155;border-radius:8px;overflow:hidden;margin:12px 0 8px}#batteryFill{height:100%;width:0;background:#34d399;transition:width .3s}.battery-caption{font-size:12px!important;color:#94a3b8}.eco-switch{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:14px}.eco-switch input{appearance:none;flex:none;width:44px;height:26px;border:0;border-radius:20px;background:#475569;margin:0;padding:3px;cursor:pointer}.eco-switch input:before{content:'';display:block;width:20px;height:20px;border-radius:50%;background:#f8fafc;transition:transform .2s}.eco-switch input:checked{background:#2563eb}.eco-switch input:checked:before{transform:translateX(18px)}.battery-panel[data-tone=low]{border-color:#f87171}.battery-panel[data-tone=low] strong{color:#f87171}.battery-panel[data-tone=low] #batteryFill{background:#f87171}.battery-panel[data-tone=charge-stop]{border-color:#fbbf24}.battery-panel[data-tone=charge-stop] strong{color:#fbbf24}#batteryAdvice{color:#e2e8f0;margin-bottom:0}
-</style>
+.charge-banner{position:sticky;top:8px;z-index:10;margin:8px 0 16px;padding:16px;border-radius:12px;border:2px solid #38bdf8;background:#0c2940;color:#e0f2fe;font-weight:650;box-shadow:0 6px 24px #02061788;line-height:1.5}.charge-banner[data-alert=true]{background:#422a09;color:#fef3c7;border-color:#fbbf24}.battery-panel[data-charging=true] #batteryFill{background:repeating-linear-gradient(110deg,#34d399 0px,#34d399 12px,#6ee7b7 12px,#6ee7b7 22px);background-size:44px 100%;animation:charge-flow 1.2s linear infinite}.battery-panel[data-charging=true] #batteryChargeState{color:#6ee7b7;font-weight:700}@keyframes charge-flow{to{background-position:44px 0}}@media(prefers-reduced-motion:reduce){.battery-panel[data-charging=true] #batteryFill{animation:none}}</style>
 </head>
 <body>
 
@@ -48,7 +48,7 @@
     <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Самостійне підключення та перевірка налаштувань</p>
   </div>
 
-<button id="openArchive" class="btn" style="margin-bottom:16px">📈 Історія та графік</button>
+<div id="chargeBanner" class="charge-banner" role="status" aria-live="polite" hidden></div><button id="openArchive" class="btn" style="margin-bottom:16px">📈 Історія та графік</button>
 <p id="bootStatus" role="alert" style="padding:12px;border:1px solid #f59e0b;border-radius:8px">Запуск HTRAM… Якщо повідомлення залишається, відкрийте сайт у Chrome або Edge.</p>
 <main id="monitorPage">
   <div class="card">
@@ -59,10 +59,10 @@
     <div id="batteryPanel" class="battery-panel" data-tone="unknown">
       <div class="battery-heading"><span>Акумулятор датчика</span><strong id="batteryPercent">—</strong></div>
       <div class="battery-track" aria-hidden="true"><div id="batteryFill"></div></div>
-      <div id="batteryChargeState" class="battery-caption">Очікування даних</div>
-      <p id="batteryAdvice" role="status">Заряд з’явиться після отримання показників датчика.</p>
+      <div id="batteryChargeState" class="battery-caption" role="status">Очікування даних</div>
+      <button id="checkCharge" class="btn" disabled>Перевірити заряд зараз</button><p id="batteryAdvice" role="status">Заряд з’явиться після отримання показників датчика.</p>
       <label class="eco-switch" for="ecoMode"><input id="ecoMode" type="checkbox"><span>Ощадний зв’язок · не частіше одного разу на хвилину</span></label>
-      <p class="battery-caption">Заряд оцінюється поділками по 25%; точні 80% та автоматичне припинення зарядки недоступні. Перемикач зменшує частоту запитів застосунку, не змінює режим вимірювань датчика.</p>
+      <p class="battery-caption">Нагадування від’єднати зарядку: 3 із 4 поділок (приблизно 75%). Автоматичне припинення зарядки недоступне. Якщо заряджання виявлено, заряд перевіряється приблизно раз на 30 с, поки сторінка або застосунок активні. Перемикач зменшує частоту запитів застосунку, не змінює режим вимірювань датчика.</p>
     </div>
     <button id="connectBtn" class="btn">📡 Підключити HTRAM</button><button id="disconnectBtn" class="btn btn-danger" hidden disabled>Від’єднати</button>
   </div>
@@ -188,9 +188,9 @@ const Battery=(()=>{
 function batteryAdvice(reading){
  if(!reading||!Number.isInteger(reading.batteryBars)||reading.batteryBars<0||reading.batteryBars>4)return {label:'—',tone:'unknown',message:'Заряд з’явиться після отримання показників датчика.'};
  const percent=reading.batteryBars*25,charging=reading.charging;
- if(charging&&percent>=75)return {label:`≈${percent}%`,tone:'charge-stop',message:'Заряд наближається до орієнтира 80% або перевищує його. Для бережного заряджання від’єднайте кабель приблизно на 80% за індикатором приладу.'};
- if(percent<=25)return {label:`≈${percent}%`,tone:'low',message:charging?'Низький заряд. Заряджання триває; орієнтир — близько 80%.':'Низький заряд: підключіть датчик до зарядки. Для бережного заряджання орієнтуйтеся приблизно на 80%.'};
- return {label:`≈${percent}%`,tone:charging?'charging':'normal',message:charging?'Датчик заряджається. Орієнтир бережного заряджання — близько 80%.':'Датчик працює від акумулятора. Для бережного заряджання орієнтуйтеся приблизно на 80%.'};
+ if(charging&&percent>=75)return {label:`≈${percent}%`,tone:'charge-stop',message:'Датчик заряджено на три чверті або більше — від’єднайте зарядний кабель.'};
+ if(percent<=25)return {label:`≈${percent}%`,tone:'low',message:charging?'Низький заряд. Заряджання триває; орієнтир — три чверті (3 із 4 поділок).':'Низький заряд: підключіть датчик до зарядки. Для бережного заряджання орієнтуйтеся на три чверті (3 із 4 поділок).'};
+ return {label:`≈${percent}%`,tone:charging?'charging':'normal',message:charging?'Датчик заряджається. Орієнтир бережного заряджання — три чверті (3 із 4 поділок).':'Датчик працює від акумулятора. Для бережного заряджання орієнтуйтеся на три чверті (3 із 4 поділок).'};
 }
 
 return {batteryAdvice};})();const {batteryAdvice}=Battery;
@@ -530,8 +530,12 @@ function parseSound(frame) {
  * @returns {boolean|null} true = Celsius, false = Fahrenheit
  */
 function parseTempUnit(frame) {
-  if (!frame || frame.length < 13) return null;
-  return frame[9] === 0 ? true : frame[9] === 1 ? false : null;
+  if(!frame||!frameIsValid(frame)||frameOpcode(frame)!==0x216e)return null;
+  // Actual V1.00 response: 7b410007216e0200ea277d (body 02 00).
+  const body=frame.subarray(6,frame.length-3);
+  if(body.length===2&&body[0]===2)return body[1]===0?true:body[1]===1?false:null;
+  if(body.length===4&&body[0]===2&&body[1]===6)return body[3]===0?true:body[3]===1?false:null;
+  return null;
 }
 
 /**
@@ -817,7 +821,7 @@ async function fetchArchive(link,{signal,onBlock=()=>{},onRetry=()=>{},maxBlocks
    cancelled();
    if(Date.now()-lastHeartbeat>=8000){await link.send(buildHeartbeatRequest());lastHeartbeat=Date.now();}
    try{link.log?.('Архів: адреса '+key+', спроба '+(attempt+1));frame=await link.send(buildDataLogRequest(address),0x2193,timeoutMs);break;}
-   catch(e){cancelled();if(attempt>=retries||!/Немає відповіді|timeout|Таймаут/i.test(e.message))throw e;link.acc?.reset();onRetry({address:address.slice(),attempt:attempt+2,message:e.message});if(retryDelayMs)await new Promise(resolve=>setTimeout(resolve,retryDelayMs));}
+   catch(e){cancelled();if(attempt>=retries||!/Немає відповіді|timeout|Таймаут/i.test(e.message))throw e;link.acc?.reset();if(link.checkHealth&&!await link.checkHealth()){link.disconnect();throw Error('Датчик перестав відповідати навіть на heartbeat. З’єднання закрито; підключіть повторно й продовжіть архів.');}onRetry({address:address.slice(),attempt:attempt+2,message:e.message});if(retryDelayMs)await new Promise(resolve=>setTimeout(resolve,retryDelayMs));}
   }
   cancelled();
   if(!frame||frame.length<14||(frame.length-14)%8!==0)throw Error('Некоректна довжина блоку архіву');
@@ -883,6 +887,19 @@ class SingleHistoryChart {
     if(visible.length<80){ctx.fillStyle=m.color;for(const r of visible){const v=r[this.metric];if(v!==null&&Number.isFinite(v)){ctx.beginPath();ctx.arc(x(r.timestamp),y(v),2.5,0,Math.PI*2);ctx.fill();}}}
     if(this.selected>=0){const r=this.records[this.selected],px=x(r.timestamp);ctx.strokeStyle='#e2e8f0';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();}ctx.restore();
     ctx.fillStyle='#94a3b8';ctx.textAlign='left';ctx.fillText(this.formatTime(this.start),left,h-20);ctx.textAlign='right';ctx.fillText(this.formatTime(this.end),right,h-4);
+    if(this.selected>=0&&this.records[this.selected]){
+      const record=this.records[this.selected],px=x(record.timestamp);
+      if(px>=left&&px<=right){
+        const dateText=this.formatTime(record.timestamp),valueText=m.label+': '+(record[this.metric]??'—')+' '+m.unit;
+        const estimate=text=>ctx.measureText?.(text)?.width??text.length*7;
+        ctx.save();ctx.font='bold 13px system-ui';const boxWidth=Math.min(w-16,Math.max(estimate(dateText),estimate(valueText))+24),boxHeight=52;
+        const boxLeft=Math.max(8,Math.min(w-boxWidth-8,px-boxWidth/2)),boxTop=top+5;
+        ctx.fillStyle='#12243c';ctx.fillRect(boxLeft,boxTop,boxWidth,boxHeight);ctx.strokeStyle=m.color;ctx.lineWidth=1;ctx.setLineDash([]);ctx.strokeRect(boxLeft,boxTop,boxWidth,boxHeight);
+        ctx.textAlign='left';ctx.fillStyle='#f8fafc';ctx.fillText(dateText,boxLeft+12,boxTop+20);ctx.font='12px system-ui';ctx.fillStyle=m.color;ctx.fillText(valueText,boxLeft+12,boxTop+39);
+        const value=record[this.metric];if(Number.isFinite(value)){ctx.beginPath();ctx.arc(px,y(value),4,0,Math.PI*2);ctx.fill();}ctx.restore();this.canvas.title=dateText+' · '+valueText;this.canvas.setAttribute?.('aria-label',dateText+' · '+valueText);
+      }else this.canvas.title='';
+    }else this.canvas.title='';
+
   }
 }
 
@@ -898,7 +915,7 @@ class HistoryChart {
   }
   setTimeMode(mode){for(const panel of this.charts)panel.formatTime=t=>formatArchiveDate(t,mode);this.draw();}
   get records(){return this.primary.records;}get min(){return this.primary.min;}get max(){return this.primary.max;}get start(){return this.primary.start;}get end(){return this.primary.end;}
-  setData(records){this.syncing=true;try{for(const panel of this.charts)panel.setData(records);}finally{this.syncing=false;}if(records.length)this.onWindow?.(this.start,this.end);}
+  setData(records){const selectedTime=this.primary.selected>=0?this.primary.records[this.primary.selected]?.timestamp:null;this.syncing=true;try{for(const panel of this.charts)panel.setData(records);}finally{this.syncing=false;}if(records.length){if(selectedTime!==null&&selectedTime!==undefined){const index=nearestIndex(records,selectedTime);for(const panel of this.charts){panel.selected=index;panel.draw();}}this.onWindow?.(this.start,this.end);}}
   changed(source,start,end){if(this.syncing)return;this.syncing=true;try{for(const panel of this.charts)if(panel!==source)panel.setWindow(start,end);}finally{this.syncing=false;}this.onWindow?.(start,end);}
   select(source,record){if(!record)return;for(const panel of this.charts){panel.selected=source.selected;panel.draw();}this.onSelect?.(record);}
   setWindow(start,end){this.primary.setWindow(start,end);}zoom(factor,anchor=0.5){this.primary.zoom(factor,anchor);}pan(fraction){this.primary.pan(fraction);}draw(){for(const panel of this.charts)panel.draw();}
@@ -936,7 +953,7 @@ class HistoryUI {
   show(open,update=true){$('monitorPage').hidden=open;$('historyPage').hidden=!open;document.querySelector('.container').classList.toggle('archive-wide',open);if(update)history.replaceState(null,'',open?'#history':location.pathname+location.search);if(open)requestAnimationFrame(()=>this.chart.draw());}
   setConnected(enabled){this.enabled=enabled;$('fetchArchive').disabled=!enabled||!!this.abort;}
   buttons(active){$('abortArchive').hidden=!active;$('importJson').disabled=active;$('archiveReadMode').disabled=active;$('fetchArchive').disabled=active||!this.enabled;}
-  refresh(keepWindow=false){const before=keepWindow&&this.chart.records.length?{start:this.chart.start,end:this.chart.end,min:this.chart.min,max:this.chart.max}:null;const mode=$('archiveClock').value||'device';const displayed=this.records.map(r=>{if(r.source!=='live'||mode==='utc')return r;const d=new Date(r.timestamp*1000);return {...r,rawTimestamp:r.timestamp,timestamp:Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds())/1000};}).sort((a,b)=>a.timestamp-b.timestamp);this.chart.setData(displayed);if(before){const full=before.start===before.min&&before.end===before.max;if(!full){const width=before.end-before.start;this.chart.setWindow(before.end===before.max?this.chart.max-width:before.start,before.end===before.max?this.chart.max:before.end);}}this.details(null);this.source();if(!this.records.length){$('archiveStats').textContent='Записів: 0';$('archiveRange').textContent='Архів порожній';}for(const id of ['csvAll','csvView','jsonAll'])$(id).disabled=!this.records.length;}
+  refresh(keepWindow=false){const before=keepWindow&&this.chart.records.length?{start:this.chart.start,end:this.chart.end,min:this.chart.min,max:this.chart.max}:null;const mode=$('archiveClock').value||'device';const displayed=this.records.map(r=>{if(r.source!=='live'||mode==='utc')return r;const d=new Date(r.timestamp*1000);return {...r,rawTimestamp:r.timestamp,timestamp:Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds())/1000};}).sort((a,b)=>a.timestamp-b.timestamp);this.chart.setData(displayed);if(before){const full=before.start===before.min&&before.end===before.max;if(!full){const width=before.end-before.start;this.chart.setWindow(before.end===before.max?this.chart.max-width:before.start,before.end===before.max?this.chart.max:before.end);}}this.details(this.chart.primary.selected>=0?this.chart.records[this.chart.primary.selected]:null);this.source();if(!this.records.length){$('archiveStats').textContent='Записів: 0';$('archiveRange').textContent='Архів порожній';}for(const id of ['csvAll','csvView','jsonAll'])$(id).disabled=!this.records.length;}
   source(){const m=this.meta;$('archiveSource').textContent=m.demo?'ДЕМО • синтетичні дані':`${m.name??'Датчик'} • ${m.complete?'архів дочитано до кінця':'неповний архів'}${m.savedAt?' • '+new Date(m.savedAt).toLocaleString('uk-UA'):''}`;}
   details(r){for(const [key,id,unit] of [['co2','co2Point','ppm'],['temperature','tempPoint','°C'],['humidity','humidityPoint','%']])$(id).textContent=r?String(r[key]??'—')+' '+unit:'—';$('pointDetails').textContent=r?`${fmt(r.timestamp)} · CO₂: ${r.co2??'—'} ppm · температура: ${r.temperature??'—'} °C · вологість: ${r.humidity??'—'} % · ${r.source==='live'?'поточне опитування':'пам’ять датчика'}`:'Торкніться графіка або наведіть вказівник, щоб побачити точні значення. Клавіші ← → вибирають сусідні записи.';}
   windowChanged(start,end){
@@ -1002,16 +1019,16 @@ return HistoryUI;})();
 
 
 const $=id=>document.getElementById(id), link=new Link();
-let settings=null, deviceUnit=null, latest=null, heartbeat=null, polling=null, busy=false, pollBusy=false;
+let settings=null, deviceUnit=null, latest=null, heartbeat=null, polling=null,chargeWatch=null, busy=false, pollBusy=false;
 let pollInterval=5,ecoMode=false,lastPollAt=0;
 const lines=[];
 const archive=new HistoryUI(()=>action(async()=>{stopTimers();window.AndroidBridge?.keepAwake(true);try{return await archive.download(link);}finally{window.AndroidBridge?.keepAwake(false);startTimers();}}));
 let lastLogPaint=0;function log(text){const line=`[${new Date().toLocaleTimeString('uk-UA')}] ${text}`;lines.push(line);if(lines.length>1000)lines.shift();if(busy&&Date.now()-lastLogPaint<500)return;lastLogPaint=Date.now();$('log').textContent=lines.join('\n');$('log').style.whiteSpace='pre-wrap';$('log').scrollTop=$('log').scrollHeight;}
-function controls(){const enabled=link.ready&&!busy;archive.setConnected(enabled);$('controls').disabled=!enabled;for(const id of ['muteOnBtn','muteOffBtn'])$(id).disabled=!enabled;$('saveScreen').disabled=!settings;$('saveThresholds').disabled=!settings;$('connectBtn').hidden=link.ready;$('disconnectBtn').hidden=!link.ready;$('disconnectBtn').disabled=!link.device;}
-function stopTimers(){clearInterval(heartbeat);clearInterval(polling);heartbeat=polling=null;}
-function startTimers(){stopTimers();if(!link.ready)return;heartbeat=setInterval(()=>{if(!busy&&!pollBusy)link.send(P.buildHeartbeatRequest()).catch(e=>log(e.message));},15000);polling=setInterval(()=>poll(),effectiveInterval(pollInterval,ecoMode)*1000);}
+function controls(){const enabled=link.ready&&!busy;archive.setConnected(enabled);$('controls').disabled=!enabled;for(const id of ['muteOnBtn','muteOffBtn'])$(id).disabled=!enabled;$('saveScreen').disabled=!settings;$('saveThresholds').disabled=!settings;$('connectBtn').hidden=link.ready;$('disconnectBtn').hidden=!link.ready;$('disconnectBtn').disabled=!link.device;$('checkCharge').disabled=!enabled;}
+function stopTimers(){clearInterval(heartbeat);clearInterval(polling);clearInterval(chargeWatch);heartbeat=polling=chargeWatch=null;}
+function startTimers(){stopTimers();if(!link.ready)return;heartbeat=setInterval(()=>{if(!busy&&!pollBusy)link.send(P.buildHeartbeatRequest()).catch(e=>log(e.message));},15000);polling=setInterval(()=>poll(),effectiveInterval(pollInterval,ecoMode)*1000);chargeWatch=setInterval(()=>{if(latest?.charging&&Date.now()-lastPollAt>=30000)poll();},5000);}
 async function poll(){if(!link.ready||busy||pollBusy)return;pollBusy=true;lastPollAt=Date.now();try{await link.send(P.buildRealtimeRequest(),0x4144);}catch(e){log(e.message);$('lastUpdate').textContent='Не отримано свіжі дані; останні показники можуть бути застарілими';}finally{pollBusy=false;}}
-function renderBattery(){const advice=batteryAdvice(latest);$('batteryPercent').textContent=advice.label;$('batteryAdvice').textContent=advice.message;$('batteryPanel').setAttribute('data-tone',advice.tone);$('batteryFill').style.width=latest?String(Math.max(0,Math.min(100,latest.batteryBars*25)))+'%':'0%';$('batteryChargeState').textContent=latest?(latest.charging?'⚡ Підключено зарядку':'Автономна робота'):'Очікування даних';} function render(){renderBattery();if(!latest)return;const d=latest;$('co2Value').textContent=d.co2===null?'Прогрів':`${d.co2} ppm`;const low=settings?.alarmLow??800,high=settings?.alarmHigh??1000;$('riskStatus').textContent=d.co2===null?'—':d.co2<low?'Низький':d.co2<high?'Середній':'Високий';$('riskStatus').style.color=d.co2===null?'#94a3b8':d.co2<low?'#10b981':d.co2<high?'#f59e0b':'#ef4444';const c=$('webUnit').value==='C';$('temperature').textContent=d.temperature===null?'—':`${(c?d.temperature:d.temperature*9/5+32).toFixed(1)} °${c?'C':'F'}`;$('humidity').textContent=d.humidity===null?'—':d.humidity+' %';$('battery').textContent=`Акумулятор: приблизно ${d.battery}%${d.charging?' · заряджання':''}`;}
+function renderBattery(){const advice=batteryAdvice(latest);const charging=!!latest?.charging;$('batteryPanel').setAttribute('data-charging',String(charging));$('chargeBanner').hidden=!charging;$('chargeBanner').setAttribute('data-alert',String(advice.tone==='charge-stop'));$('chargeBanner').textContent=charging?(advice.tone==='charge-stop'?'🔌 Три чверті заряду або більше ('+advice.label+'). Від’єднайте зарядний кабель.':'⚡ Датчик заряджається · '+advice.label+' · нагадування при 3 із 4 поділок.'):'';$('batteryPercent').textContent=advice.label;$('batteryAdvice').textContent=advice.message;$('batteryPanel').setAttribute('data-tone',advice.tone);$('batteryFill').style.width=latest?String(Math.max(0,Math.min(100,latest.batteryBars*25)))+'%':'0%';$('batteryChargeState').textContent=latest?(latest.charging?'⚡ Підключено зарядку':'Автономна робота'):'Очікування даних';} function render(){renderBattery();if(!latest)return;const d=latest;$('co2Value').textContent=d.co2===null?'Прогрів':`${d.co2} ppm`;const low=settings?.alarmLow??800,high=settings?.alarmHigh??1000;$('riskStatus').textContent=d.co2===null?'—':d.co2<low?'Низький':d.co2<high?'Середній':'Високий';$('riskStatus').style.color=d.co2===null?'#94a3b8':d.co2<low?'#10b981':d.co2<high?'#f59e0b':'#ef4444';const c=$('webUnit').value==='C';$('temperature').textContent=d.temperature===null?'—':`${(c?d.temperature:d.temperature*9/5+32).toFixed(1)} °${c?'C':'F'}`;$('humidity').textContent=d.humidity===null?'—':d.humidity+' %';$('battery').textContent=`Акумулятор: приблизно ${d.battery}%${d.charging?' · заряджання':''}`;}
 async function readSettings(){
   const f=await link.send(P.buildSettingsGetRequest(),0x4143);const s=P.parseSettings(f);if(!s)throw Error('Неповна відповідь налаштувань');
   settings=s;$('low').value=s.alarmLow;$('high').value=s.alarmHigh;
@@ -1030,7 +1047,7 @@ $('connectBtn').onclick=async()=>{if(busy||link.ready)return;busy=true;$('connec
   $('statusText').textContent='Підключення…';await link.connect();$('statusDot').classList.add('connected');$('statusText').textContent='Підключено: '+link.device.name;
   for(const query of [readSettings,readUnit,async()=>{const f=await link.send(P.buildSoundGetRequest(),0x2723);log('Зумер: '+(P.parseSound(f)?'увімкнений':'вимкнений'));},async()=>{const f=await link.send(P.buildFirmwareRequest(),0x2123);$('deviceInfo').textContent='Прошивка: '+(P.parseFirmware(f)??'невідома');}]){if(!link.ready)break;try{await query();}catch(e){log(e.message);}}
 }catch(e){log(e.message);$('statusText').textContent='Помилка: '+e.message;if(link.device)link.disconnect();}finally{busy=false;$('connectBtn').disabled=false;controls();startTimers();await poll();}};
-$('disconnectBtn').onclick=()=>link.disconnect();
+$('disconnectBtn').onclick=()=>link.disconnect();$('checkCharge').onclick=()=>poll();
 $('readSettings').onclick=()=>action(async()=>{await readSettings();await readUnit();return 'Налаштування зчитано з датчика';});
 $('saveThresholds').onclick=()=>action(async()=>{const low=Number($('low').value),high=Number($('high').value);if(!$('low').value||!$('high').value||!Number.isInteger(low)||!Number.isInteger(high)||low<400||high>5000||low>=high)throw Error('Потрібні цілі пороги 400–5000 ppm; нижній має бути меншим');if(!settings)throw Error('Спочатку зчитайте налаштування');await link.send(P.buildSettingsSetRequest(low,high,settings.screenOff),0x4343);const s=await readSettings();if(s.alarmLow!==low||s.alarmHigh!==high)throw Error('Повторне зчитування не підтвердило пороги');return 'Пороги підтверджено повторним зчитуванням';});
 $('saveScreen').onclick=()=>action(async()=>{const target=Number($('screen').value);if(![0,120].includes(target))throw Error('Оберіть 0 або 120');if(!settings)throw Error('Спочатку зчитайте налаштування');
