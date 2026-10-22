@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HTRAM Settings</title>
-  <!-- Підключення бібліотеки для малювання графіків -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --subtext: #86868b;
@@ -23,10 +21,10 @@
       border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
       display: flex; justify-content: space-between; align-items: center;
     }
-    .btn-connect { color: var(--accent); background: none; border: none; font-size: 16px; cursor: pointer; font-weight: 500; }
+    .btn-connect { color: var(--accent); background: none; border: none; font-size: 16px; cursor: pointer; font-weight: 600; padding: 0; }
     
     .dashboard { padding: 20px; text-align: center; background: var(--card); margin-bottom: 20px; }
-    .gauge-value { font-size: 48px; font-weight: 800; display: flex; justify-content: center; align-items: baseline; gap: 5px; }
+    .gauge-value { font-size: 48px; font-weight: 800; display: flex; justify-content: center; align-items: baseline; gap: 5px; color: #000; }
     .gauge-unit { font-size: 16px; font-weight: 600; color: var(--subtext); }
     .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 5px; background: #e5e5ea; color: var(--subtext); }
     
@@ -34,17 +32,16 @@
     .settings-group { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     .setting-row { 
       display: flex; justify-content: space-between; align-items: center; 
-      padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 16px;
+      padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 16px; font-weight: 500;
     }
     .setting-row:last-child { border-bottom: none; }
-    .setting-value { color: var(--subtext); font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    .setting-value { color: var(--subtext); font-size: 16px; display: flex; align-items: center; gap: 8px; font-weight: 400; }
     
     select, input[type="number"] {
       border: none; background: transparent; color: var(--subtext); font-size: 16px;
-      text-align: right; outline: none; appearance: none; width: 120px; direction: rtl;
+      text-align: right; outline: none; appearance: none; width: 140px; direction: rtl; cursor: pointer;
     }
     
-    /* iOS Style Toggle Switch */
     .switch { position: relative; display: inline-block; width: 50px; height: 30px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e5e5ea; transition: .4s; border-radius: 30px; }
@@ -53,35 +50,33 @@
     input:checked + .slider:before { transform: translateX(20px); }
     input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
 
-    .chart-container { padding: 15px; background: var(--card); margin-bottom: 20px; }
+    .chart-container { padding: 15px 20px; background: var(--card); margin-bottom: 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    canvas { width: 100%; height: 120px; display: block; }
     
     .log-container { padding: 20px; }
-    .log-box { background: #1e1e1e; color: #a9b7c6; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; height: 120px; overflow-y: auto; }
+    .log-box { background: #1e1e1e; color: #a9b7c6; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; height: 100px; overflow-y: auto; }
+    .raw-box { background: #000; color: #0f0; font-family: monospace; font-size: 12px; padding: 8px; border-radius: 8px; margin-top: 10px; word-break: break-all; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Верхня панель (Header) -->
   <div class="header">
-    <span style="color:var(--accent)">&#10094; Back</span>
+    <span style="color:var(--accent); font-weight: 500;">&#10094; Back</span>
     <span>Settings</span>
     <button id="connectBtn" class="btn-connect">Connect</button>
   </div>
 
-  <!-- Дашборд -->
   <div class="dashboard">
     <div class="gauge-value"><span id="co2Value">--</span><span class="gauge-unit">CO2<br>PPM</span></div>
     <div id="riskStatus" class="status-badge">Waiting for data...</div>
   </div>
 
-  <!-- Графік (Data History) -->
   <div class="section-title">Data History</div>
   <div class="chart-container">
-    <canvas id="co2Chart" height="150"></canvas>
+    <canvas id="co2Chart" width="400" height="120"></canvas>
   </div>
 
-  <!-- General Settings -->
   <div class="section-title">General</div>
   <div class="settings-group">
     <div class="setting-row">
@@ -94,7 +89,6 @@
     </div>
   </div>
 
-  <!-- Device Settings -->
   <div class="section-title">Device Settings</div>
   <div class="settings-group">
     
@@ -153,7 +147,6 @@
     </div>
   </div>
 
-  <!-- Device Information -->
   <div class="section-title">Device Information</div>
   <div class="settings-group">
     <div class="setting-row">
@@ -162,48 +155,60 @@
     </div>
     <div class="setting-row">
       <span>Firmware Version</span>
-      <span class="setting-value" id="firmwareUI">V1.00</span>
+      <span class="setting-value">V1.00</span>
     </div>
   </div>
 
-  <!-- Технічний лог -->
   <div class="log-container">
-    <div style="font-size: 12px; color: var(--subtext); margin-bottom: 5px;">Protocol Log</div>
+    <div style="font-size: 13px; font-weight: 600; margin-bottom: 5px;">Raw Data Scanner</div>
+    <div id="rawBox" class="raw-box">No packets yet</div>
+    <div style="font-size: 13px; font-weight: 600; margin-top: 15px; margin-bottom: 5px;">Protocol Log</div>
     <div id="log" class="log-box">Ready.<br></div>
   </div>
-
 </div>
 
 <script>
-  // Ініціалізація графіка Chart.js
-  const ctx = document.getElementById('co2Chart').getContext('2d');
-  const co2Chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'CO2 PPM',
-        data: [],
-        borderColor: '#007aff',
-        backgroundColor: 'rgba(0, 122, 255, 0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 0
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: { display: false },
-        y: { beginAtZero: false, suggestedMin: 400, suggestedMax: 1500 }
-      },
-      plugins: { legend: { display: false } }
-    }
-  });
+  window.onerror = function(msg) { log(`🔴 JS Error: ${msg}`); return false; };
 
-  // Логіка оновлення значень Alarm Settings
+  // Автономний графік (без зовнішніх бібліотек)
+  const co2History = [];
+  const MAX_POINTS = 30;
+  
+  function drawChart() {
+    const canvas = document.getElementById('co2Chart');
+    if (!canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    
+    ctx.clearRect(0, 0, w, h);
+    if (co2History.length < 2) return;
+
+    const minVal = 400;
+    let maxVal = Math.max(1200, ...co2History) + 100;
+    
+    const dx = w / (MAX_POINTS - 1);
+    
+    ctx.beginPath();
+    ctx.strokeStyle = '#007aff';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    
+    for (let i = 0; i < co2History.length; i++) {
+      const x = i * dx;
+      const y = h - ((co2History[i] - minVal) / (maxVal - minVal)) * h;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Заливка під графіком
+    ctx.lineTo((co2History.length - 1) * dx, h);
+    ctx.lineTo(0, h);
+    ctx.fillStyle = 'rgba(0, 122, 255, 0.1)';
+    ctx.fill();
+  }
+
+  // Обробка профілів
   const thresholds = {
     'low': { y: 800, r: 1100 },
     'medium': { y: 700, r: 1000 },
@@ -219,7 +224,6 @@
       customDiv.style.display = 'none';
       document.getElementById('yellowLimit').value = thresholds[val].y;
       document.getElementById('redLimit').value = thresholds[val].r;
-      // Відправка команди зміни порогів
       sendThresholds(thresholds[val].y, thresholds[val].r);
     }
   });
@@ -230,9 +234,7 @@
     sendThresholds(y, r);
   });
 
-  // ----------------------------------------------------
   // BLE ПРОтОКОЛ (UART + CRC16)
-  // ----------------------------------------------------
   const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
   const WRITE_CHAR_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
   const READ_CHAR_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
@@ -267,14 +269,12 @@
     try {
       const data = buildFrame(cmdId1, cmdId2, payloadBytes);
       await writeChar.writeValueWithoutResponse(data);
-      log(`${name} [${Array.from(data).map(x=>x.toString(16).padStart(2,'0')).join('')}]`);
+      log(`${name} OK [${Array.from(data).map(x=>x.toString(16).padStart(2,'0')).join('')}]`);
     } catch (err) { log(`Error [${name}]: ${err.message}`); }
   }
 
   function sendThresholds(yellow, red) {
-    // Відправка порогів (Custom Thresholds Command)
-    // 0x41 0x43 (або подібна команда запису порогів). Якщо не знаємо точну команду запису, 
-    // використовуємо стандартну структуру: [0x41, 0x43, Y_Hi, Y_Lo, R_Hi, R_Lo]
+    // 0x41 0x42 - Write Alarm Limits
     sendFrame('Set Alarm', 0x41, 0x42, [(yellow >> 8) & 0xFF, yellow & 0xFF, (red >> 8) & 0xFF, red & 0xFF]);
   }
 
@@ -302,12 +302,12 @@
       document.getElementById('connectBtn').innerText = 'Connected';
       document.getElementById('connectBtn').style.color = 'var(--success)';
 
-      // Рукостискання (Init BLE)
+      // Розблоковуємо UI одразу, щоб можна було клацати
+      document.querySelectorAll('input, select, button').forEach(el => el.disabled = false);
+
+      // Рукостискання
       log('Init BLE Handshake...');
       await sendFrame('Init', 0x75, 0x58, [0x01]);
-
-      // Розблоковуємо всі елементи керування UI
-      document.querySelectorAll('input, select, button').forEach(el => el.disabled = false);
 
     } catch (err) {
       log(`Connection failed: ${err.message}`);
@@ -316,73 +316,71 @@
 
   function handleData(event) {
     const value = event.target.value;
-    if (value.byteLength < 10) return;
+    if (value.byteLength < 2) return;
 
     let hexStr = "";
     for (let i = 0; i < value.byteLength; i++) {
-        hexStr += value.getUint8(i).toString(16).padStart(2, '0');
+        hexStr += value.getUint8(i).toString(16).padStart(2, '0').toUpperCase() + " ";
     }
+    document.getElementById('rawBox').innerText = hexStr;
     
-    // Парсинг CO2
-    if (hexStr.includes('4144')) {
-        let co2 = value.getUint16(7, false); 
-        if (co2 < 400 || co2 > 5000) {
-            for (let i = 4; i < value.byteLength - 2; i++) {
-                let v = value.getUint16(i, false);
-                if (v >= 400 && v <= 5000) { co2 = v; break; }
-            }
-        }
+    // Бронебійний парсер CO2 (шукаємо будь-яке число від 400 до 5000)
+    let co2 = 0;
+    for (let i = 0; i < value.byteLength - 1; i++) {
+        // Уникаємо службових маркерів
+        if (value.getUint8(i) === 0xFE || value.getUint8(i) === 0x3F) continue;
+        
+        let valBE = value.getUint16(i, false);
+        let valLE = value.getUint16(i, true);
+        
+        if (valBE >= 400 && valBE <= 5000) { co2 = valBE; break; }
+        if (valLE >= 400 && valLE <= 5000) { co2 = valLE; break; }
+    }
 
-        if (co2 >= 400) {
-            document.getElementById('co2Value').innerText = co2;
-            
-            // Оновлення графіка
-            const timeStr = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-            co2Chart.data.labels.push(timeStr);
-            co2Chart.data.datasets[0].data.push(co2);
-            if (co2Chart.data.labels.length > 20) {
-              co2Chart.data.labels.shift();
-              co2Chart.data.datasets[0].data.shift();
-            }
-            co2Chart.update();
+    if (co2 >= 400) {
+        document.getElementById('co2Value').innerText = co2;
+        
+        // Оновлення графіка
+        co2History.push(co2);
+        if (co2History.length > MAX_POINTS) co2History.shift();
+        drawChart();
 
-            // Оновлення статусу ризику
-            const riskElem = document.getElementById('riskStatus');
-            const yellow = parseInt(document.getElementById('yellowLimit').value) || 800;
-            const red = parseInt(document.getElementById('redLimit').value) || 1100;
+        // Оновлення статусу ризику
+        const riskElem = document.getElementById('riskStatus');
+        const yellow = parseInt(document.getElementById('yellowLimit').value) || 800;
+        const red = parseInt(document.getElementById('redLimit').value) || 1100;
 
-            if (co2 < yellow) {
-                riskElem.innerText = 'Low Risk'; 
-                riskElem.style.backgroundColor = 'rgba(52, 199, 89, 0.15)'; 
-                riskElem.style.color = 'var(--success)';
-            } else if (co2 >= yellow && co2 < red) {
-                riskElem.innerText = 'Medium Risk'; 
-                riskElem.style.backgroundColor = 'rgba(255, 149, 0, 0.15)'; 
-                riskElem.style.color = 'var(--warning)';
-            } else {
-                riskElem.innerText = 'High Risk'; 
-                riskElem.style.backgroundColor = 'rgba(255, 59, 48, 0.15)'; 
-                riskElem.style.color = 'var(--danger)';
-            }
+        if (co2 < yellow) {
+            riskElem.innerText = 'Low Risk'; 
+            riskElem.style.backgroundColor = 'rgba(52, 199, 89, 0.15)'; 
+            riskElem.style.color = 'var(--success)';
+        } else if (co2 >= yellow && co2 < red) {
+            riskElem.innerText = 'Medium Risk'; 
+            riskElem.style.backgroundColor = 'rgba(255, 149, 0, 0.15)'; 
+            riskElem.style.color = 'var(--warning)';
+        } else {
+            riskElem.innerText = 'High Risk'; 
+            riskElem.style.backgroundColor = 'rgba(255, 59, 48, 0.15)'; 
+            riskElem.style.color = 'var(--danger)';
         }
     }
   }
 
   // Обробники перемикачів (Toggles)
   document.getElementById('muteToggle').addEventListener('change', (e) => {
-    // Використовуємо знайдену команду статусу зумера
+    // 0x21 0x22 - Mute Device
     sendFrame('Mute Toggle', 0x21, 0x22, [e.target.checked ? 0x01 : 0x00]);
   });
 
   document.getElementById('displayToggle').addEventListener('change', (e) => {
-    // Відправляємо експериментальну команду вимкнення екрана (0x21, 0x24)
+    // 0x21 0x24 - Display Toggle (або інша, відправиться як експериментальна)
     sendFrame('Display Toggle', 0x21, 0x24, [e.target.checked ? 0x01 : 0x00]);
   });
 
   document.getElementById('tempUnit').addEventListener('change', (e) => {
-    // Команда для одиниць температури
+    // 0x21 0x6F - Temp Unit Toggle
     const val = e.target.value === 'F' ? 0x01 : 0x00;
-    sendFrame('Temp Unit', 0x21, 0x6D, [val]);
+    sendFrame('Temp Unit', 0x21, 0x6F, [val]);
   });
 </script>
 
