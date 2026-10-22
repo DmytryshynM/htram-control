@@ -38,56 +38,34 @@
       font-size: 11px; height: 150px; overflow-y: auto; color: #cbd5e1;
     }
   input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin:8px 0 16px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f8fafc;font:inherit}p{font-size:14px;color:#94a3b8;line-height:1.5}.metric{overflow-wrap:anywhere}@media(max-width:380px){.grid{grid-template-columns:1fr}} [hidden]{display:none!important}.archive-wide{max-width:1100px}.archive-actions{display:flex;flex-wrap:wrap;gap:8px}.archive-actions .btn{width:auto;flex:1;min-width:130px}.archive-chart{display:block;width:100%;height:240px;box-sizing:border-box;touch-action:none;border:1px solid #334155;border-radius:12px;cursor:crosshair}#pointDetails{min-height:44px;color:#e2e8f0;background:#0f172a;padding:12px;border-radius:8px}#archivePosition{padding:0;accent-color:#38bdf8}#historyPage h2{margin-top:24px}.chart-panel{margin:20px 0;padding:12px;background:#0f172a;border:1px solid #334155;border-radius:12px}.chart-panel h3{display:flex;justify-content:space-between;gap:12px;margin:0}.chart-panel p{margin:8px 0 12px;font-size:12px}.chart-panel span{font-variant-numeric:tabular-nums}.battery-panel{margin:14px 0;padding:16px;border-radius:14px;border:1px solid #334155;background:#101d31}.battery-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;color:#cbd5e1}.battery-heading strong{font-size:30px;color:#34d399;font-variant-numeric:tabular-nums}.battery-track{height:9px;background:#334155;border-radius:8px;overflow:hidden;margin:12px 0 8px}#batteryFill{height:100%;width:0;background:#34d399;transition:width .3s}.battery-caption{font-size:12px!important;color:#94a3b8}.eco-switch{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:14px}.eco-switch input{appearance:none;flex:none;width:44px;height:26px;border:0;border-radius:20px;background:#475569;margin:0;padding:3px;cursor:pointer}.eco-switch input:before{content:'';display:block;width:20px;height:20px;border-radius:50%;background:#f8fafc;transition:transform .2s}.eco-switch input:checked{background:#2563eb}.eco-switch input:checked:before{transform:translateX(18px)}.battery-panel[data-tone=low]{border-color:#f87171}.battery-panel[data-tone=low] strong{color:#f87171}.battery-panel[data-tone=low] #batteryFill{background:#f87171}.battery-panel[data-tone=charge-stop]{border-color:#fbbf24}.battery-panel[data-tone=charge-stop] strong{color:#fbbf24}#batteryAdvice{color:#e2e8f0;margin-bottom:0}
-.charge-banner{position:sticky;top:8px;z-index:10;margin:8px 0 16px;padding:16px;border-radius:12px;border:2px solid #38bdf8;background:#0c2940;color:#e0f2fe;font-weight:650;box-shadow:0 6px 24px #02061788;line-height:1.5}.charge-banner[data-alert=true]{background:#422a09;color:#fef3c7;border-color:#fbbf24}.battery-panel[data-charging=true] #batteryFill{background:repeating-linear-gradient(110deg,#34d399 0px,#34d399 12px,#6ee7b7 12px,#6ee7b7 22px);background-size:44px 100%;animation:charge-flow 1.2s linear infinite}.battery-panel[data-charging=true] #batteryChargeState{color:#6ee7b7;font-weight:700}@keyframes charge-flow{to{background-position:44px 0}}@media(prefers-reduced-motion:reduce){.battery-panel[data-charging=true] #batteryFill{animation:none}}.setting-switch{margin:12px 0;padding:14px;border:1px solid #334155;border-radius:12px;background:#0f172a}.setting-switch .eco-switch{margin:0}.setting-switch p{font-size:12px;margin:8px 0 0}.switch-subtitle{display:block;font-size:12px;color:#94a3b8;font-weight:400;margin-top:5px;line-height:1.5}.sync-status{padding:12px;border:1px solid #475569;border-radius:10px;line-height:1.6}.sync-status[data-state=success]{color:#6ee7b7;border-color:#34d399}.sync-status[data-state=error]{color:#fca5a5;border-color:#ef4444}.eco-switch input:disabled{opacity:.45;cursor:wait}.report-visual-card{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;margin:14px 0}.report-visual-card h4{margin:0 0 8px}.report-legend{color:#cbd5e1!important} </style>
+.charge-banner{position:sticky;top:8px;z-index:10;margin:8px 0 16px;padding:16px;border-radius:12px;border:2px solid #38bdf8;background:#0c2940;color:#e0f2fe;font-weight:650;box-shadow:0 6px 24px #02061788;line-height:1.5}.charge-banner[data-alert=true]{background:#422a09;color:#fef3c7;border-color:#fbbf24}.battery-panel[data-charging=true] #batteryFill{background:repeating-linear-gradient(110deg,#34d399 0px,#34d399 12px,#6ee7b7 12px,#6ee7b7 22px);background-size:44px 100%;animation:charge-flow 1.2s linear infinite}.battery-panel[data-charging=true] #batteryChargeState{color:#6ee7b7;font-weight:700}@keyframes charge-flow{to{background-position:44px 0}}@media(prefers-reduced-motion:reduce){.battery-panel[data-charging=true] #batteryFill{animation:none}}.setting-switch{margin:12px 0;padding:14px;border:1px solid #334155;border-radius:12px;background:#0f172a}.setting-switch .eco-switch{margin:0}.setting-switch p{font-size:12px;margin:8px 0 0}.switch-subtitle{display:block;font-size:12px;color:#94a3b8;font-weight:400;margin-top:5px;line-height:1.5}.sync-status{padding:12px;border:1px solid #475569;border-radius:10px;line-height:1.6}.sync-status[data-state=success]{color:#6ee7b7;border-color:#34d399}.sync-status[data-state=error]{color:#fca5a5;border-color:#ef4444}.eco-switch input:disabled{opacity:.45;cursor:wait}.report-visual-card{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;margin:14px 0}.report-visual-card h4{margin:0 0 8px}.report-legend{color:#cbd5e1!important} 
+*{box-sizing:border-box}body{padding:12px 12px calc(16px + env(safe-area-inset-bottom))}.container{min-width:0}.header{margin:4px 0 16px}.header h2{font-size:24px}.header p{margin-bottom:0}.card{padding:16px}.page-nav{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#0f172af5;padding:8px 0 12px;backdrop-filter:blur(8px)}.page-nav button{min-height:48px;min-width:0;padding:9px 2px;border:1px solid #334155;border-radius:10px;background:#1e293b;color:#cbd5e1;font:inherit;font-size:clamp(10px,2.7vw,12px);white-space:nowrap;cursor:pointer}.page-nav button[aria-current=page]{background:#2563eb;border-color:#60a5fa;color:#fff;font-weight:650}.back-link{border:0;background:none;color:#93c5fd;font:inherit;padding:8px 0 16px;min-height:44px;cursor:pointer}.connection-card .status{font-size:14px;overflow-wrap:anywhere}.connection-card p{font-size:12px;margin:4px 0 8px}.connection-card .btn{margin-top:4px}.current-readings{text-align:center}.co2-reading .metric{font-size:clamp(40px,12vw,64px);letter-spacing:-2px;margin:8px 0}.eyebrow{font-size:13px;color:#94a3b8}.risk-label{display:inline-block;border:1px solid #334155;border-radius:99px;padding:5px 14px;font-size:14px;font-weight:650}.secondary-readings{padding-top:20px;margin-top:20px;border-top:1px solid #334155;grid-template-columns:1fr 1fr}.secondary-readings .metric{font-size:clamp(24px,7vw,34px)}#lastUpdate{font-size:12px;margin-bottom:0}.charge-card{padding:0}.charge-card .battery-panel{margin:0;border:0;background:transparent}.battery-heading strong{font-size:26px}.compact-help{margin-top:12px}summary{cursor:pointer;color:#cbd5e1;font-size:14px;line-height:1.5}details.card>summary{min-height:28px}#actionStatus:empty{display:none}#actionStatus{font-size:13px;border-left:3px solid #38bdf8;padding:8px 12px;margin:0 0 12px}.page-intro{margin-top:-8px}.state-values{margin:12px 0 0}.state-values dt{font-size:12px;color:#94a3b8;margin-top:16px}.state-values dd{margin:4px 0 0;overflow-wrap:anywhere;font-size:16px}.chart-panel{min-width:0;padding:10px}.archive-chart{height:220px}.archive-wide{max-width:1100px}#historyPage{padding:12px}#historyPage #backMonitor{display:none}.charge-banner{position:static;font-size:13px}.grid{min-width:0}.grid>*{min-width:0}fieldset{min-width:0}.log-box{overflow-wrap:anywhere}button,input,select{max-width:100%}@media(min-width:600px){.page-nav button{font-size:14px}.archive-chart{height:260px}}@media(max-width:360px){body{padding:8px}.card{padding:12px}.page-nav button{font-size:10px}.secondary-readings{grid-template-columns:1fr 1fr}}
+.archive-options{margin:14px 0}.archive-options[open]{padding:12px;background:#0f172a;border-radius:10px}#archiveSource,#archiveProgress{font-size:12px}.native-options h3{display:none}.native-options{padding-top:12px}</style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h2 style="margin-bottom: 5px;">HTRAM Controller 🇺🇦</h2>
-    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Самостійне підключення та перевірка налаштувань</p>
+    <h2 style="margin-bottom: 5px;">HTRAM Україна</h2>
+    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Повітря під контролем</p>
   </div>
 
-<div id="chargeBanner" class="charge-banner" role="status" aria-live="polite" hidden></div><button id="openArchive" class="btn" style="margin-bottom:16px">📈 Історія та графік</button>
+<div id="chargeBanner" class="charge-banner" role="status" aria-live="polite" hidden></div><nav class="page-nav" aria-label="Розділи"><button id="navHome" type="button">Показники</button><button id="navSettings" type="button">Налаштування</button><button id="navStatus" type="button">Стан</button><button id="openArchive" type="button">Історія</button></nav><button id="navBack" class="back-link" hidden>← Поточні показники</button><p id="actionStatus" role="status" aria-live="polite"></p>
 <p id="bootStatus" role="alert" style="padding:12px;border:1px solid #f59e0b;border-radius:8px">Запуск HTRAM… Якщо повідомлення залишається, відкрийте сайт у Chrome або Edge.</p>
-<main id="monitorPage">
-  <div class="card">
-    <div class="status">
-      <div id="statusDot" class="dot"></div>
-      <span id="statusText">Стан: Не підключено</span>
-    </div>
-    <div id="batteryPanel" class="battery-panel" data-tone="unknown">
+<main id="monitorPage" aria-label="Поточні показники">
+<section class="card connection-card"><div class="status"><div id="statusDot" class="dot"></div><span id="statusText">Не підключено</span></div><p id="deviceInfo">Двічі натисніть кнопку на датчику для запуску Bluetooth.</p><div class="connection-actions"><button id="connectBtn" class="btn">Підключити датчик</button><button id="disconnectBtn" class="btn btn-danger" hidden disabled>Від’єднати</button></div></section>
+<section class="card current-readings"><div class="co2-reading"><span class="eyebrow">CO₂ · зараз</span><div id="co2Value" class="metric">— ppm</div><div id="riskStatus" class="risk-label">—</div></div><div class="grid secondary-readings"><div><span class="eyebrow">Температура</span><div id="temperature" class="metric">—</div></div><div><span class="eyebrow">Вологість</span><div id="humidity" class="metric">—</div></div></div><p id="lastUpdate" role="status">Очікування показників</p><p id="battery" hidden>Акумулятор: —</p></section>
+<section class="card charge-card"><div id="batteryPanel" class="battery-panel" data-tone="unknown">
       <div class="battery-heading"><span>Акумулятор датчика</span><strong id="batteryPercent">—</strong></div>
       <div class="battery-track" aria-hidden="true"><div id="batteryFill"></div></div>
       <div id="batteryChargeState" class="battery-caption" role="status">Очікування даних</div>
       <button id="checkCharge" class="btn" disabled>Перевірити заряд зараз</button><p id="batteryAdvice" role="status">Заряд з’явиться після отримання показників датчика.</p>
       <label class="eco-switch" for="ecoMode"><input id="ecoMode" type="checkbox"><span>Ощадний зв’язок<span id="ecoInterval" class="switch-subtitle"></span></span></label>
-      <p class="battery-caption">Нагадування від’єднати зарядку: 3 із 4 поділок (приблизно 75%). Автоматичне припинення зарядки недоступне. Якщо заряджання виявлено, заряд перевіряється приблизно раз на 30 с, поки сторінка або застосунок активні. Перемикач зменшує частоту запитів застосунку, не змінює режим вимірювань датчика.</p>
-    </div>
-    <button id="connectBtn" class="btn">📡 Підключити HTRAM</button><button id="disconnectBtn" class="btn btn-danger" hidden disabled>Від’єднати</button>
-  </div>
-
-  <div class="card grid">
-    <div>
-      <label>Рівень CO₂</label>
-      <div id="co2Value" class="metric">-- ppm</div>
-    </div>
-    <div>
-      <label>Статус Ризику</label>
-      <div id="riskStatus" class="metric" style="color: var(--success); font-size: 22px; margin-top: 15px;">--</div>
-    </div>
-  </div>
-
+      <details class="compact-help"><summary>Про заряд і ощадний зв’язок</summary><p class="battery-caption">Нагадування від’єднати зарядку: 3 із 4 поділок (приблизно 75%). Автоматичне припинення зарядки недоступне. Якщо заряджання виявлено, заряд перевіряється приблизно раз на 30 с, поки сторінка або застосунок активні. Перемикач зменшує частоту запитів застосунку, не змінює режим вимірювань датчика.</p></details>
+    </div></section>
 <div hidden><button id="muteOnBtn" disabled>Вимкнути звук</button><button id="muteOffBtn" disabled>Увімкнути звук</button></div>
-
-  <div class="card">
-    
-    <p id="deviceInfo">Двічі натисніть кнопку на датчику для запуску Bluetooth.</p>
-    <p id="lastUpdate" aria-live="polite">Очікування показників</p>
-    <div class="grid"><div>Температура<div id="temperature" class="metric">—</div></div><div>Вологість<div id="humidity" class="metric">—</div></div></div>
-    <p id="battery">Акумулятор: —</p>
-  </div>
-  <div class="card">
+</main>
+<section id="settingsPage" hidden aria-labelledby="settingsTitle"><h2 id="settingsTitle">Налаштування</h2><p class="page-intro">Параметри датчика та робота застосунку.</p><div class="card">
     <h3>Налаштування пристрою</h3>
     <fieldset id="controls" disabled style="border:0;padding:0;margin:0">
       <label for="low">Нижній поріг CO₂, ppm</label>
@@ -110,34 +88,40 @@
       </div><button id="readSettings" class="btn">Зчитати налаштування</button>
       <button id="syncTime" class="btn">Синхронізувати час</button><button id="readClock" class="btn">Перевірити час датчика</button><p id="deviceClock">Час датчика ще не зчитано</p><p id="syncStatus" class="sync-status" role="status" aria-live="polite">Підключіть датчик для синхронізації часу.</p>
     </fieldset>
-    <p id="actionStatus" role="status" aria-live="polite"></p>
-  </div>
-  <div class="card">
+    
+  </div><div class="card">
+    <h3>Інтервал журналу датчика · дослідження</h3>
+    <p>SENSOR_LOG_INTERVAL стосується журналу. Його вплив на внутрішній період вимірювань CO₂, температури й вологості не підтверджено.</p>
+    <label for="sensorLogSeconds">Бажаний інтервал, секунди</label>
+    <input id="sensorLogSeconds" type="number" min="1" step="1" inputmode="numeric" value="600" aria-describedby="sensorLogHelp">
+    <button id="saveLogDraft" class="btn">Зберегти бажане значення</button>
+    <button id="readLogInterval" class="btn" disabled>Перевірити відповідь датчика</button>
+    <button id="applyLogInterval" class="btn" disabled aria-describedby="sensorLogHelp">Запис у датчик недоступний</button>
+    <p id="sensorLogHelp">Формат запису 0x2264 для HTRAM не встановлено. Збереження поля залишає лише локальну чернетку й не змінює прилад. Перевірка надсилає тільки запит читання 0x2064.</p>
+    <p id="sensorLogState" role="status" aria-live="polite">Інтервал датчика не зчитано. Значення поля не є поточним налаштуванням приладу.</p>
+  </div><div class="card">
     <h3>Оновлення показників</h3>
     <label for="pollSeconds">Інтервал опитування й оновлення показників</label>
-    <select id="pollSeconds"><option value="5">5 секунд</option><option value="60">1 хвилина</option><option value="300">5 хвилин</option><option value="600">10 хвилин</option><option value="1800">30 хвилин</option><option value="3600">1 година</option><option value="43200">12 годин</option><option value="86400">24 години</option></select>
+    <select id="pollSeconds"><option value="5">5 секунд</option><option value="60">1 хвилина</option><option value="300">5 хвилин</option><option value="600" selected>10 хвилин</option><option value="1800">30 хвилин</option><option value="3600">1 година</option><option value="43200">12 годин</option><option value="86400">24 години</option></select>
     <button id="savePoll" class="btn">Застосувати інтервал</button>
-    <p>Визначає інтервал оновлення показників під час активного підключення. Внутрішній інтервал вимірювань і запису в пам’ять приладу не змінюється.</p>
+    <p>Визначає інтервал оновлення показників під час активного підключення. CO₂, температура, вологість і заряд приходять одним пакетом. Внутрішній інтервал вимірювань і запису в пам’ять приладу не змінюється.</p>
     <label for="webUnit">Температура в інтерфейсі</label>
     <select id="webUnit"><option value="C">°C</option><option value="F">°F</option></select>
-    <button id="exportLog" class="btn">Завантажити журнал для діагностики</button>
-  </div>
-  <div class="card">
-    <h3>Системний лог · HTRAM 1.4.0</h3>
+    
+  </div><section class="card"><h3>Сповіщення</h3><label class="eco-switch"><input type="checkbox" id="notifyEnabled"> Сповіщати про CO₂ та акумулятор</label><p id="notifyState">Після ввімкнення дозвольте сповіщення. Перевірка відбувається при отриманні свіжих показників під час активного підключення; після закриття застосунку моніторинг припиняється.</p><button class="btn" id="testNotification">Перевірити сповіщення</button></section><section class="card" id="backgroundPanel" hidden><h3>Фонове опитування Android</h3><label class="eco-switch"><input id="backgroundMode" type="checkbox"> Продовжувати опитування у фоні</label><p id="backgroundStatus">Спочатку підключіть датчик. Служба використовує вибраний інтервал; після виявлення заряджання перевіряє заряд кожні 30 секунд або частіше. За довгого інтервалу нове підключення кабелю буде виявлено під час наступного опитування; можна натиснути «Перевірити заряд зараз».</p><p>Постійне повідомлення містить кнопку «Зупинити». Служба підтримує зв’язок і використовує заряд смартфона. Після примусового зупинення Android її потрібно ввімкнути знову.</p></section><details class="card"><summary>Сумісність Bluetooth</summary><section class="native-options" id="nativeTransport" hidden><h3>Сумісність Bluetooth</h3><label class="eco-switch"><input type="checkbox" id="legacyBle"> Не запитувати великий MTU</label><p>Застосовується при наступному підключенні. Для перевірки архіву спробуйте цей режим, потім звичайний; журнал містить фактичний MTU.</p></section></details></section>
+<section id="statusPage" hidden aria-labelledby="stateTitle"><h2 id="stateTitle">Стан датчика</h2><p class="page-intro">Окремий знімок на момент запиту. Для нового знімка натисніть кнопку ще раз.</p><div class="card"><button id="readState" class="btn" disabled>Запитати стан зараз</button><p id="stateReadAt" role="status">Стан ще не запитували</p><dl id="stateValues" class="state-values"></dl></div><section class="card"><h3>Паспорт датчика</h3><p>Модель: Honeywell HTRAM-V1-W · вимірює CO₂, температуру та вологість. Модель визначена з наданої вами фотографії.</p><p id="passportIdentity">Серійний номер буде визначено з імені підключеного датчика.</p><p id="passportSku">SKU: ще не зчитано</p><p id="passportFirmware">Прошивка: ще не зчитано</p><p>Модуль ESP32-WROOM-32E (з етикетки). Акумулятор передає 4 поділки: відсоток приблизний. «Ощадний зв’язок» змінює опитування, а не режим живлення приладу.</p><details><summary>DC_MODE · дослідження</summary><p>У п’яти APK знайдено лише оголошення DC_MODE 40A3 v1 і DC_MODE_V2 40A2 v2, без прямих викликів. Це не підтверджений режим економії. Код 0x40A3 знайдено в переліку команд, але призначення, формат параметрів і підтримку цією прошивкою не підтверджено. Надсилання вимкнене до встановлення формату. Діагностичний журнал можна завантажити нижче в налаштуваннях.</p></details></section><details class="card"><summary>Журнал і діагностика</summary><button id="exportLog" class="btn">Зберегти журнал для діагностики</button><div class="card">
+    <h3>Системний лог · HTRAM 1.5.3</h3>
     <div id="log" class="log-box">Очікування підключення...<br></div>
-  </div>
-<section class="card"><h3>Паспорт датчика</h3><p>Модель: Honeywell HTRAM-V1-W · вимірює CO₂, температуру та вологість. Модель визначена з наданої вами фотографії.</p><p id="passportIdentity">Серійний номер буде визначено з імені підключеного датчика.</p><p id="passportSku">SKU: ще не зчитано</p><p id="passportFirmware">Прошивка: ще не зчитано</p><p>Модуль ESP32-WROOM-32E (з етикетки). Акумулятор передає 4 поділки: відсоток приблизний. «Ощадний зв’язок» змінює опитування, а не режим живлення приладу.</p><details><summary>DC_MODE · дослідження</summary><p>У п’яти APK знайдено лише оголошення DC_MODE 40A3 v1 і DC_MODE_V2 40A2 v2, без прямих викликів. Це не підтверджений режим економії. Код 0x40A3 знайдено в переліку команд, але призначення, формат параметрів і підтримку цією прошивкою не підтверджено. Надсилання вимкнене до встановлення формату. Діагностичний журнал можна завантажити нижче в налаштуваннях.</p></details></section>
-<section class="card"><h3>Сповіщення</h3><label class="eco-switch"><input type="checkbox" id="notifyEnabled"> Сповіщати про CO₂ та акумулятор</label><p id="notifyState">Після ввімкнення дозвольте сповіщення. Перевірка відбувається при отриманні свіжих показників під час активного підключення; після закриття застосунку моніторинг припиняється.</p><button class="btn" id="testNotification">Перевірити сповіщення</button></section>
-<section class="card" id="backgroundPanel" hidden><h3>Фонове опитування Android</h3><label class="eco-switch"><input id="backgroundMode" type="checkbox"> Продовжувати опитування у фоні</label><p id="backgroundStatus">Спочатку підключіть датчик. Служба використовує вибраний інтервал; після виявлення заряджання перевіряє заряд кожні 30 секунд або частіше. За довгого інтервалу нове підключення кабелю буде виявлено під час наступного опитування; можна натиснути «Перевірити заряд зараз».</p><p>Постійне повідомлення містить кнопку «Зупинити». Служба підтримує зв’язок і використовує заряд смартфона. Після примусового зупинення Android її потрібно ввімкнути знову.</p></section><section class="card" id="nativeTransport" hidden><h3>Сумісність Bluetooth</h3><label class="eco-switch"><input type="checkbox" id="legacyBle"> Не запитувати великий MTU</label><p>Застосовується при наступному підключенні. Для перевірки архіву спробуйте цей режим, потім звичайний; журнал містить фактичний MTU.</p></section></main>
+  </div></details></section>
 <section id="historyPage" class="card" hidden aria-labelledby="historyTitle">
-  <button id="backMonitor" class="btn">← До керування датчиком</button>
+  <button id="backMonitor" class="btn">← Поточні показники</button>
   <h2 id="historyTitle">Історія вимірювань</h2>
-  <p>Архів із пам’яті HTRAM: CO₂, температура та вологість. Підключення Bluetooth залишається на цій сторінці.</p>
+  <p>CO₂, температура й вологість на спільній часовій шкалі.</p>
   <div class="archive-actions"><button id="fetchArchive" class="btn" disabled>Зчитати архів із датчика</button><button id="abortArchive" class="btn btn-danger" hidden>Зупинити зчитування</button></div>
-  <label for="archiveReadMode">Як завантажувати архів</label><select id="archiveReadMode"><option value="auto">Довантажити / продовжити автоматично</option><option value="full">Прочитати весь архів з початку</option></select><label for="archiveClock">Часова шкала архіву</label><select id="archiveClock"><option value="device">Час приладу · без додаткового зсуву</option><option value="utc">Записи UTC · перевести в місцевий час</option></select><p id="clockStatus"></p><p id="archiveProgress" role="status" aria-live="polite">Для зчитування спочатку підключіть датчик на головному екрані.</p>
+  <details class="archive-options"><summary>Параметри зчитування і часу</summary><label for="archiveReadMode">Як завантажувати архів</label><select id="archiveReadMode"><option value="auto">Довантажити / продовжити автоматично</option><option value="full">Прочитати весь архів з початку</option></select><label for="archiveClock">Часова шкала архіву</label><select id="archiveClock"><option value="device">Час приладу · без додаткового зсуву</option><option value="utc">Записи UTC · перевести в місцевий час</option></select><p id="clockStatus"></p></details><p id="archiveProgress" role="status" aria-live="polite">Для зчитування спочатку підключіть датчик на головному екрані.</p>
   <p id="archiveSource">Архів ще не завантажено</p>
-  <p id="archiveCache">Архів автоматично зберігається в цьому браузері під час зчитування і відновлюється після оновлення сторінки. Для резервної копії завантажте JSON. Дані нікуди не надсилаються.</p>
-  <p>Три показники зі спільною часовою шкалою. Наближення та вибрана точка синхронізовані між графіками.</p>
+  <details class="compact-help"><summary>Локальне збереження архіву</summary><p id="archiveCache">Архів автоматично зберігається в цьому браузері під час зчитування і відновлюється після оновлення сторінки. Для резервної копії завантажте JSON. Дані нікуди не надсилаються.</p></details>
+  
   <div class="archive-actions"><button id="zoomIn" class="btn" aria-label="Наблизити графік">＋ Наблизити</button><button id="zoomOut" class="btn" aria-label="Віддалити графік">− Віддалити</button><button id="allTime" class="btn">Весь період</button></div>
   <div class="archive-actions"><button id="range1" class="btn">Остання година</button><button id="range24" class="btn">Остання доба</button><button id="range168" class="btn">Останній тиждень</button></div>
   <p id="archiveRange">Період ще не вибрано</p>
@@ -164,6 +148,36 @@ const fail=message=>{boot.hidden=false;boot.textContent='Не вдалося з�
 window.addEventListener('error',e=>fail(e.message||'помилка JavaScript'));
 window.addEventListener('unhandledrejection',e=>fail(e.reason?.message||String(e.reason)));
 try{
+const Navigation=(()=>{
+class Navigation {
+  constructor(archive){
+    this.archive=archive;
+    this.pages={monitor:'monitorPage',settings:'settingsPage',status:'statusPage',history:'historyPage'};
+    this.buttons={monitor:'navHome',settings:'navSettings',status:'navStatus',history:'openArchive'};
+    for(const [page,id] of Object.entries(this.buttons))document.getElementById(id).onclick=()=>this.show(page);
+    document.getElementById('navBack').onclick=()=>this.show('monitor');
+    document.getElementById('backMonitor').onclick=()=>this.show('monitor');
+    archive.navigate=(page,update)=>this.show(page,update);
+    window.addEventListener('hashchange',()=>this.show(location.hash.slice(1),false));
+    this.show(location.hash.slice(1)||'monitor',false);
+  }
+  show(page,update=true){
+    if(!this.pages[page])page='monitor';
+    this.current=page;
+    for(const [key,id] of Object.entries(this.pages))document.getElementById(id).hidden=key!==page;
+    for(const [key,id] of Object.entries(this.buttons)){
+      const button=document.getElementById(id);
+      button.setAttribute('aria-current',key===page?'page':'false');
+    }
+    document.getElementById('navBack').hidden=page==='monitor';
+    document.querySelector('.container').classList.toggle('archive-wide',page==='history');
+    if(update)history.replaceState(null,'',page==='monitor'?location.pathname+location.search:'#'+page);
+    if(page==='history')requestAnimationFrame(()=>this.archive.chart.draw());
+    window.scrollTo?.({top:0,behavior:'instant'});
+  }
+}
+
+return Navigation;})();
 const {dailyReports,reportMarkup}=(()=>{
 // Calendar days follow the chart's chosen clock. Means are sample means, not duration estimates.
 function dailyReports(records,endDate,mode='device') {
@@ -282,6 +296,20 @@ const CMD_LINK_STATUS = [0x74, 0x00];
 const CMD_RADIO_MODE = [0x74, 0x58];
 const CMD_TIME_SYNC = [0x22, 0x42];
 const CMD_FETCH_DATALOG = [0x20, 0x93];
+
+// Declared in the vendor SDK. HTRAM V1.00 has returned a version-only ACK.
+// No SET builder: payload layout and HTRAM support have not been established.
+function buildLogIntervalGetRequest(){return buildFrame([0x20,0x64],[1]);}
+function inspectLogIntervalResponse(frame){
+  if(!frameIsValid(frame)||frameOpcode(frame)!==0x2164||frame[6]!==1)throw Error('Некоректна відповідь SENSOR_LOG_INTERVAL');
+  const payload=Array.from(frame.subarray(7,-3));
+  return {hasValue:payload.length>0,raw:payload.map(b=>b.toString(16).padStart(2,'0')).join(' ')};
+}
+function validateLogIntervalDraft(value){
+  const text=String(value).trim();
+  if(!/^[0-9]+$/.test(text)||!Number.isSafeInteger(Number(text))||Number(text)<1)throw Error('Введіть додатну цілу кількість секунд');
+  return Number(text);
+}
 
 
 // Precompute CRC-16 table (0x8005, MSB-first)
@@ -742,7 +770,7 @@ class FrameAccumulator {
 
 
 
-return {FRAME_START,FRAME_END,FRAME_TYPE,CRC_POLY,SERVICE_UUID,WRITE_UUID,NOTIFY_UUID,CO2_INVALID,TEMP_INVALID,HUM_INVALID,CMD_REALTIME,CMD_HEARTBEAT,CMD_SOUND_GET,CMD_SOUND_SET,CMD_SETTINGS_GET,CMD_SETTINGS_SET,CMD_TEMP_UNIT_GET,CMD_TEMP_UNIT_SET,CMD_SERIAL,CMD_SKU,CMD_FIRMWARE,CMD_LINK_STATUS,CMD_RADIO_MODE,CMD_TIME_SYNC,CMD_FETCH_DATALOG,CRC16_TABLE,crc16,buildFrame,frameIsValid,frameOpcode,expectedResponseOpcode,bytesToHex,hexToBytes,buildRealtimeRequest,buildHeartbeatRequest,buildSoundGetRequest,buildSoundSetRequest,buildSettingsGetRequest,buildSettingsSetRequest,buildScreenOffSetRequest,buildTempUnitGetRequest,buildTempUnitSetRequest,buildSerialRequest,buildClockGetRequest,parseDeviceClock,parseSerial,buildSkuRequest,buildFirmwareRequest,buildLinkStatusRequest,buildRadioModeRequest,buildTimeSyncRequest,buildDataLogRequest,parseRealtime,parseSettings,parseSound,parseTempUnit,parseSku,parseFirmware,parseLinkStatus,parseDataLogResponse,FrameAccumulator};})();
+return {FRAME_START,FRAME_END,FRAME_TYPE,CRC_POLY,SERVICE_UUID,WRITE_UUID,NOTIFY_UUID,CO2_INVALID,TEMP_INVALID,HUM_INVALID,CMD_REALTIME,CMD_HEARTBEAT,CMD_SOUND_GET,CMD_SOUND_SET,CMD_SETTINGS_GET,CMD_SETTINGS_SET,CMD_TEMP_UNIT_GET,CMD_TEMP_UNIT_SET,CMD_SERIAL,CMD_SKU,CMD_FIRMWARE,CMD_LINK_STATUS,CMD_RADIO_MODE,CMD_TIME_SYNC,CMD_FETCH_DATALOG,buildLogIntervalGetRequest,inspectLogIntervalResponse,validateLogIntervalDraft,CRC16_TABLE,crc16,buildFrame,frameIsValid,frameOpcode,expectedResponseOpcode,bytesToHex,hexToBytes,buildRealtimeRequest,buildHeartbeatRequest,buildSoundGetRequest,buildSoundSetRequest,buildSettingsGetRequest,buildSettingsSetRequest,buildScreenOffSetRequest,buildTempUnitGetRequest,buildTempUnitSetRequest,buildSerialRequest,buildClockGetRequest,parseDeviceClock,parseSerial,buildSkuRequest,buildFirmwareRequest,buildLinkStatusRequest,buildRadioModeRequest,buildTimeSyncRequest,buildDataLogRequest,parseRealtime,parseSettings,parseSound,parseTempUnit,parseSku,parseFirmware,parseLinkStatus,parseDataLogResponse,FrameAccumulator};})();
 const Link=(()=>{
 
 class Link extends EventTarget {
@@ -987,11 +1015,11 @@ class HistoryUI {
     $('jsonAll').onclick=()=>saveFile('htram-archive.json',JSON.stringify({version:1,meta:{...this.meta,clockMode:$('archiveClock').value||'device'},records:this.records}), 'application/json');
     $('importJson').onchange=e=>this.importFile(e.target.files?.[0]);
     $('openArchive').onclick=()=>this.show(true);$('backMonitor').onclick=()=>this.show(false);
-    window.addEventListener('hashchange',()=>this.show(location.hash==='#history',false));
+    window.addEventListener('hashchange',()=>{if(!this.navigate)this.show(location.hash==='#history',false);});
     this.show(location.hash==='#history',false);this.buttons(false);
     const generation=this.generation;this.restorePromise=cache().then(saved=>{if(saved&&this.generation===generation&&!this.abort){this.records=normalizeRecords(saved.records);this.meta=saved.meta;this.refresh();$('archiveProgress').textContent='Відновлено останній архів із цього браузера';}}).catch(()=>{$('archiveCache').textContent='Не вдалося відкрити локальне сховище. Для резервної копії завантажте JSON.';});
   }
-  show(open,update=true){$('monitorPage').hidden=open;$('historyPage').hidden=!open;document.querySelector('.container').classList.toggle('archive-wide',open);if(update)history.replaceState(null,'',open?'#history':location.pathname+location.search);if(open)requestAnimationFrame(()=>this.chart.draw());}
+  show(open,update=true){if(this.navigate)return this.navigate(open?'history':'monitor',update);$('monitorPage').hidden=open;$('historyPage').hidden=!open;document.querySelector('.container').classList.toggle('archive-wide',open);if(update)history.replaceState(null,'',open?'#history':location.pathname+location.search);if(open)requestAnimationFrame(()=>this.chart.draw());}
   setConnected(enabled){this.enabled=enabled;$('fetchArchive').disabled=!enabled||!!this.abort;}
   buttons(active){$('abortArchive').hidden=!active;$('importJson').disabled=active;$('archiveReadMode').disabled=active;$('fetchArchive').disabled=active||!this.enabled;}
   refresh(keepWindow=false){const before=keepWindow&&this.chart.records.length?{start:this.chart.start,end:this.chart.end,min:this.chart.min,max:this.chart.max}:null;const mode=$('archiveClock').value||'device';const displayed=this.records.filter(r=>!$('hide2021').checked||new Date(r.timestamp*1000)[r.source==='live'||mode==='utc'?'getFullYear':'getUTCFullYear']()!==2021).map(r=>{if(r.source!=='live'||mode==='utc')return r;const d=new Date(r.timestamp*1000);return {...r,rawTimestamp:r.timestamp,timestamp:Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds())/1000};}).sort((a,b)=>a.timestamp-b.timestamp);this.chart.setData(displayed);const gaps=displayed.reduce((n,r,i)=>n+(i>0&&r.timestamp-displayed[i-1].timestamp>300?1:0),0);$('historyQuality').textContent='У сховищі: '+this.records.length+' · показано: '+displayed.length+' · прогалин понад 5 хв: '+gaps+'. Записи 2021 року '+($('hide2021').checked?'приховані':'видимі')+'; на датчику й у повному JSON вони залишаються.';if(before){const full=before.start===before.min&&before.end===before.max;if(!full){const width=before.end-before.start;this.chart.setWindow(before.end===before.max?this.chart.max-width:before.start,before.end===before.max?this.chart.max:before.end);}}this.details(this.chart.primary.selected>=0?this.chart.records[this.chart.primary.selected]:null);this.source();if(!displayed.length){$('archiveStats').textContent='Записів: 0';$('archiveRange').textContent='Архів порожній';}for(const id of ['csvAll','csvView','jsonAll'])$(id).disabled=!this.records.length;}
@@ -1063,14 +1091,15 @@ return HistoryUI;})();
 
 
 
+
 const $=id=>document.getElementById(id), link=new Link();
 let settings=null, deviceUnit=null, latest=null, heartbeat=null, polling=null,chargeWatch=null, busy=false, pollBusy=false;
-let pollInterval=5,ecoMode=false,lastPollAt=0,soundEnabled=null,syncPending=false,sessionSyncAt=null,syncError=null;
+let pollInterval=600,ecoMode=false,lastPollAt=0,soundEnabled=null,syncPending=false,sessionSyncAt=null,syncError=null;
 let clockReading=null,clockDelta=null,clockCheckedAt=0,backgroundEnabled=false,uiPaused=false;
 const lines=[];
 const archive=new HistoryUI(()=>action(async()=>{stopTimers();window.AndroidBridge?.keepAwake(true);try{return await archive.download(link);}finally{window.AndroidBridge?.keepAwake(false);startTimers();}}));
 let lastLogPaint=0;function log(text){const line=`[${new Date().toLocaleTimeString('uk-UA')}] ${text}`;lines.push(line);if(lines.length>1000)lines.shift();if(busy&&Date.now()-lastLogPaint<500)return;lastLogPaint=Date.now();$('log').textContent=lines.join('\n');$('log').style.whiteSpace='pre-wrap';$('log').scrollTop=$('log').scrollHeight;}
-function controls(){window.AndroidBridge?.setBusy?.(busy);$('readClock').disabled=!link.ready||busy;$('backgroundMode').disabled=!backgroundEnabled&&(!link.ready||busy);const enabled=link.ready&&!busy;for(const [id,known] of [['toggleScreen',settings&&[0,120].includes(settings.screenOff)],['toggleMute',soundEnabled!==null],['toggleFahrenheit',deviceUnit!==null]])$(id).disabled=!enabled||!known;if(!busy)renderSwitches();renderSyncStatus();renderEcoInterval();archive.setConnected(enabled);$('controls').disabled=!enabled;for(const id of ['muteOnBtn','muteOffBtn'])$(id).disabled=!enabled;$('saveScreen').disabled=!settings;$('saveThresholds').disabled=!settings;$('connectBtn').hidden=link.ready;$('disconnectBtn').hidden=!link.ready;$('disconnectBtn').disabled=!link.device;$('checkCharge').disabled=!enabled;}
+function controls(){$('readLogInterval').disabled=!link.ready||busy;window.AndroidBridge?.setBusy?.(busy);$('readClock').disabled=!link.ready||busy;$('readState').disabled=!link.ready||busy;$('backgroundMode').disabled=!backgroundEnabled&&(!link.ready||busy);const enabled=link.ready&&!busy;for(const [id,known] of [['toggleScreen',settings&&[0,120].includes(settings.screenOff)],['toggleMute',soundEnabled!==null],['toggleFahrenheit',deviceUnit!==null]])$(id).disabled=!enabled||!known;if(!busy)renderSwitches();renderSyncStatus();renderEcoInterval();archive.setConnected(enabled);$('controls').disabled=!enabled;for(const id of ['muteOnBtn','muteOffBtn'])$(id).disabled=!enabled;$('saveScreen').disabled=!settings;$('saveThresholds').disabled=!settings;$('connectBtn').hidden=link.ready;$('disconnectBtn').hidden=!link.ready;$('disconnectBtn').disabled=!link.device;$('checkCharge').disabled=!enabled;}
 function stopTimers(){clearInterval(heartbeat);clearInterval(polling);clearInterval(chargeWatch);heartbeat=polling=chargeWatch=null;}
 function startTimers(){stopTimers();if(!link.ready||backgroundEnabled||uiPaused)return;heartbeat=setInterval(()=>{if(!busy&&!pollBusy)link.send(P.buildHeartbeatRequest()).catch(e=>log(e.message));},15000);polling=setInterval(()=>poll(),effectiveInterval(pollInterval,ecoMode)*1000);chargeWatch=setInterval(()=>{if(latest?.charging&&Date.now()-lastPollAt>=30000)poll();},5000);}
 async function poll(){if(!link.ready||busy||pollBusy||uiPaused)return;pollBusy=true;lastPollAt=Date.now();try{if(backgroundEnabled){await link.rpc('pollNow');return;}await link.send(P.buildRealtimeRequest(),0x4144);}catch(e){log(e.message);$('lastUpdate').textContent='Не отримано свіжі дані; останні показники можуть бути застарілими';}finally{pollBusy=false;}}
@@ -1088,12 +1117,15 @@ async function readUnit(){const f=await link.send(P.buildTempUnitGetRequest(),0x
 async function action(fn){if(busy||!link.ready)return;busy=true;controls();$('actionStatus').textContent='Виконується…';try{$('actionStatus').textContent=await fn();}catch(e){$('actionStatus').textContent='Не підтверджено: '+e.message;log('ПОМИЛКА: '+e.message);}finally{busy=false;controls();}}
 link.addEventListener('log',e=>log(e.detail));
 link.addEventListener('frame',e=>{if(e.detail.op===0x4144){const d=P.parseRealtime(e.detail.frame);if(d){latest=d;render();checkAlerts();archive.addLive(d,link.device).catch(e=>log(e.message));$('lastUpdate').textContent='Оновлено: '+new Date().toLocaleTimeString('uk-UA');}}});
-link.addEventListener('state',e=>{if(!e.detail){stopTimers();settings=null;deviceUnit=null;soundEnabled=null;clockReading=null;clockDelta=null;$('deviceClock').textContent='Час датчика не перевірено: з’єднання відсутнє';sessionSyncAt=null;syncPending=false;syncError=null;latest=null;renderBattery();$('statusDot').classList.remove('connected');$('statusText').textContent='Не підключено';$('lastUpdate').textContent='З’єднання відсутнє';for(const id of ['co2Value','riskStatus','temperature','humidity'])$(id).textContent='—';$('battery').textContent='Акумулятор: —';$('settingsState').textContent='Налаштування ще не зчитано';$('unitState').textContent='Одиницю ще не зчитано';}controls();});
+link.addEventListener('state',e=>{if(!e.detail){$('sensorLogState').textContent='З’єднання відсутнє. Інтервал датчика не підтверджено.';stopTimers();settings=null;deviceUnit=null;soundEnabled=null;clockReading=null;clockDelta=null;$('deviceClock').textContent='Час датчика не перевірено: з’єднання відсутнє';sessionSyncAt=null;syncPending=false;syncError=null;latest=null;renderBattery();$('statusDot').classList.remove('connected');$('statusText').textContent='Не підключено';$('lastUpdate').textContent='З’єднання відсутнє';for(const id of ['co2Value','riskStatus','temperature','humidity'])$(id).textContent='—';$('battery').textContent='Акумулятор: —';$('settingsState').textContent='Налаштування ще не зчитано';$('unitState').textContent='Одиницю ще не зчитано';}controls();});
 $('connectBtn').onclick=async()=>{if(busy||link.ready)return;busy=true;$('connectBtn').disabled=true;try{
   if((!window.AndroidBridge&&!navigator.bluetooth)||!window.isSecureContext)throw Error('Потрібен браузер із Web Bluetooth та HTTPS або localhost');
   $('statusText').textContent='Підключення…';await link.connect();backgroundEnabled=!!link.nativeBackground;$('statusDot').classList.add('connected');$('statusText').textContent='Підключено: '+link.device.name;$('passportIdentity').textContent='Ім’я BLE: '+link.device.name+' · серійний номер з імені: '+(link.device.name.match(/RM[0-9]+/i)?.[0]??'не визначено')+' · це не окреме зчитування заводського номера';
   for(const query of [readSettings,readUnit,readSound,readClock,readPassport,async()=>{const f=await link.send(P.buildFirmwareRequest(),0x2123);$('deviceInfo').textContent='Прошивка: '+(P.parseFirmware(f)??'невідома');$('passportFirmware').textContent=$('deviceInfo').textContent;}]){if(!link.ready)break;try{await query();}catch(e){log(e.message);}}
 }catch(e){log(e.message);$('statusText').textContent='Помилка: '+e.message;if(link.device)link.disconnect();}finally{busy=false;$('connectBtn').disabled=false;controls();if(window.AndroidBridge?.serviceVersion){try{const native=await link.rpc('session');backgroundEnabled=!!native.background;$('backgroundMode').checked=backgroundEnabled;await importNativeSamples();}catch(e){log(e.message);}}startTimers();await poll();}};
+try{const draft=localStorage.getItem('htram-log-interval-draft');if(draft!==null)$('sensorLogSeconds').value=String(P.validateLogIntervalDraft(draft));}catch{}
+$('saveLogDraft').onclick=()=>{try{const seconds=P.validateLogIntervalDraft($('sensorLogSeconds').value);localStorage.setItem('htram-log-interval-draft',String(seconds));$('sensorLogState').textContent='Локальна чернетка: '+seconds+' с. У датчик нічого не записано.';}catch(e){$('sensorLogState').textContent=e.message;}};
+$('readLogInterval').onclick=()=>action(async()=>{try{const result=P.inspectLogIntervalResponse(await link.send(P.buildLogIntervalGetRequest(),0x2164));const message=result.hasValue?'Отримано байти значення: '+result.raw+'. Кодування ще не встановлено; запис недоступний.':'Датчик відповів без значення інтервалу (ACK). Підтримку налаштування не підтверджено; запис недоступний.';$('sensorLogState').textContent=message;return message;}catch(e){$('sensorLogState').textContent='Інтервал не зчитано: '+e.message;throw e;}});
 $('disconnectBtn').onclick=()=>link.disconnect();$('checkCharge').onclick=()=>poll();
 $('readSettings').onclick=()=>action(async()=>{await readSettings();await readUnit();await readSound();return 'Налаштування зчитано з датчика';});
 $('saveThresholds').onclick=()=>action(async()=>{const low=Number($('low').value),high=Number($('high').value);if(!$('low').value||!$('high').value||!Number.isInteger(low)||!Number.isInteger(high)||low<400||high>5000||low>=high)throw Error('Потрібні цілі пороги 400–5000 ppm; нижній має бути меншим');if(!settings)throw Error('Спочатку зчитайте налаштування');await link.send(P.buildSettingsSetRequest(low,high,settings.screenOff),0x4343);const s=await readSettings();if(s.alarmLow!==low||s.alarmHigh!==high)throw Error('Повторне зчитування не підтвердило пороги');return 'Пороги підтверджено повторним зчитуванням';});
@@ -1103,7 +1135,7 @@ $('saveScreen').onclick=()=>action(async()=>{const target=Number($('screen').val
 $('saveUnit').onclick=()=>action(async()=>{const target=$('unit').value==='C';await link.send(P.buildTempUnitSetRequest(target),0x2332);if(await readUnit()!==target)throw Error('Пристрій не підтвердив зміну °C/°F');return 'Одиницю температури підтверджено повторним зчитуванням';});
 for(const [id,enabled] of [['muteOnBtn',false],['muteOffBtn',true]])$(id).onclick=()=>action(async()=>{await link.send(P.buildSoundSetRequest(enabled),0x2743);if(await readSound()!==enabled)throw Error('Стан зумера не підтверджений');return enabled?'Звук увімкнено: стан зчитано з датчика':'Звук вимкнено: стан зчитано з датчика';});
 async function readClock(){const frame=await link.send(P.buildClockGetRequest(),0x2152);const parsed=P.parseDeviceClock(frame);if(!parsed)throw Error('Час датчика: некоректна відповідь BCD');clockCheckedAt=Date.now();const host=new Date(clockCheckedAt);clockReading=parsed;clockDelta=parsed.timestamp-Date.UTC(host.getFullYear(),host.getMonth(),host.getDate(),host.getHours(),host.getMinutes(),host.getSeconds())/1000;$('deviceClock').textContent='Час датчика: '+[parsed.day,parsed.month].map(n=>String(n).padStart(2,'0')).join('.')+'.'+parsed.year+', '+[parsed.hour,parsed.minute,parsed.second].map(n=>String(n).padStart(2,'0')).join(':')+' · відхилення від місцевого часу: '+(clockDelta>=0?'+':'')+clockDelta+' с · перевірено '+host.toLocaleTimeString('uk-UA');renderSyncStatus();return clockDelta;}
-async function readPassport(){const serial=P.parseSerial(await link.send(P.buildSerialRequest(),0x2120));if(!serial)throw Error('Номер приладу не підтверджений');$('passportIdentity').textContent='Серійний номер: '+serial+' · зчитано з датчика командою 2020';const sku=P.parseSku(await link.send(P.buildSkuRequest(),0x2121));$('passportSku').textContent='SKU: '+(sku??'не підтверджено')+' · команда 2021';}
+async function readPassport(){const serial=P.parseSerial(await link.send(P.buildSerialRequest(),0x2120));if(!serial)throw Error('Серійний номер не підтверджено');$('passportIdentity').textContent='Серійний номер: '+serial;const sku=P.parseSku(await link.send(P.buildSkuRequest(),0x2121));if(sku===null)throw Error('SKU не підтверджено');$('passportSku').textContent='SKU: '+sku;}
 $('readClock').onclick=()=>action(async()=>{await readClock();return 'Час і відхилення зчитано з датчика';});
 $('syncTime').onclick=()=>action(async()=>{syncPending=true;syncError=null;renderSyncStatus();try{await link.send(P.buildTimeSyncRequest(new Date()),0x2342);await new Promise(r=>setTimeout(r,200));await readClock();if(Math.abs(clockDelta)>3)throw Error('ACK отримано, але повторне читання показало відхилення '+clockDelta+' с');sessionSyncAt=Date.now();try{localStorage.setItem('htram-sync:'+link.device.id,String(sessionSyncAt));}catch{}return '✓ Синхронізацію перевірено повторним читанням годинника.';}catch(e){syncError=e.message;throw e;}finally{syncPending=false;renderSyncStatus();}});
 
@@ -1131,7 +1163,7 @@ $('savePoll').onclick=()=>{const n=Number($('pollSeconds').value);if(!POLL_INTER
 $('ecoMode').onchange=()=>{ecoMode=$('ecoMode').checked;try{localStorage.setItem('htram-eco',String(ecoMode));}catch{}startTimers();renderEcoInterval();$('actionStatus').textContent=ecoMode?'Ощадний зв’язок: інтервал щонайменше 60 с':'Звичайне опитування відновлено';};
 $('webUnit').onchange=render;
 $('exportLog').onclick=()=>{const url=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='htram-diagnostic.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
-try{const n=Number(localStorage.getItem('htram-poll'));if(POLL_INTERVALS.includes(n)){pollInterval=n;$('pollSeconds').value=n;}}catch{}
+try{const n=Number(localStorage.getItem('htram-poll'));pollInterval=POLL_INTERVALS.includes(n)?n:600;localStorage.setItem('htram-poll',String(pollInterval));}catch{}$('pollSeconds').value=String(pollInterval);
 try{ecoMode=localStorage.getItem('htram-eco')==='true';$('ecoMode').checked=ecoMode;}catch{}
 function resumePolling(){if(link.ready&&!busy&&Date.now()-lastPollAt>=effectiveInterval(pollInterval,ecoMode)*1000)poll();}window.addEventListener('htram-resume',()=>{uiPaused=false;startTimers();resumePolling();});window.addEventListener('htram-pause',()=>{uiPaused=true;stopTimers();archive.abort?.abort();});document.addEventListener?.('visibilitychange',()=>{if(document.visibilityState==='visible')resumePolling();});renderBattery();window.addEventListener('pagehide',()=>{if(!backgroundEnabled&&!link.nativeBackground)link.disconnect();});controls();
 
@@ -1155,7 +1187,28 @@ if(window.AndroidBridge?.serviceVersion){$('backgroundPanel').hidden=false;$('ba
 }
 try{notificationsOn=localStorage.getItem('htram-alerts')==='true';$('notifyEnabled').checked=notificationsOn;}catch{}
 
-log('HTRAM 1.4.0 · перевірка годинника / фонова служба Android');
+log('HTRAM 1.5.2 · перевірка годинника / фонова служба Android');
+
+const navigation=new Navigation(archive);
+$('readState').onclick=()=>action(async()=>{
+  const values=[];let failed=0;
+  const add=(label,value)=>values.push([label,String(value)]);
+  $('stateReadAt').textContent='Зчитування стану…';
+  const queries=[
+    ['Показники та заряд',async()=>{const frame=await link.send(P.buildRealtimeRequest(),0x4144);const d=P.parseRealtime(frame);if(!d)throw Error('Неповна відповідь');add('CO₂',d.co2===null?'Прогрів':d.co2+' ppm');add('Температура',d.temperature===null?'—':d.temperature+' °C');add('Вологість',d.humidity===null?'—':d.humidity+' %');add('Акумулятор',d.batteryBars+' із 4 поділок · '+(d.charging?'заряджається':'автономна робота'));}],
+    ['Налаштування',async()=>{const s=await readSettings();add('Пороги CO₂',s.alarmLow+' / '+s.alarmHigh+' ppm');add('Автовимкнення дисплея',s.screenOff===0?'Вимкнено':s.screenOff===120?'Через 2 хвилини':'Значення '+s.screenOff);}],
+    ['Одиниця температури',async()=>add('Одиниця на датчику',await readUnit()?'°C':'°F')],
+    ['Звук',async()=>add('Звук',await readSound()?'Увімкнено':'Вимкнено')],
+    ['Годинник',async()=>{await readClock();add('Годинник датчика',$('deviceClock').textContent);}],
+    ['Ідентифікація',async()=>{await readPassport();add('Серійний номер',$('passportIdentity').textContent);add('SKU',$('passportSku').textContent);}],
+    ['Прошивка',async()=>{const fw=P.parseFirmware(await link.send(P.buildFirmwareRequest(),0x2123));if(!fw)throw Error('Неповна відповідь');$('passportFirmware').textContent='Прошивка: '+fw;add('Прошивка',fw);}]
+  ];
+  for(const [label,query] of queries){try{if(!link.ready)throw Error('З’єднання відсутнє');await query();}catch(e){failed++;add(label,'Не отримано: '+e.message);}}
+  const list=$('stateValues');list.textContent='';
+  for(const [label,value] of values){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;list.appendChild(dt);list.appendChild(dd);}
+  $('stateReadAt').textContent='Запит завершено: '+new Date().toLocaleString('uk-UA')+(failed?' · неповний знімок ('+failed+')':' · усі відповіді отримано');
+  return failed?'Стан зчитано частково. Деталі — нижче.':'Стан датчика зчитано';
+});
 
 boot.hidden=true;document.documentElement.dataset.htramVersion='history-sync-6';}catch(e){fail(e.message);console.error(e);}
 })();
