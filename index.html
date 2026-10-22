@@ -37,7 +37,7 @@
       background: #020617; border-radius: 8px; padding: 10px; font-family: monospace;
       font-size: 11px; height: 150px; overflow-y: auto; color: #cbd5e1;
     }
-  input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin:8px 0 16px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f8fafc;font:inherit}p{font-size:14px;color:#94a3b8;line-height:1.5}.metric{overflow-wrap:anywhere}@media(max-width:380px){.grid{grid-template-columns:1fr}} [hidden]{display:none!important}.archive-wide{max-width:1100px}.archive-actions{display:flex;flex-wrap:wrap;gap:8px}.archive-actions .btn{width:auto;flex:1;min-width:130px}#archiveCanvas{display:block;width:100%;height:320px;touch-action:none;border:1px solid #334155;border-radius:12px;cursor:crosshair}#pointDetails{min-height:44px;color:#e2e8f0;background:#0f172a;padding:12px;border-radius:8px}#archivePosition{padding:0;accent-color:#38bdf8}#historyPage h2{margin-top:24px}</style>
+  input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin:8px 0 16px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f8fafc;font:inherit}p{font-size:14px;color:#94a3b8;line-height:1.5}.metric{overflow-wrap:anywhere}@media(max-width:380px){.grid{grid-template-columns:1fr}} [hidden]{display:none!important}.archive-wide{max-width:1100px}.archive-actions{display:flex;flex-wrap:wrap;gap:8px}.archive-actions .btn{width:auto;flex:1;min-width:130px}.archive-chart{display:block;width:100%;height:240px;box-sizing:border-box;touch-action:none;border:1px solid #334155;border-radius:12px;cursor:crosshair}#pointDetails{min-height:44px;color:#e2e8f0;background:#0f172a;padding:12px;border-radius:8px}#archivePosition{padding:0;accent-color:#38bdf8}#historyPage h2{margin-top:24px}.chart-panel{margin:20px 0;padding:12px;background:#0f172a;border:1px solid #334155;border-radius:12px}.chart-panel h3{display:flex;justify-content:space-between;gap:12px;margin:0}.chart-panel p{margin:8px 0 12px;font-size:12px}.chart-panel span{font-variant-numeric:tabular-nums}</style>
 </head>
 <body>
 
@@ -125,21 +125,23 @@
   <button id="backMonitor" class="btn">← До керування датчиком</button>
   <h2 id="historyTitle">Історія вимірювань</h2>
   <p>Архів із пам’яті HTRAM: CO₂, температура та вологість. Підключення Bluetooth залишається на цій сторінці.</p>
-  <div class="archive-actions"><button id="fetchArchive" class="btn" disabled>Зчитати архів із датчика</button><button id="abortArchive" class="btn btn-danger" hidden>Зупинити зчитування</button><button id="demoArchive" class="btn">Переглянути демо графіка</button></div>
+  <div class="archive-actions"><button id="fetchArchive" class="btn" disabled>Зчитати архів із датчика</button><button id="abortArchive" class="btn btn-danger" hidden>Зупинити зчитування</button></div>
   <p id="archiveProgress" role="status" aria-live="polite">Для зчитування спочатку підключіть датчик на головному екрані.</p>
   <p id="archiveSource">Архів ще не завантажено</p>
-  <p id="archiveCache">Останній отриманий архів зберігається в цьому браузері. Дані нікуди не надсилаються. Час показано в часовому поясі вашого пристрою.</p>
-  <label for="metric">Показник графіка</label><select id="metric"><option value="co2">CO₂, ppm</option><option value="temperature">Температура, °C</option><option value="humidity">Вологість, %</option></select>
+  <p id="archiveCache">Архів автоматично зберігається в цьому браузері під час зчитування і відновлюється після оновлення сторінки. Для резервної копії завантажте JSON. Дані нікуди не надсилаються.</p>
+  <p>Три показники зі спільною часовою шкалою. Наближення та вибрана точка синхронізовані між графіками.</p>
   <div class="archive-actions"><button id="zoomIn" class="btn" aria-label="Наблизити графік">＋ Наблизити</button><button id="zoomOut" class="btn" aria-label="Віддалити графік">− Віддалити</button><button id="allTime" class="btn">Весь період</button></div>
   <div class="archive-actions"><button id="range1" class="btn">Остання година</button><button id="range24" class="btn">Остання доба</button><button id="range168" class="btn">Останній тиждень</button></div>
   <p id="archiveRange">Період ще не вибрано</p>
-  <canvas id="archiveCanvas" tabindex="0" aria-label="Графік історії: стрілки вибирають точки, плюс і мінус змінюють масштаб" role="img"></canvas>
+  <div class="chart-panel"><h3 style="color:#38bdf8">CO₂ <span id="co2Point">—</span></h3><p id="co2Summary">Очікування даних</p><canvas id="archiveCanvas" class="archive-chart" tabindex="0" aria-label="Історія CO₂, ppm. Спільна часова шкала" role="img"></canvas></div>
+<div class="chart-panel"><h3 style="color:#fbbf24">Температура <span id="tempPoint">—</span></h3><p id="tempSummary">Очікування даних</p><canvas id="archiveCanvasTemp" class="archive-chart" tabindex="0" aria-label="Історія температури, градуси Цельсія. Спільна часова шкала" role="img"></canvas></div>
+<div class="chart-panel"><h3 style="color:#34d399">Вологість <span id="humidityPoint">—</span></h3><p id="humiditySummary">Очікування даних</p><canvas id="archiveCanvasHumidity" class="archive-chart" tabindex="0" aria-label="Історія вологості, відсотки. Спільна часова шкала" role="img"></canvas></div>
   <p id="pointDetails" aria-live="polite">Виберіть точку на графіку для перегляду деталей.</p>
   <div class="archive-actions"><button id="panLeft" class="btn">← Раніше</button><button id="panRight" class="btn">Пізніше →</button></div>
   <label for="archivePosition">Положення на шкалі часу</label><input id="archivePosition" type="range" min="0" max="1000" value="0" disabled>
   <p>Масштаб: кнопки ＋ / −, коліщатко миші або два пальці. Пересування: перетягування графіка, повзунок або кнопки «Раніше / Пізніше».</p>
-  <div class="grid"><div><label for="dateFrom">Початок періоду</label><input id="dateFrom" type="datetime-local" step="1"></div><div><label for="dateTo">Кінець періоду</label><input id="dateTo" type="datetime-local" step="1"></div></div><button id="applyDates" class="btn">Показати вибраний період</button>
-  <p id="archiveStats">Записів: 0</p>
+  <div class="grid"><div><label for="dateFrom">Початок періоду</label><input id="dateFrom" type="text" placeholder="15.10.2026, 03:00:00" maxlength="20" autocomplete="off"></div><div><label for="dateTo">Кінець періоду</label><input id="dateTo" type="text" placeholder="15.10.2026, 03:00:00" maxlength="20" autocomplete="off"></div></div><button id="applyDates" class="btn">Показати вибраний період</button>
+  <label for="importJson">Відновити локальний архів із JSON-файлу</label><input id="importJson" type="file" accept=".json,application/json"><p>Дати вводяться у форматі ДД.ММ.РРРР, ГГ:ХХ:СС, за місцевим часом вашого пристрою.</p><p id="archiveStats">Записів: 0</p>
   <div class="archive-actions"><button id="csvAll" class="btn" disabled>CSV: весь архів</button><button id="csvView" class="btn" disabled>CSV: видимий період</button><button id="jsonAll" class="btn" disabled>JSON: весь архів</button></div>
   <p>Пропущені показники відображаються розривами лінії. Дати залежать від годинника датчика; під час читання архіву його час не змінюється.</p>
 </section>
@@ -154,6 +156,12 @@ const fail=message=>{boot.hidden=false;boot.textContent='Не вдалося з�
 window.addEventListener('error',e=>fail(e.message||'помилка JavaScript'));
 window.addEventListener('unhandledrejection',e=>fail(e.reason?.message||String(e.reason)));
 try{
+const Time=(()=>{
+const pad=n=>String(n).padStart(2,'0');
+function formatLocalDate(timestamp){const d=new Date(timestamp*1000);return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;}
+function parseLocalDate(text){const m=/^(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{2}):(\d{2}):(\d{2})$/.exec(text.trim());if(!m)return NaN;const [,day,month,year,hour,minute,second]=m.map(Number);if(year<1970||year>2106)return NaN;const d=new Date(year,month-1,day,hour,minute,second);if(d.getFullYear()!==year||d.getMonth()!==month-1||d.getDate()!==day||d.getHours()!==hour||d.getMinutes()!==minute||d.getSeconds()!==second)return NaN;return d.getTime()/1000;}
+
+return {formatLocalDate,parseLocalDate};})();
 const P=(()=>{
 /**
  * HTRAM Web Configurator & Monitor
@@ -759,11 +767,12 @@ async function fetchArchive(link,{signal,onBlock=()=>{},maxBlocks=10000,delayMs=
 }
 
 return {fetchArchive,normalizeRecords,csv,nearestIndex,clampWindow};})();
-const HistoryChart=(()=>{const {nearestIndex,clampWindow}=Core;
+const HistoryChart=(()=>{const {nearestIndex,clampWindow}=Core;const {formatLocalDate}=Time;
+
 
 const metrics={co2:{label:'CO₂',unit:'ppm',color:'#38bdf8'},temperature:{label:'Температура',unit:'°C',color:'#fbbf24'},humidity:{label:'Вологість',unit:'%',color:'#34d399'}};
-const fmt=t=>new Date(t*1000).toLocaleString('uk-UA');
-class HistoryChart {
+const fmt=formatLocalDate;
+class SingleHistoryChart {
   constructor(canvas,onSelect,onWindow){
     this.canvas=canvas;this.onSelect=onSelect;this.onWindow=onWindow;this.records=[];this.metric='co2';this.selected=-1;this.pointers=new Map();
     if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>this.draw()).observe(canvas);else window.addEventListener('resize',()=>this.draw());
@@ -790,9 +799,9 @@ class HistoryChart {
   showSelection(){this.onSelect?.(this.records[this.selected]);this.draw();}
   draw(){
     const rect=this.canvas.getBoundingClientRect();if(rect.width<1)return;
-    const w=rect.width,h=320,dpr=Math.min(3,window.devicePixelRatio||1);this.canvas.width=w*dpr;this.canvas.height=h*dpr;
+    const w=rect.width,h=Math.max(180,rect.height||240),dpr=Math.min(3,window.devicePixelRatio||1);this.canvas.width=w*dpr;this.canvas.height=h*dpr;
     const ctx=this.canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.fillStyle='#071121';ctx.fillRect(0,0,w,h);ctx.font='12px system-ui';ctx.fillStyle='#94a3b8';
-    if(!this.records.length){ctx.textAlign='center';ctx.fillText('Зчитайте архів із датчика або відкрийте демо',w/2,h/2);return;}
+    if(!this.records.length){ctx.textAlign='center';ctx.fillText('Зчитайте архів із датчика або відкрийте JSON',w/2,h/2);return;}
     const left=55,right=w-20,top=25,bottom=h-48,pw=right-left,ph=bottom-top,m=metrics[this.metric];
     const first=nearestIndex(this.records,this.start),last=nearestIndex(this.records,this.end);
     const visible=this.records.slice(Math.max(0,first-1),Math.min(this.records.length,last+2));
@@ -813,11 +822,29 @@ class HistoryChart {
 }
 
 
+class HistoryChart {
+  constructor(canvas,onSelect,onWindow){
+    this.onSelect=onSelect;this.onWindow=onWindow;this.syncing=false;
+    const panels=[['co2',canvas],['temperature',document.getElementById('archiveCanvasTemp')],['humidity',document.getElementById('archiveCanvasHumidity')]];
+    this.charts=panels.map(([metric,element])=>{
+      if(!element)throw Error('Не знайдено панель графіка '+metric);
+      const panel=new SingleHistoryChart(element,record=>this.select(panel,record),(start,end)=>this.changed(panel,start,end));panel.metric=metric;return panel;
+    });this.primary=this.charts[0];
+  }
+  get records(){return this.primary.records;}get min(){return this.primary.min;}get max(){return this.primary.max;}get start(){return this.primary.start;}get end(){return this.primary.end;}
+  setData(records){this.syncing=true;try{for(const panel of this.charts)panel.setData(records);}finally{this.syncing=false;}if(records.length)this.onWindow?.(this.start,this.end);}
+  changed(source,start,end){if(this.syncing)return;this.syncing=true;try{for(const panel of this.charts)if(panel!==source)panel.setWindow(start,end);}finally{this.syncing=false;}this.onWindow?.(start,end);}
+  select(source,record){if(!record)return;for(const panel of this.charts){panel.selected=source.selected;panel.draw();}this.onSelect?.(record);}
+  setWindow(start,end){this.primary.setWindow(start,end);}zoom(factor,anchor=0.5){this.primary.zoom(factor,anchor);}pan(fraction){this.primary.pan(fraction);}draw(){for(const panel of this.charts)panel.draw();}
+}
+
+
 return HistoryChart;})();
-const HistoryUI=(()=>{const {fetchArchive,normalizeRecords,csv}=Core;
+const HistoryUI=(()=>{const {fetchArchive,normalizeRecords,csv}=Core;const {formatLocalDate,parseLocalDate}=Time;
 
 
-const $=id=>document.getElementById(id),fmt=t=>new Date(t*1000).toLocaleString('uk-UA');
+
+const $=id=>document.getElementById(id),fmt=formatLocalDate;
 function saveFile(name,body,type){const url=URL.createObjectURL(new Blob([body],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 async function cache(value){
   return new Promise((resolve,reject)=>{const req=indexedDB.open('htram-archive',1);req.onupgradeneeded=()=>req.result.createObjectStore('archives');req.onerror=()=>reject(req.error);req.onsuccess=()=>{const db=req.result,tx=db.transaction('archives',value?'readwrite':'readonly'),store=tx.objectStore('archives');const op=value?store.put(value,'last'):store.get('last');let result;op.onsuccess=()=>result=op.result;tx.oncomplete=()=>{db.close();resolve(result);};tx.onerror=()=>{db.close();reject(tx.error);};};});
@@ -826,60 +853,69 @@ class HistoryUI {
   constructor(onRead){
     this.records=[];this.meta={};this.generation=0;this.chart=new HistoryChart($('archiveCanvas'),r=>this.details(r),(start,end)=>this.windowChanged(start,end));
     $('fetchArchive').onclick=onRead;$('abortArchive').onclick=()=>{this.abort?.abort();$('archiveProgress').textContent='Зупиняємо після поточного запиту (до 6 секунд)…';};
-    $('metric').onchange=()=>{this.chart.metric=$('metric').value;this.chart.draw();};
+
     $('zoomIn').onclick=()=>this.chart.zoom(0.5);$('zoomOut').onclick=()=>this.chart.zoom(2);$('panLeft').onclick=()=>this.chart.pan(-0.5);$('panRight').onclick=()=>this.chart.pan(0.5);$('allTime').onclick=()=>this.chart.setWindow(this.chart.min,this.chart.max);
     for(const hours of [1,24,168])$('range'+hours).onclick=()=>this.chart.setWindow(this.chart.max-hours*3600,this.chart.max);
     $('archivePosition').oninput=()=>{const width=this.chart.end-this.chart.start,span=this.chart.max-this.chart.min-width,start=this.chart.min+span*Number($('archivePosition').value)/1000;this.chart.setWindow(start,start+width);};
-    $('applyDates').onclick=()=>{const start=new Date($('dateFrom').value).getTime()/1000,end=new Date($('dateTo').value).getTime()/1000;if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start){$('archiveRange').textContent='Вкажіть коректний початок і кінець періоду';return;}if(!this.records.length||end<this.chart.min||start>this.chart.max){$('archiveRange').textContent='У цьому періоді немає записів';return;}this.chart.setWindow(start,end);};
+    $('applyDates').onclick=()=>{const start=parseLocalDate($('dateFrom').value),end=parseLocalDate($('dateTo').value);if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start){$('archiveRange').textContent='Вкажіть початок і кінець у форматі 15.10.2026, 03:00:00; кінець має бути пізнішим';return;}if(!this.records.length||end<this.chart.min||start>this.chart.max){$('archiveRange').textContent='У цьому періоді немає записів';return;}this.chart.setWindow(start,end);};
     $('csvAll').onclick=()=>this.export(false);$('csvView').onclick=()=>this.export(true);
     $('jsonAll').onclick=()=>saveFile('htram-archive.json',JSON.stringify({version:1,meta:this.meta,records:this.records}), 'application/json');
-    $('demoArchive').onclick=()=>this.demo();
+    $('importJson').onchange=e=>this.importFile(e.target.files?.[0]);
     $('openArchive').onclick=()=>this.show(true);$('backMonitor').onclick=()=>this.show(false);
     window.addEventListener('hashchange',()=>this.show(location.hash==='#history',false));
     this.show(location.hash==='#history',false);this.buttons(false);
-    const generation=this.generation;cache().then(saved=>{if(saved&&this.generation===generation&&!this.abort){this.records=normalizeRecords(saved.records);this.meta=saved.meta;this.refresh();$('archiveProgress').textContent='Відновлено останній архів із цього браузера';}}).catch(()=>{});
+    const generation=this.generation;this.restorePromise=cache().then(saved=>{if(saved&&this.generation===generation&&!this.abort){this.records=normalizeRecords(saved.records);this.meta=saved.meta;this.refresh();$('archiveProgress').textContent='Відновлено останній архів із цього браузера';}}).catch(()=>{$('archiveCache').textContent='Не вдалося відкрити локальне сховище. Для резервної копії завантажте JSON.';});
   }
   show(open,update=true){$('monitorPage').hidden=open;$('historyPage').hidden=!open;document.querySelector('.container').classList.toggle('archive-wide',open);if(update)history.replaceState(null,'',open?'#history':location.pathname+location.search);if(open)requestAnimationFrame(()=>this.chart.draw());}
   setConnected(enabled){this.enabled=enabled;$('fetchArchive').disabled=!enabled||!!this.abort;}
-  buttons(active){$('abortArchive').hidden=!active;$('demoArchive').disabled=active;$('fetchArchive').disabled=active||!this.enabled;}
+  buttons(active){$('abortArchive').hidden=!active;$('importJson').disabled=active;$('fetchArchive').disabled=active||!this.enabled;}
   refresh(){this.chart.setData(this.records);this.details(null);this.source();if(!this.records.length){$('archiveStats').textContent='Записів: 0';$('archiveRange').textContent='Архів порожній';}for(const id of ['csvAll','csvView','jsonAll'])$(id).disabled=!this.records.length;}
   source(){const m=this.meta;$('archiveSource').textContent=m.demo?'ДЕМО • синтетичні дані':`${m.name??'Датчик'} • ${m.complete?'архів дочитано до кінця':'неповний архів'}${m.savedAt?' • '+new Date(m.savedAt).toLocaleString('uk-UA'):''}`;}
-  details(r){$('pointDetails').textContent=r?`${fmt(r.timestamp)} · CO₂: ${r.co2??'—'} ppm · температура: ${r.temperature??'—'} °C · вологість: ${r.humidity??'—'} %`:'Торкніться графіка або наведіть вказівник, щоб побачити точні значення. Клавіші ← → вибирають сусідні записи.';}
+  details(r){for(const [key,id,unit] of [['co2','co2Point','ppm'],['temperature','tempPoint','°C'],['humidity','humidityPoint','%']])$(id).textContent=r?String(r[key]??'—')+' '+unit:'—';$('pointDetails').textContent=r?`${fmt(r.timestamp)} · CO₂: ${r.co2??'—'} ppm · температура: ${r.temperature??'—'} °C · вологість: ${r.humidity??'—'} %`:'Торкніться графіка або наведіть вказівник, щоб побачити точні значення. Клавіші ← → вибирають сусідні записи.';}
   windowChanged(start,end){
     $('archiveRange').textContent=`${fmt(start)} — ${fmt(end)}`;
     const span=this.chart.max-this.chart.min-(end-start);$('archivePosition').disabled=span<=0;$('archivePosition').value=span>0?Math.round((start-this.chart.min)/span*1000):0;
     const visible=this.records.filter(r=>r.timestamp>=start&&r.timestamp<=end);let count=0,min=Infinity,max=-Infinity,sum=0;for(const r of visible){if(r.co2!==null){++count;min=Math.min(min,r.co2);max=Math.max(max,r.co2);sum+=r.co2;}}
+    for(const [key,id,unit] of [['co2','co2Summary','ppm'],['temperature','tempSummary','°C'],['humidity','humiditySummary','%']]){let total=0,n=0,lo=Infinity,hi=-Infinity;for(const r of visible){const v=r[key];if(Number.isFinite(v)){total+=v;++n;lo=Math.min(lo,v);hi=Math.max(hi,v);}}$(id).textContent=n?`Мін. ${lo} · серед. ${(total/n).toFixed(key==='co2'?0:1)} · макс. ${hi} ${unit}`:'Немає значень у видимому періоді';}
     $('archiveStats').textContent=`Усього: ${this.records.length.toLocaleString('uk-UA')} · у видимому періоді: ${visible.length.toLocaleString('uk-UA')}${count?` · CO₂ мін. ${min}, серед. ${Math.round(sum/count)}, макс. ${max} ppm`:''}`;
-    const toInput=t=>{const d=new Date(t*1000);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,19);};$('dateFrom').value=toInput(start);$('dateTo').value=toInput(end);
+    const toInput=formatLocalDate;$('dateFrom').value=toInput(start);$('dateTo').value=toInput(end);
   }
   export(view){const rows=view?this.records.filter(r=>r.timestamp>=this.chart.start&&r.timestamp<=this.chart.end):this.records;saveFile(`htram-${this.meta.demo?'demo-':''}${view?'period':'archive'}.csv`,csv(rows),'text/csv;charset=utf-8');}
   async download(link){
-    ++this.generation;this.abort=new AbortController();this.buttons(true);this.show(true);
-    const incoming=[];let lastDraw=0,blocks=0,complete=false,error=null;
+    await this.restorePromise;++this.generation;this.abort=new AbortController();this.buttons(true);this.show(true);
+    const base=this.meta.deviceId&&this.meta.deviceId===link.device?.id?this.records.slice():[];const incoming=[];let lastDraw=0,lastSave=0,blocks=0,complete=false,error=null;
     const meta={name:link.device?.name??'HTRAM',deviceId:link.device?.id??'',savedAt:new Date().toISOString(),complete:false};
     $('archiveProgress').textContent='Запит першого блоку… Попередній архів залишається до отримання відповіді.';
     try{
-      await fetchArchive(link,{signal:this.abort.signal,onBlock:part=>{
+      await fetchArchive(link,{signal:this.abort.signal,onBlock:async part=>{
         incoming.push(...part.records);blocks=part.blocks;
         if(incoming.length>1500000)throw Error('Архів перевищив ліміт 1 500 000 записів');
-        if(Date.now()-lastDraw>700||part.complete){this.records=normalizeRecords(incoming);this.meta=meta;this.refresh();lastDraw=Date.now();}
+        if(Date.now()-lastDraw>700||part.complete){this.records=normalizeRecords([...base,...incoming]);this.meta=meta;this.refresh();lastDraw=Date.now();}
+        if(Date.now()-lastSave>2000||part.complete){this.records=normalizeRecords([...base,...incoming]);this.meta=meta;await this.persist();lastSave=Date.now();}
         $('archiveProgress').textContent=`Отримано блоків: ${blocks}; записів: ${incoming.length.toLocaleString('uk-UA')}. Загальна кількість наперед невідома.`;
       }});complete=true;
     }catch(e){error=e;}
     finally{
-      if(blocks){this.records=normalizeRecords(incoming);this.meta={...meta,complete};this.refresh();try{await cache({meta:this.meta,records:this.records});}catch{$('archiveCache').textContent='Браузер не зміг зберегти архів локально. Завантажте CSV або JSON.';}}
+      if(blocks){this.records=normalizeRecords([...base,...incoming]);this.meta={...meta,complete};this.refresh();await this.persist();}
       this.abort=null;this.buttons(false);
     }
     const result=complete?`Архів дочитано: ${this.records.length.toLocaleString('uk-UA')} записів.`:error?.name==='AbortError'?`Зчитування зупинено. Отримані дані — неповний архів (${blocks} блоків).`:`Зчитування перервано: ${error?.message??'невідома помилка'}. Отримано ${blocks} блоків; архів неповний.`;
     $('archiveProgress').textContent=result;return result;
   }
-  demo(){
-    ++this.generation;const start=Date.UTC(2026,9,15)/1000;
-    this.records=Array.from({length:2016},(_,i)=>({timestamp:start+i*300,co2:i%301===0?null:Math.round(650+200*Math.sin(i/30)+450*Math.max(0,Math.sin(i/91))),temperature:Math.round((22+2*Math.sin(i/140))*10)/10,humidity:Math.round(47+8*Math.sin(i/70))}));
-    this.meta={demo:true};this.refresh();$('archiveProgress').textContent='Демонстраційний тиждень: це вигадані значення для перевірки графіка, не дані вашого датчика.';
+  async persist(){try{await cache({meta:this.meta,records:this.records});$('archiveCache').textContent=`Локально збережено ${this.records.length.toLocaleString('uk-UA')} записів. Після оновлення сторінки відновиться остання збережена копія.`;}catch{$('archiveCache').textContent='Не вдалося зберегти в цьому браузері. Завантажте JSON або CSV для резервної копії.';}}
+  async importFile(file){
+    if(!file||this.abort)return;
+    try{
+      if(file.size>100*1024*1024)throw Error('Файл більший за 100 МБ');
+      const data=JSON.parse(await file.text());
+      if(data.version!==1||!Array.isArray(data.records)||data.records.length>1500000)throw Error('Невідомий формат архіву');
+      for(const r of data.records){if(!r||!Number.isInteger(r.timestamp)||r.timestamp<0||r.timestamp>=0xffffffff||!['co2','temperature','humidity'].every(key=>r[key]===null||Number.isFinite(r[key])))throw Error('Некоректні записи архіву');}
+      if(data.meta?.demo)throw Error('Демонстраційні дані не імпортуються');
+      ++this.generation;this.records=normalizeRecords(data.records);this.meta={name:String(data.meta?.name??'Локальний файл'),deviceId:String(data.meta?.deviceId??''),complete:data.meta?.complete===true,savedAt:data.meta?.savedAt??new Date().toISOString()};this.refresh();await this.persist();$('archiveProgress').textContent='Архів відновлено з файлу JSON';
+    }catch(e){$('archiveProgress').textContent='Файл не завантажено: '+e.message;}
+    finally{$('importJson').value='';}
   }
 }
-
 
 return HistoryUI;})();
 
@@ -931,11 +967,12 @@ window.addEventListener('pagehide',()=>link.disconnect());controls();
 
 
 
-boot.hidden=true;document.documentElement.dataset.htramVersion='history-fix-2';}catch(e){fail(e.message);console.error(e);}
+boot.hidden=true;document.documentElement.dataset.htramVersion='history-local-4';}catch(e){fail(e.message);console.error(e);}
 })();
 </script>
 
 </body>
 </html>
+
 
 
