@@ -326,4 +326,68 @@
             const red = parseInt(document.getElementById('redLimit').value) || 1100;
 
             if (co2 < yellow) {
-                riskElem.innerText = 'Low Risk
+                riskElem.innerText = 'Low Risk'; 
+                riskElem.style.backgroundColor = 'rgba(52, 199, 89, 0.15)'; 
+                riskElem.style.color = 'var(--success)';
+            } else if (co2 >= yellow && co2 < red) {
+                riskElem.innerText = 'Medium Risk'; 
+                riskElem.style.backgroundColor = 'rgba(255, 149, 0, 0.15)'; 
+                riskElem.style.color = 'var(--warning)';
+            } else {
+                riskElem.innerText = 'High Risk'; 
+                riskElem.style.backgroundColor = 'rgba(255, 59, 48, 0.15)'; 
+                riskElem.style.color = 'var(--danger)';
+            }
+        }
+    }
+  }
+
+  // ==========================================
+  // ОБРОБНИКИ НАЛАШТУВАНЬ
+  // ==========================================
+  document.getElementById('muteToggle').addEventListener('change', (e) => {
+    sendFrame('Mute Device', 0x21, 0x22, [e.target.checked ? 0x00 : 0x01]);
+  });
+
+  document.getElementById('displayToggle').addEventListener('change', (e) => {
+    sendFrame('Turn off Display', 0x21, 0x24, [e.target.checked ? 0x00 : 0x01]);
+  });
+
+  document.getElementById('tempUnit').addEventListener('change', (e) => {
+    const val = e.target.value === 'F' ? 0x01 : 0x00;
+    sendFrame('Temp Unit', 0x21, 0x6D, [val]);
+  });
+
+  const thresholds = {
+    'low': { y: 800, r: 1100 },
+    'medium': { y: 700, r: 1000 },
+    'high': { y: 500, r: 800 }
+  };
+
+  function sendThresholds(yellow, red) {
+    sendFrame('Set Alarm Limits', 0x41, 0x42, [(yellow >> 8) & 0xFF, yellow & 0xFF, (red >> 8) & 0xFF, red & 0xFF]);
+  }
+
+  document.getElementById('activityLevel').addEventListener('change', (e) => {
+    const val = e.target.value;
+    const customDiv = document.getElementById('customLimits');
+    
+    if (val === 'custom') {
+      customDiv.style.display = 'block';
+    } else {
+      customDiv.style.display = 'none';
+      document.getElementById('yellowLimit').value = thresholds[val].y;
+      document.getElementById('redLimit').value = thresholds[val].r;
+      sendThresholds(thresholds[val].y, thresholds[val].r);
+    }
+  });
+
+  document.getElementById('saveLimitsBtn').addEventListener('click', () => {
+    const y = parseInt(document.getElementById('yellowLimit').value);
+    const r = parseInt(document.getElementById('redLimit').value);
+    sendThresholds(y, r);
+  });
+</script>
+
+</body>
+</html>
