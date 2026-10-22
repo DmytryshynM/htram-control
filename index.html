@@ -2,392 +2,125 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HTRAM Native Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTRAM Native Protocol Panel</title>
   <style>
     :root {
-      --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --subtext: #86868b;
-      --accent: #007aff; --danger: #ff3b30; --success: #34c759; --warning: #ff9500;
-      --border: #e5e5ea;
+      --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --subtext: #94a3b8;
+      --accent: #3b82f6; --accent-hover: #2563eb; --danger: #ef4444; 
+      --warning: #f59e0b; --success: #10b981; --purple: #8b5cf6;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg); color: var(--text); margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg); color: var(--text); margin: 0; padding: 15px;
+      display: flex; justify-content: center;
     }
-    .app-container { max-width: 450px; margin: 0 auto; background: var(--bg); min-height: 100vh; padding-bottom: 30px; }
-    
-    .header {
-      background: var(--card); padding: 16px 20px; text-align: center; font-weight: 600; font-size: 18px;
-      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
-      display: flex; justify-content: space-between; align-items: center;
+    .container { max-width: 550px; width: 100%; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+    h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
+    .btn {
+      width: 100%; background: var(--accent); color: white; border: none;
+      padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;
+      font-size: 14px; transition: 0.2s; margin-top: 8px;
     }
-    .btn-connect { color: var(--accent); background: none; border: none; font-size: 16px; cursor: pointer; font-weight: 600; padding: 0; }
-    
-    .dashboard { padding: 20px; text-align: center; background: var(--card); margin-bottom: 20px; }
-    .gauge-value { font-size: 48px; font-weight: 800; display: flex; justify-content: center; align-items: baseline; gap: 5px; color: #000; }
-    .gauge-unit { font-size: 16px; font-weight: 600; color: var(--subtext); text-align: left;}
-    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 5px; background: #e5e5ea; color: var(--subtext); }
-    
-    .section-title { font-size: 18px; font-weight: 700; margin: 25px 20px 10px; color: #000; }
-    .settings-group { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .setting-row { 
-      display: flex; justify-content: space-between; align-items: center; 
-      padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 16px; font-weight: 500;
+    .btn:hover { background: var(--accent-hover); }
+    .btn-danger { background: var(--danger); }
+    .btn-success { background: var(--success); }
+    .btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+    .status { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-weight: bold; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: #64748b; }
+    .dot.connected { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .metric { font-size: 34px; font-weight: bold; color: #38bdf8; margin-top: 5px; }
+    .log-box {
+      background: #020617; border-radius: 8px; padding: 10px; font-family: monospace;
+      font-size: 11px; height: 150px; overflow-y: auto; color: #cbd5e1;
     }
-    .setting-row:last-child { border-bottom: none; }
-    .setting-value { color: var(--subtext); font-size: 16px; display: flex; align-items: center; gap: 8px; font-weight: 400; }
-    
-    select, input[type="number"] {
-      border: none; background: transparent; color: var(--subtext); font-size: 16px;
-      text-align: right; outline: none; appearance: none; width: 140px; direction: rtl; cursor: pointer;
-    }
-    
-    .switch { position: relative; display: inline-block; width: 50px; height: 30px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e5e5ea; transition: .4s; border-radius: 30px; }
-    .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    input:checked + .slider { background-color: var(--success); }
-    input:checked + .slider:before { transform: translateX(20px); }
-    input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
-
-    .chart-container { padding: 15px 20px; background: var(--card); margin-bottom: 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    canvas { width: 100%; height: 120px; display: block; }
-    
-    .log-container { padding: 20px; }
-    .log-box { background: #1e1e1e; color: #a9b7c6; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; height: 130px; overflow-y: auto; }
-  </style>
+  input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin:8px 0 16px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f8fafc;font:inherit}p{font-size:14px;color:#94a3b8;line-height:1.5}.metric{overflow-wrap:anywhere}@media(max-width:380px){.grid{grid-template-columns:1fr}} </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="container">
   <div class="header">
-    <span style="color:var(--accent); font-weight: 500;">&#10094; Back</span>
-    <span>Settings</span>
-    <button id="connectBtn" class="btn-connect">Connect</button>
+    <h2 style="margin-bottom: 5px;">HTRAM Controller 🇺🇦</h2>
+    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Самостійне підключення та перевірка налаштувань</p>
   </div>
 
-  <div class="dashboard">
-    <div class="gauge-value"><span id="co2Value">--</span><span class="gauge-unit">CO2<br>PPM</span></div>
-    <div id="riskStatus" class="status-badge">Waiting for data...</div>
-  </div>
-
-  <div class="section-title">Data History</div>
-  <div class="chart-container">
-    <canvas id="co2Chart" width="400" height="120"></canvas>
-  </div>
-
-  <div class="section-title">General</div>
-  <div class="settings-group">
-    <div class="setting-row">
-      <span>Device Name</span>
-      <span class="setting-value" id="deviceNameUI">HTRAM-V1-W</span>
+  <div class="card">
+    <div class="status">
+      <div id="statusDot" class="dot"></div>
+      <span id="statusText">Стан: Не підключено</span>
     </div>
-    <div class="setting-row">
-      <span>Room</span>
-      <span class="setting-value">My Room &#10095;</span>
+    <button id="connectBtn" class="btn">📡 Підключити HTRAM</button>
+  </div>
+
+  <div class="card grid">
+    <div>
+      <label>Рівень CO₂</label>
+      <div id="co2Value" class="metric">-- ppm</div>
+    </div>
+    <div>
+      <label>Статус Ризику</label>
+      <div id="riskStatus" class="metric" style="color: var(--success); font-size: 22px; margin-top: 15px;">--</div>
     </div>
   </div>
 
-  <div class="section-title">Device Settings</div>
-  <div class="settings-group">
-    <div class="setting-row">
-      <span>Temperature Unit</span>
-      <span class="setting-value">
-        <select id="tempUnit" disabled>
-          <option value="C">°C</option>
-          <option value="F">°F</option>
-        </select>
-        &#10095;
-      </span>
-    </div>
-
-    <div class="setting-row">
-      <span>Turn off Display</span>
-      <label class="switch">
-        <input type="checkbox" id="displayToggle" disabled>
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <div class="setting-row">
-      <span>Mute Device</span>
-      <label class="switch">
-        <input type="checkbox" id="muteToggle" disabled>
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <div class="setting-row">
-      <span>Alarm Settings</span>
-      <span class="setting-value">
-        <select id="activityLevel" disabled>
-          <option value="low">Low activity</option>
-          <option value="medium" selected>Medium activity</option>
-          <option value="high">High activity</option>
-          <option value="custom">Custom</option>
-        </select>
-        &#10095;
-      </span>
-    </div>
-
-    <div id="customLimits" style="display:none; background: #fafafa; border-top: 1px solid var(--border);">
-      <div class="setting-row" style="padding-left: 40px;">
-        <span>Medium Alarm (PPM)</span>
-        <input type="number" id="yellowLimit" value="700" disabled>
-      </div>
-      <div class="setting-row" style="padding-left: 40px;">
-        <span>High Alarm (PPM)</span>
-        <input type="number" id="redLimit" value="1000" disabled>
-      </div>
-      <div class="setting-row" style="justify-content: center;">
-        <button id="saveLimitsBtn" style="color:var(--accent); background:none; border:none; font-size:16px; font-weight:600; cursor:pointer;" disabled>Save Custom Limits</button>
-      </div>
+  <div class="card">
+    <h3>Керування зумером</h3>
+    <div class="grid">
+      <button id="muteOnBtn" class="btn btn-danger" disabled>🔇 Вимкнути звук</button>
+      <button id="muteOffBtn" class="btn btn-success" disabled>🔊 Увімкнути звук</button>
     </div>
   </div>
 
-  <div class="log-container">
-    <div style="font-size: 13px; font-weight: 600; margin-bottom: 5px;">Protocol Log</div>
+  <div class="card">
+    <button id="disconnectBtn" class="btn" disabled>Від’єднати</button>
+    <p id="deviceInfo">Двічі натисніть кнопку на датчику для запуску Bluetooth.</p>
+    <p id="lastUpdate" aria-live="polite">Очікування показників</p>
+    <div class="grid"><div>Температура<div id="temperature" class="metric">—</div></div><div>Вологість<div id="humidity" class="metric">—</div></div></div>
+    <p id="battery">Акумулятор: —</p>
+  </div>
+  <div class="card">
+    <h3>Налаштування пристрою</h3>
+    <fieldset id="controls" disabled style="border:0;padding:0;margin:0">
+      <label for="low">Нижній поріг CO₂, ppm</label>
+      <input id="low" type="number" min="400" max="5000" step="1">
+      <label for="high">Верхній поріг CO₂, ppm</label>
+      <input id="high" type="number" min="400" max="5000" step="1">
+      <button id="saveThresholds" class="btn" disabled>Зберегти пороги</button>
+      <p id="settingsState">Налаштування ще не зчитано</p>
+      <label for="screen">Автовимкнення дисплея</label>
+      <select id="screen"><option value="0">Завжди увімкнений</option><option value="120">Через 2 хвилини</option></select>
+      <button id="saveScreen" class="btn" disabled>Застосувати таймер дисплея</button>
+      <p>Команда таймера потребує перевірки на вашій прошивці. Після запису сайт повторно зчитує значення; це не перевіряє фізичне вимкнення екрана.</p>
+      <label for="unit">Температура на дисплеї датчика</label>
+      <select id="unit"><option value="C">°C</option><option value="F">°F</option></select>
+      <button id="saveUnit" class="btn">Застосувати °C / °F</button>
+      <p id="unitState">Одиницю ще не зчитано</p>
+      <button id="readSettings" class="btn">Зчитати налаштування</button>
+      <button id="syncTime" class="btn">Синхронізувати час</button>
+    </fieldset>
+    <p id="actionStatus" role="status" aria-live="polite"></p>
+  </div>
+  <div class="card">
+    <h3>Оновлення сайту</h3>
+    <label for="pollSeconds">Інтервал запитів показників, секунд (1–300)</label>
+    <input id="pollSeconds" type="number" min="1" max="300" step="1" value="5">
+    <button id="savePoll" class="btn">Застосувати інтервал</button>
+    <p>Змінює частоту запитів браузера, поки сторінка відкрита. Внутрішній інтервал вимірювань і запису в пам’ять приладу не змінюється.</p>
+    <label for="webUnit">Температура на сайті</label>
+    <select id="webUnit"><option value="C">°C</option><option value="F">°F</option></select>
+    <button id="exportLog" class="btn">Завантажити журнал для діагностики</button>
+  </div>
+  <div class="card">
+    <h3>Системний лог</h3>
     <div id="log" class="log-box">Очікування підключення...<br></div>
   </div>
 </div>
 
-<script>
-  window.onerror = function(msg) { log(`🔴 JS Помилка: ${msg}`); return false; };
-
-  // ==========================================
-  // ГРАФІК (Native Canvas)
-  // ==========================================
-  const co2History = [];
-  const MAX_POINTS = 30;
-  
-  function drawChart() {
-    const canvas = document.getElementById('co2Chart');
-    if (!canvas.getContext) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
-    
-    ctx.clearRect(0, 0, w, h);
-    if (co2History.length < 2) return;
-
-    const minVal = 400;
-    let maxVal = Math.max(1200, ...co2History) + 100;
-    const dx = w / (MAX_POINTS - 1);
-    
-    ctx.beginPath();
-    ctx.strokeStyle = '#007aff';
-    ctx.lineWidth = 3;
-    ctx.lineJoin = 'round';
-    
-    for (let i = 0; i < co2History.length; i++) {
-      const x = i * dx;
-      const y = h - ((co2History[i] - minVal) / (maxVal - minVal)) * h;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-
-    ctx.lineTo((co2History.length - 1) * dx, h);
-    ctx.lineTo(0, h);
-    ctx.fillStyle = 'rgba(0, 122, 255, 0.1)';
-    ctx.fill();
-  }
-
-  // ==========================================
-  // BLUETOOTH ПРОТОКОЛ 
-  // ==========================================
-  const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
-  const WRITE_CHAR_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
-  const READ_CHAR_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
-  
-  let writeChar = null;
-  let heartbeatInterval = null;
-
-  function log(msg) {
-    const logBox = document.getElementById('log');
-    if(!logBox) return;
-    const time = new Date().toLocaleTimeString('uk-UA');
-    logBox.innerHTML += `[${time}] ${msg}<br>`;
-    logBox.scrollTop = logBox.scrollHeight;
-  }
-
-  function buildFrame(cmdId1, cmdId2, payloadBytes = []) {
-    let length = 2 + payloadBytes.length + 3; 
-    let packet = [0x7B, 0x41, (length >> 8) & 0xFF, length & 0xFF, cmdId1, cmdId2, ...payloadBytes];
-
-    let crc = 0x0000;
-    for (let i = 0; i < packet.length; i++) {
-      crc ^= (packet[i] << 8);
-      for (let j = 0; j < 8; j++) {
-        if (crc & 0x8000) crc = ((crc << 1) ^ 0x8005) & 0xFFFF;
-        else crc = (crc << 1) & 0xFFFF;
-      }
-    }
-    packet.push((crc >> 8) & 0xFF, crc & 0xFF, 0x7D);
-    return new Uint8Array(packet);
-  }
-
-  async function sendFrame(name, cmdId1, cmdId2, payloadBytes = [], showLog = true) {
-    if (!writeChar) return;
-    try {
-      const data = buildFrame(cmdId1, cmdId2, payloadBytes);
-      await writeChar.writeValueWithoutResponse(data);
-      if (showLog) {
-        log(`▶ Відправлено [${name}]: ${Array.from(data).map(x=>x.toString(16).padStart(2,'0')).join('')}`);
-      }
-    } catch (err) {
-      if (showLog) log(`❌ Помилка [${name}]: ${err.message}`);
-    }
-  }
-
-  document.getElementById('connectBtn').addEventListener('click', async () => {
-    try {
-      log('Пошук пристрою HTRAM...');
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: 'HTRAM' }],
-        optionalServices: [SERVICE_UUID]
-      });
-
-      document.getElementById('deviceNameUI').innerText = device.name;
-
-      log(`Підключення до ${device.name}...`);
-      const server = await device.gatt.connect();
-      
-      document.getElementById('connectBtn').innerText = 'Connected';
-      document.getElementById('connectBtn').style.color = 'var(--success)';
-
-      const service = await server.getPrimaryService(SERVICE_UUID);
-      writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
-      log(`✅ Канал керування підключено.`);
-
-      const readChar = await service.getCharacteristic(READ_CHAR_UUID);
-      await readChar.startNotifications();
-      readChar.addEventListener('characteristicvaluechanged', handleData);
-      log(`✅ Підписку на нотифікації активовано.`);
-
-      log(`▶ Ініціалізація зв'язку (BLE mode)...`);
-      await sendFrame('Init BLE', 0x75, 0x58, [0x01]);
-
-      // Розблоковуємо всі тумблери та кнопки
-      document.querySelectorAll('input, select, button').forEach(el => el.disabled = false);
-
-      // КРИТИЧНЕ ДОПОВНЕННЯ: Серцебиття (Heartbeat) та запит даних
-      if (heartbeatInterval) clearInterval(heartbeatInterval);
-      heartbeatInterval = setInterval(async () => {
-        if (!writeChar) return;
-        try {
-            // Змушуємо датчик надіслати поточні дані CO2
-            await sendFrame('Req Data', 0x41, 0x44, [], false);
-            // Підтримуємо зв'язок активним
-            await sendFrame('Heartbeat', 0x25, 0x01, [0x01], false);
-        } catch(e) {}
-      }, 5000); // Кожні 5 секунд
-
-    } catch (err) {
-      log(`❌ Помилка з'єднання: ${err.message}`);
-    }
-  });
-
-  function handleData(event) {
-    const value = event.target.value;
-    if (value.byteLength < 6) return;
-
-    let hexStr = "";
-    for (let i = 0; i < value.byteLength; i++) {
-        hexStr += value.getUint8(i).toString(16).padStart(2, '0');
-    }
-    
-    // Шукаємо маркер телеметрії 0x41 0x44
-    if (hexStr.includes('4144')) {
-        let co2 = 0;
-        
-        // Спочатку перевіряємо стандартне зміщення (7 і 8 байт)
-        let primaryCo2 = value.getUint16(7, false); 
-        if (primaryCo2 >= 400 && primaryCo2 <= 10000) {
-            co2 = primaryCo2;
-        } else {
-            // Фолбек для інших прошивок
-            for (let i = 4; i < value.byteLength - 1; i++) {
-                let v = value.getUint16(i, false);
-                if (v >= 400 && v <= 10000) { co2 = v; break; }
-            }
-        }
-
-        if (co2 >= 400 && co2 <= 10000) {
-            document.getElementById('co2Value').innerText = co2;
-            
-            // Малюємо графік
-            co2History.push(co2);
-            if (co2History.length > MAX_POINTS) co2History.shift();
-            drawChart();
-
-            // Аналізуємо ризик
-            const riskElem = document.getElementById('riskStatus');
-            const yellow = parseInt(document.getElementById('yellowLimit').value) || 800;
-            const red = parseInt(document.getElementById('redLimit').value) || 1100;
-
-            if (co2 < yellow) {
-                riskElem.innerText = 'Low Risk'; 
-                riskElem.style.backgroundColor = 'rgba(52, 199, 89, 0.15)'; 
-                riskElem.style.color = 'var(--success)';
-            } else if (co2 >= yellow && co2 < red) {
-                riskElem.innerText = 'Medium Risk'; 
-                riskElem.style.backgroundColor = 'rgba(255, 149, 0, 0.15)'; 
-                riskElem.style.color = 'var(--warning)';
-            } else {
-                riskElem.innerText = 'High Risk'; 
-                riskElem.style.backgroundColor = 'rgba(255, 59, 48, 0.15)'; 
-                riskElem.style.color = 'var(--danger)';
-            }
-        }
-    }
-  }
-
-  // ==========================================
-  // ОБРОБНИКИ НАЛАШТУВАНЬ
-  // ==========================================
-  document.getElementById('muteToggle').addEventListener('change', (e) => {
-    sendFrame('Mute Device', 0x21, 0x22, [e.target.checked ? 0x00 : 0x01]);
-  });
-
-  document.getElementById('displayToggle').addEventListener('change', (e) => {
-    sendFrame('Turn off Display', 0x21, 0x24, [e.target.checked ? 0x00 : 0x01]);
-  });
-
-  document.getElementById('tempUnit').addEventListener('change', (e) => {
-    const val = e.target.value === 'F' ? 0x01 : 0x00;
-    sendFrame('Temp Unit', 0x21, 0x6D, [val]);
-  });
-
-  const thresholds = {
-    'low': { y: 800, r: 1100 },
-    'medium': { y: 700, r: 1000 },
-    'high': { y: 500, r: 800 }
-  };
-
-  function sendThresholds(yellow, red) {
-    sendFrame('Set Alarm Limits', 0x41, 0x42, [(yellow >> 8) & 0xFF, yellow & 0xFF, (red >> 8) & 0xFF, red & 0xFF]);
-  }
-
-  document.getElementById('activityLevel').addEventListener('change', (e) => {
-    const val = e.target.value;
-    const customDiv = document.getElementById('customLimits');
-    
-    if (val === 'custom') {
-      customDiv.style.display = 'block';
-    } else {
-      customDiv.style.display = 'none';
-      document.getElementById('yellowLimit').value = thresholds[val].y;
-      document.getElementById('redLimit').value = thresholds[val].r;
-      sendThresholds(thresholds[val].y, thresholds[val].r);
-    }
-  });
-
-  document.getElementById('saveLimitsBtn').addEventListener('click', () => {
-    const y = parseInt(document.getElementById('yellowLimit').value);
-    const r = parseInt(document.getElementById('redLimit').value);
-    sendThresholds(y, r);
-  });
-</script>
+<script type="module" src="app.js"></script>
 
 </body>
 </html>
+
