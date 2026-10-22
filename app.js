@@ -1,11 +1,13 @@
+import {HistoryUI} from './history-ui.js';
 import * as P from './protocol.js';
 import {Link} from './link.js';
 const $=id=>document.getElementById(id), link=new Link();
 let settings=null, deviceUnit=null, latest=null, heartbeat=null, polling=null, busy=false, pollBusy=false;
 let pollInterval=5;
 const lines=[];
+const archive=new HistoryUI(()=>action(async()=>{stopTimers();try{return await archive.download(link);}finally{startTimers();}}));
 function log(text){const line=`[${new Date().toLocaleTimeString('uk-UA')}] ${text}`;lines.push(line);if(lines.length>1000)lines.shift();$('log').textContent=lines.join('\n');$('log').style.whiteSpace='pre-wrap';$('log').scrollTop=$('log').scrollHeight;}
-function controls(){const enabled=link.ready&&!busy;$('controls').disabled=!enabled;for(const id of ['muteOnBtn','muteOffBtn'])$(id).disabled=!enabled;$('saveScreen').disabled=!settings;$('saveThresholds').disabled=!settings;$('disconnectBtn').disabled=!link.device;}
+function controls(){const enabled=link.ready&&!busy;archive.setConnected(enabled);$('controls').disabled=!enabled;for(const id of ['muteOnBtn','muteOffBtn'])$(id).disabled=!enabled;$('saveScreen').disabled=!settings;$('saveThresholds').disabled=!settings;$('disconnectBtn').disabled=!link.device;}
 function stopTimers(){clearInterval(heartbeat);clearInterval(polling);heartbeat=polling=null;}
 function startTimers(){stopTimers();if(!link.ready)return;heartbeat=setInterval(()=>{if(!busy&&!pollBusy)link.send(P.buildHeartbeatRequest()).catch(e=>log(e.message));},15000);polling=setInterval(()=>poll(),pollInterval*1000);}
 async function poll(){if(!link.ready||busy||pollBusy)return;pollBusy=true;try{await link.send(P.buildRealtimeRequest(),0x4144);}catch(e){log(e.message);$('lastUpdate').textContent='Не отримано свіжі дані; останні показники можуть бути застарілими';}finally{pollBusy=false;}}
@@ -42,4 +44,5 @@ $('webUnit').onchange=render;
 $('exportLog').onclick=()=>{const url=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='htram-diagnostic.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 try{const n=Number(localStorage.getItem('htram-poll'));if(Number.isInteger(n)&&n>=1&&n<=300){pollInterval=n;$('pollSeconds').value=n;}}catch{}
 window.addEventListener('pagehide',()=>link.disconnect());controls();
+
 

@@ -37,7 +37,7 @@
       background: #020617; border-radius: 8px; padding: 10px; font-family: monospace;
       font-size: 11px; height: 150px; overflow-y: auto; color: #cbd5e1;
     }
-  input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin:8px 0 16px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f8fafc;font:inherit}p{font-size:14px;color:#94a3b8;line-height:1.5}.metric{overflow-wrap:anywhere}@media(max-width:380px){.grid{grid-template-columns:1fr}} </style>
+  input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin:8px 0 16px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f8fafc;font:inherit}p{font-size:14px;color:#94a3b8;line-height:1.5}.metric{overflow-wrap:anywhere}@media(max-width:380px){.grid{grid-template-columns:1fr}} [hidden]{display:none!important}.archive-wide{max-width:1100px}.archive-actions{display:flex;flex-wrap:wrap;gap:8px}.archive-actions .btn{width:auto;flex:1;min-width:130px}#archiveCanvas{display:block;width:100%;height:320px;touch-action:none;border:1px solid #334155;border-radius:12px;cursor:crosshair}#pointDetails{min-height:44px;color:#e2e8f0;background:#0f172a;padding:12px;border-radius:8px}#archivePosition{padding:0;accent-color:#38bdf8}#historyPage h2{margin-top:24px}</style>
 </head>
 <body>
 
@@ -47,6 +47,8 @@
     <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Самостійне підключення та перевірка налаштувань</p>
   </div>
 
+<button id="openArchive" class="btn" style="margin-bottom:16px">📈 Історія та графік</button>
+<main id="monitorPage">
   <div class="card">
     <div class="status">
       <div id="statusDot" class="dot"></div>
@@ -117,10 +119,35 @@
     <h3>Системний лог</h3>
     <div id="log" class="log-box">Очікування підключення...<br></div>
   </div>
+</main>
+<section id="historyPage" class="card" hidden aria-labelledby="historyTitle">
+  <button id="backMonitor" class="btn">← До керування датчиком</button>
+  <h2 id="historyTitle">Історія вимірювань</h2>
+  <p>Архів із пам’яті HTRAM: CO₂, температура та вологість. Підключення Bluetooth залишається на цій сторінці.</p>
+  <div class="archive-actions"><button id="fetchArchive" class="btn" disabled>Зчитати архів із датчика</button><button id="abortArchive" class="btn btn-danger" hidden>Зупинити зчитування</button><button id="demoArchive" class="btn">Переглянути демо графіка</button></div>
+  <p id="archiveProgress" role="status" aria-live="polite">Для зчитування спочатку підключіть датчик на головному екрані.</p>
+  <p id="archiveSource">Архів ще не завантажено</p>
+  <p id="archiveCache">Останній отриманий архів зберігається в цьому браузері. Дані нікуди не надсилаються. Час показано в часовому поясі вашого пристрою.</p>
+  <label for="metric">Показник графіка</label><select id="metric"><option value="co2">CO₂, ppm</option><option value="temperature">Температура, °C</option><option value="humidity">Вологість, %</option></select>
+  <div class="archive-actions"><button id="zoomIn" class="btn" aria-label="Наблизити графік">＋ Наблизити</button><button id="zoomOut" class="btn" aria-label="Віддалити графік">− Віддалити</button><button id="allTime" class="btn">Весь період</button></div>
+  <div class="archive-actions"><button id="range1" class="btn">Остання година</button><button id="range24" class="btn">Остання доба</button><button id="range168" class="btn">Останній тиждень</button></div>
+  <p id="archiveRange">Період ще не вибрано</p>
+  <canvas id="archiveCanvas" tabindex="0" aria-label="Графік історії: стрілки вибирають точки, плюс і мінус змінюють масштаб" role="img"></canvas>
+  <p id="pointDetails" aria-live="polite">Виберіть точку на графіку для перегляду деталей.</p>
+  <div class="archive-actions"><button id="panLeft" class="btn">← Раніше</button><button id="panRight" class="btn">Пізніше →</button></div>
+  <label for="archivePosition">Положення на шкалі часу</label><input id="archivePosition" type="range" min="0" max="1000" value="0" disabled>
+  <p>Масштаб: кнопки ＋ / −, коліщатко миші або два пальці. Пересування: перетягування графіка, повзунок або кнопки «Раніше / Пізніше».</p>
+  <div class="grid"><div><label for="dateFrom">Початок періоду</label><input id="dateFrom" type="datetime-local" step="1"></div><div><label for="dateTo">Кінець періоду</label><input id="dateTo" type="datetime-local" step="1"></div></div><button id="applyDates" class="btn">Показати вибраний період</button>
+  <p id="archiveStats">Записів: 0</p>
+  <div class="archive-actions"><button id="csvAll" class="btn" disabled>CSV: весь архів</button><button id="csvView" class="btn" disabled>CSV: видимий період</button><button id="jsonAll" class="btn" disabled>JSON: весь архів</button></div>
+  <p>Пропущені показники відображаються розривами лінії. Дати залежать від годинника датчика; під час читання архіву його час не змінюється.</p>
+</section>
+
 </div>
 
 <script type="module" src="app.js"></script>
 
 </body>
 </html>
+
 

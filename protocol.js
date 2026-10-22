@@ -443,8 +443,8 @@ export class FrameAccumulator {
         break;
       }
 
-      if (this._buffer[1] !== FRAME_TYPE || this._buffer[2] !== 0 || this._buffer[3] < 5) { this._buffer.shift(); continue; }
-      const lengthByte = this._buffer[3];
+      if (this._buffer[1] !== FRAME_TYPE || ((this._buffer[2] << 8) | this._buffer[3]) < 5) { this._buffer.shift(); continue; }
+      const lengthByte = (this._buffer[2] << 8) | this._buffer[3];
       const totalLen = 4 + lengthByte;
 
       if (this._buffer.length < totalLen) {
@@ -474,4 +474,5 @@ export class FrameAccumulator {
     this._buffer = [];
   }
 }
+
 
