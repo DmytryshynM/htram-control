@@ -170,7 +170,7 @@
 <script>
   window.onerror = function(msg) { log(`🔴 JS Error: ${msg}`); return false; };
 
-  // Автономний графік (без зовнішніх бібліотек)
+  // Автономний графік 
   const co2History = [];
   const MAX_POINTS = 30;
   
@@ -185,7 +185,6 @@
 
     const minVal = 400;
     let maxVal = Math.max(1200, ...co2History) + 100;
-    
     const dx = w / (MAX_POINTS - 1);
     
     ctx.beginPath();
@@ -201,7 +200,6 @@
     }
     ctx.stroke();
 
-    // Заливка під графіком
     ctx.lineTo((co2History.length - 1) * dx, h);
     ctx.lineTo(0, h);
     ctx.fillStyle = 'rgba(0, 122, 255, 0.1)';
@@ -234,7 +232,7 @@
     sendThresholds(y, r);
   });
 
-  // BLE ПРОтОКОЛ (UART + CRC16)
+  // BLE ПРОтОКОЛ 
   const SERVICE_UUID = 'fc247940-6e08-11e4-80fc-0002a5d5c51b';
   const WRITE_CHAR_UUID = '3d115840-6e0b-11e4-b24f-0002a5d5c51b';
   const READ_CHAR_UUID = 'f833d6c0-6e0b-11e4-9136-0002a5d5c51b';
@@ -274,7 +272,6 @@
   }
 
   function sendThresholds(yellow, red) {
-    // 0x41 0x42 - Write Alarm Limits
     sendFrame('Set Alarm', 0x41, 0x42, [(yellow >> 8) & 0xFF, yellow & 0xFF, (red >> 8) & 0xFF, red & 0xFF]);
   }
 
@@ -302,10 +299,8 @@
       document.getElementById('connectBtn').innerText = 'Connected';
       document.getElementById('connectBtn').style.color = 'var(--success)';
 
-      // Розблоковуємо UI одразу, щоб можна було клацати
       document.querySelectorAll('input, select, button').forEach(el => el.disabled = false);
 
-      // Рукостискання
       log('Init BLE Handshake...');
       await sendFrame('Init', 0x75, 0x58, [0x01]);
 
@@ -314,73 +309,65 @@
     }
   });
 
+  // Виправлений і безпечний парсер даних
   function handleData(event) {
     const value = event.target.value;
-    if (value.byteLength < 2) return;
+    if (value.byteLength < 6) return;
 
-    let hexStr = "";
+    let hexArr = [];
     for (let i = 0; i < value.byteLength; i++) {
-        hexStr += value.getUint8(i).toString(16).padStart(2, '0').toUpperCase() + " ";
+        hexArr.push(value.getUint8(i).toString(16).padStart(2, '0').toUpperCase());
     }
-    document.getElementById('rawBox').innerText = hexStr;
+    document.getElementById('rawBox').innerText = hexArr.join(' ');
     
-    // Бронебійний парсер CO2 (шукаємо будь-яке число від 400 до 5000)
-    let co2 = 0;
-    for (let i = 0; i < value.byteLength - 1; i++) {
-        // Уникаємо службових маркерів
-        if (value.getUint8(i) === 0xFE || value.getUint8(i) === 0x3F) continue;
+    // Перевіряємо, чи це саме пакет з показниками сенсорів (0x41 0x44)
+    // Структура кадру: [0x7B, 0x41, LenHi, LenLo, CmdHi (0x41), CmdLo (0x44)...]
+    if (value.byteLength >= 10 && value.getUint8(4) === 0x41 && value.getUint8(5) === 0x44) {
+        // У пакеті 0x41 0x44 значення CO2 лежить на 7 і 8 байті (Big-Endian)
+        let co2 = value.getUint16(7, false); 
         
-        let valBE = value.getUint16(i, false);
-        let valLE = value.getUint16(i, true);
-        
-        if (valBE >= 400 && valBE <= 5000) { co2 = valBE; break; }
-        if (valLE >= 400 && valLE <= 5000) { co2 = valLE; break; }
-    }
+        if (co2 >= 400 && co2 <= 10000) {
+            document.getElementById('co2Value').innerText = co2;
+            
+            // Оновлення графіка
+            co2History.push(co2);
+            if (co2History.length > MAX_POINTS) co2History.shift();
+            drawChart();
 
-    if (co2 >= 400) {
-        document.getElementById('co2Value').innerText = co2;
-        
-        // Оновлення графіка
-        co2History.push(co2);
-        if (co2History.length > MAX_POINTS) co2History.shift();
-        drawChart();
+            // Оновлення статусу ризику
+            const riskElem = document.getElementById('riskStatus');
+            const yellow = parseInt(document.getElementById('yellowLimit').value) || 800;
+            const red = parseInt(document.getElementById('redLimit').value) || 1100;
 
-        // Оновлення статусу ризику
-        const riskElem = document.getElementById('riskStatus');
-        const yellow = parseInt(document.getElementById('yellowLimit').value) || 800;
-        const red = parseInt(document.getElementById('redLimit').value) || 1100;
-
-        if (co2 < yellow) {
-            riskElem.innerText = 'Low Risk'; 
-            riskElem.style.backgroundColor = 'rgba(52, 199, 89, 0.15)'; 
-            riskElem.style.color = 'var(--success)';
-        } else if (co2 >= yellow && co2 < red) {
-            riskElem.innerText = 'Medium Risk'; 
-            riskElem.style.backgroundColor = 'rgba(255, 149, 0, 0.15)'; 
-            riskElem.style.color = 'var(--warning)';
-        } else {
-            riskElem.innerText = 'High Risk'; 
-            riskElem.style.backgroundColor = 'rgba(255, 59, 48, 0.15)'; 
-            riskElem.style.color = 'var(--danger)';
+            if (co2 < yellow) {
+                riskElem.innerText = 'Low Risk'; 
+                riskElem.style.backgroundColor = 'rgba(52, 199, 89, 0.15)'; 
+                riskElem.style.color = 'var(--success)';
+            } else if (co2 >= yellow && co2 < red) {
+                riskElem.innerText = 'Medium Risk'; 
+                riskElem.style.backgroundColor = 'rgba(255, 149, 0, 0.15)'; 
+                riskElem.style.color = 'var(--warning)';
+            } else {
+                riskElem.innerText = 'High Risk'; 
+                riskElem.style.backgroundColor = 'rgba(255, 59, 48, 0.15)'; 
+                riskElem.style.color = 'var(--danger)';
+            }
         }
     }
   }
 
-  // Обробники перемикачів (Toggles)
+  // Відправка команд налаштувань
   document.getElementById('muteToggle').addEventListener('change', (e) => {
-    // 0x21 0x22 - Mute Device
     sendFrame('Mute Toggle', 0x21, 0x22, [e.target.checked ? 0x01 : 0x00]);
   });
 
   document.getElementById('displayToggle').addEventListener('change', (e) => {
-    // 0x21 0x24 - Display Toggle (або інша, відправиться як експериментальна)
     sendFrame('Display Toggle', 0x21, 0x24, [e.target.checked ? 0x01 : 0x00]);
   });
 
   document.getElementById('tempUnit').addEventListener('change', (e) => {
-    // 0x21 0x6F - Temp Unit Toggle
     const val = e.target.value === 'F' ? 0x01 : 0x00;
-    sendFrame('Temp Unit', 0x21, 0x6F, [val]);
+    sendFrame('Temp Unit', 0x21, 0x6D, [val]);
   });
 </script>
 
