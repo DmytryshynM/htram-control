@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTRAM Native Protocol Panel</title>
+  <title>AirOK</title>
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --subtext: #94a3b8;
@@ -41,20 +41,115 @@
 .charge-banner{position:sticky;top:8px;z-index:10;margin:8px 0 16px;padding:16px;border-radius:12px;border:2px solid #38bdf8;background:#0c2940;color:#e0f2fe;font-weight:650;box-shadow:0 6px 24px #02061788;line-height:1.5}.charge-banner[data-alert=true]{background:#422a09;color:#fef3c7;border-color:#fbbf24}.battery-panel[data-charging=true] #batteryFill{background:repeating-linear-gradient(110deg,#34d399 0px,#34d399 12px,#6ee7b7 12px,#6ee7b7 22px);background-size:44px 100%;animation:charge-flow 1.2s linear infinite}.battery-panel[data-charging=true] #batteryChargeState{color:#6ee7b7;font-weight:700}@keyframes charge-flow{to{background-position:44px 0}}@media(prefers-reduced-motion:reduce){.battery-panel[data-charging=true] #batteryFill{animation:none}}.setting-switch{margin:12px 0;padding:14px;border:1px solid #334155;border-radius:12px;background:#0f172a}.setting-switch .eco-switch{margin:0}.setting-switch p{font-size:12px;margin:8px 0 0}.switch-subtitle{display:block;font-size:12px;color:#94a3b8;font-weight:400;margin-top:5px;line-height:1.5}.sync-status{padding:12px;border:1px solid #475569;border-radius:10px;line-height:1.6}.sync-status[data-state=success]{color:#6ee7b7;border-color:#34d399}.sync-status[data-state=error]{color:#fca5a5;border-color:#ef4444}.eco-switch input:disabled{opacity:.45;cursor:wait}.report-visual-card{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;margin:14px 0}.report-visual-card h4{margin:0 0 8px}.report-legend{color:#cbd5e1!important} 
 *{box-sizing:border-box}body{padding:12px 12px calc(16px + env(safe-area-inset-bottom))}.container{min-width:0}.header{margin:4px 0 16px}.header h2{font-size:24px}.header p{margin-bottom:0}.card{padding:16px}.page-nav{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#0f172af5;padding:8px 0 12px;backdrop-filter:blur(8px)}.page-nav button{min-height:48px;min-width:0;padding:9px 2px;border:1px solid #334155;border-radius:10px;background:#1e293b;color:#cbd5e1;font:inherit;font-size:clamp(10px,2.7vw,12px);white-space:nowrap;cursor:pointer}.page-nav button[aria-current=page]{background:#2563eb;border-color:#60a5fa;color:#fff;font-weight:650}.back-link{border:0;background:none;color:#93c5fd;font:inherit;padding:8px 0 16px;min-height:44px;cursor:pointer}.connection-card .status{font-size:14px;overflow-wrap:anywhere}.connection-card p{font-size:12px;margin:4px 0 8px}.connection-card .btn{margin-top:4px}.current-readings{text-align:center}.co2-reading .metric{font-size:clamp(40px,12vw,64px);letter-spacing:-2px;margin:8px 0}.eyebrow{font-size:13px;color:#94a3b8}.risk-label{display:inline-block;border:1px solid #334155;border-radius:99px;padding:5px 14px;font-size:14px;font-weight:650}.secondary-readings{padding-top:20px;margin-top:20px;border-top:1px solid #334155;grid-template-columns:1fr 1fr}.secondary-readings .metric{font-size:clamp(24px,7vw,34px)}#lastUpdate{font-size:12px;margin-bottom:0}.charge-card{padding:0}.charge-card .battery-panel{margin:0;border:0;background:transparent}.battery-heading strong{font-size:26px}.compact-help{margin-top:12px}summary{cursor:pointer;color:#cbd5e1;font-size:14px;line-height:1.5}details.card>summary{min-height:28px}#actionStatus:empty{display:none}#actionStatus{font-size:13px;border-left:3px solid #38bdf8;padding:8px 12px;margin:0 0 12px}.page-intro{margin-top:-8px}.state-values{margin:12px 0 0}.state-values dt{font-size:12px;color:#94a3b8;margin-top:16px}.state-values dd{margin:4px 0 0;overflow-wrap:anywhere;font-size:16px}.chart-panel{min-width:0;padding:10px}.archive-chart{height:220px}.archive-wide{max-width:1100px}#historyPage{padding:12px}#historyPage #backMonitor{display:none}.charge-banner{position:static;font-size:13px}.grid{min-width:0}.grid>*{min-width:0}fieldset{min-width:0}.log-box{overflow-wrap:anywhere}button,input,select{max-width:100%}@media(min-width:600px){.page-nav button{font-size:14px}.archive-chart{height:260px}}@media(max-width:360px){body{padding:8px}.card{padding:12px}.page-nav button{font-size:10px}.secondary-readings{grid-template-columns:1fr 1fr}}
 .archive-options{margin:14px 0}.archive-options[open]{padding:12px;background:#0f172a;border-radius:10px}#archiveSource,#archiveProgress{font-size:12px}.native-options h3{display:none}.native-options{padding-top:12px}</style>
+<style data-android-theme>
+/* Android presentation only. Keep the chart palette dark for canvas contrast. */
+:root {
+  --bg:#0f172a; --card:#172238; --text:#f4f8fc; --subtext:#a8b8ce;
+  --accent:#8cf0d1; --accent-hover:#b0f8e2; --line:#304058;
+  color-scheme:dark;
+}
+body{padding:16px 14px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(ellipse 520px 340px at top,#1a3245,transparent),var(--bg)}
+.container{max-width:620px}
+.header{text-align:left;margin:0 2px 18px;position:relative;padding:8px 0 8px 58px}
+.header::before{content:"";position:absolute;left:0;top:11px;width:44px;height:44px;border-radius:15px;background:radial-gradient(circle at 50% 50%,#8cf0d1 0 15%,transparent 17% 29%,#8cf0d1 31% 35%,transparent 37%),#244943;border:1px solid #427567}
+.header h2{margin:0;letter-spacing:-.045em;font-size:28px;line-height:1.15}
+.header p{margin:5px 0 0!important}
+.page-nav{padding:5px;gap:3px;margin-bottom:14px;border:1px solid var(--line);border-radius:17px;background:#111c30f8}
+.page-nav button{background:transparent;border:1px solid transparent;border-radius:12px;min-height:46px;white-space:normal;overflow-wrap:anywhere;padding:4px;font-size:clamp(10px,2.85vw,14px)}
+.page-nav button[aria-current=page]{background:#294542;border-color:#42665e;color:#c6ffed}
+.card{background:var(--card);border:1px solid var(--line);border-radius:21px;padding:16px;margin-bottom:12px;box-shadow:0 4px 12px #050b151e}
+.card h3{border-color:var(--line);font-size:16px}
+p,.eyebrow,.battery-caption,.switch-subtitle{color:var(--subtext)}
+.btn{min-height:46px;background:#2b3b54;color:var(--text);border:1px solid #445872;border-radius:13px;padding:9px 13px}
+.btn:hover{background:#374b67}
+.btn:active,.page-nav button:active{filter:brightness(1.12)}
+.btn:disabled{background:#243048;color:#a5b4c8;border-color:#34445c}
+#connectBtn:not(:disabled),#fetchArchive:not(:disabled),#readState:not(:disabled){background:var(--accent);color:#102c27;border-color:transparent}
+.btn-danger:not(:disabled){background:#472937;color:#ffd4dc;border-color:#774759}
+.connection-card .status{margin-bottom:5px}
+.dot{width:9px;height:9px;flex:none}
+.connection-card .btn{margin-top:8px}
+.current-readings{background:radial-gradient(ellipse at 50% 0,#244943,transparent 75%),var(--card)}
+.co2-reading{padding:5px 0}
+.co2-reading .metric{color:#a9f9e0;font-size:clamp(42px,12vw,72px);line-height:1.12;letter-spacing:-.06em}
+.metric,.battery-heading strong{font-variant-numeric:tabular-nums}
+.eyebrow{font-weight:600}
+.risk-label{background:#0f1a2b;border-color:#3e5268}
+.secondary-readings{margin:12px 0 0;padding:0;border:0;gap:8px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.secondary-readings>div{background:#111d30;border:1px solid var(--line);border-radius:15px;padding:11px 5px}
+.secondary-readings .metric{color:#f4f8fc;font-size:clamp(22px,6vw,34px)}
+.charge-card{padding:0}
+.battery-track{height:7px}
+.eco-switch{min-height:44px}
+.eco-switch input:checked{background:#32766a}
+input:not([type=checkbox]):not([type=range]),select{min-height:46px;border-radius:12px;background:#101c30;border-color:#43546b}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #a9f9e0;outline-offset:2px}
+summary{min-height:44px!important;align-content:center}
+.chart-panel,.report-visual-card,.setting-switch{border-radius:16px;border-color:var(--line)}
+.charge-banner{box-shadow:none}
+@media(max-width:360px){body{padding-inline:9px}.card{padding:12px}.charge-card{padding:0}.page-nav button{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+.header{padding-right:50px}
+.air-menu{position:absolute;right:0;top:8px;z-index:40}
+.air-menu summary{list-style:none;display:grid;place-items:center;width:46px;height:46px;border:1px solid var(--line);border-radius:14px;background:#172238;color:var(--text);font-size:29px;line-height:1}
+.air-menu summary::-webkit-details-marker{display:none}
+.air-menu-items{position:absolute;top:calc(100% + 6px);right:0;width:195px;padding:5px;border:1px solid var(--line);border-radius:15px;background:#172238;box-shadow:0 10px 24px #050b1580}
+.air-menu-items button{display:block;width:100%;min-height:46px;border:0;border-radius:10px;text-align:left;padding:8px 12px;background:transparent;color:var(--text);font:inherit}
+.air-menu-items button:hover,.air-menu-items button[aria-current=page]{background:#294542}
+.air-menu-items button::before{display:inline-block;width:26px;color:var(--accent)}
+#navSettings::before{content:"⚙"}
+#navStatus::before{content:"ⓘ"}
+#openArchive::before{content:"▤"}
+.metric-link{display:block;width:100%;min-height:44px;border:0;border-radius:10px;background:transparent;padding:0;font-family:inherit;cursor:pointer}
+.metric-link:active{background:#ffffff12}
+#navBack{position:sticky;top:0;z-index:25;background:var(--bg);padding:8px 12px;border-radius:10px;margin-bottom:8px}
+.chart-panel{scroll-margin-top:58px}
+.combined-legend{display:flex;flex-wrap:wrap;gap:6px}
+.combined-legend>span{color:var(--series);font-size:12px;padding:5px 8px;border:1px solid var(--line);border-radius:8px}
+.combined-legend strong{white-space:nowrap}
+.archive-loading{padding:12px;border:1px solid var(--line);border-radius:14px;color:var(--accent);font-size:14px}
+.archive-loading progress{display:block;width:100%;height:14px;margin-top:6px;accent-color:var(--accent)}
+.storage-sizes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;font-size:13px}
+.storage-sizes dd{margin:0;text-align:right;overflow-wrap:anywhere}
+#archiveStorage label{display:block;margin-top:12px}
+</style>
+<style>
+@media(min-width:840px){
+  body{padding:28px 32px 40px}
+  .container,.container.archive-wide{max-width:1160px}
+  .header{margin-bottom:22px}
+  #monitorPage{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr);gap:16px;align-items:start}
+  #monitorPage>.current-readings{grid-column:1;grid-row:1/span 2;padding:32px}
+  #monitorPage>.connection-card{grid-column:2;grid-row:1}
+  #monitorPage>.charge-card{grid-column:2;grid-row:2}
+  #settingsPage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+  #settingsPage>h2,#settingsPage>.page-intro{grid-column:1/-1;margin-block:0}
+  #historyPage{padding:22px}
+  #historyPage .archive-chart{height:310px}
+  #historyPage .combined-chart .archive-chart{height:360px}
+  .archive-actions .btn{flex:0 1 auto}
+  .storage-sizes{max-width:520px}
+}
+
+</style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h2 style="margin-bottom: 5px;">HTRAM Україна</h2>
-    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Повітря під контролем</p>
+    <details id="airMenu" class="air-menu">
+      <summary aria-label="Меню розділів">⋮</summary>
+      <nav class="air-menu-items" aria-label="Розділи"><button id="navHome" hidden type="button">Показники</button><button id="navSettings" type="button">Налаштування</button><button id="navStatus" type="button">Стан датчика</button><button id="openArchive" type="button">Історія</button></nav>
+    </details>
+    <h2 style="margin-bottom: 5px;">AirOK</h2>
+    <p style="color: var(--subtext); margin-top: 0; font-size: 14px;">Час провітрити?</p>
   </div>
 
-<div id="chargeBanner" class="charge-banner" role="status" aria-live="polite" hidden></div><nav class="page-nav" aria-label="Розділи"><button id="navHome" type="button">Показники</button><button id="navSettings" type="button">Налаштування</button><button id="navStatus" type="button">Стан</button><button id="openArchive" type="button">Історія</button></nav><button id="navBack" class="back-link" hidden>← Поточні показники</button><p id="actionStatus" role="status" aria-live="polite"></p>
+<div id="chargeBanner" class="charge-banner" role="status" aria-live="polite" hidden></div><button id="navBack" class="back-link" hidden>← Поточні показники</button><p id="actionStatus" role="status" aria-live="polite"></p>
 <p id="bootStatus" role="alert" style="padding:12px;border:1px solid #f59e0b;border-radius:8px">Запуск HTRAM… Якщо повідомлення залишається, відкрийте сайт у Chrome або Edge.</p>
 <main id="monitorPage" aria-label="Поточні показники">
 <section class="card connection-card"><div class="status"><div id="statusDot" class="dot"></div><span id="statusText">Не підключено</span></div><p id="deviceInfo">Двічі натисніть кнопку на датчику для запуску Bluetooth.</p><div class="connection-actions"><button id="connectBtn" class="btn">Підключити датчик</button><button id="disconnectBtn" class="btn btn-danger" hidden disabled>Від’єднати</button></div></section>
-<section class="card current-readings"><div class="co2-reading"><span class="eyebrow">CO₂ · зараз</span><div id="co2Value" class="metric">— ppm</div><div id="riskStatus" class="risk-label">—</div></div><div class="grid secondary-readings"><div><span class="eyebrow">Температура</span><div id="temperature" class="metric">—</div></div><div><span class="eyebrow">Вологість</span><div id="humidity" class="metric">—</div></div></div><p id="lastUpdate" role="status">Очікування показників</p><p id="battery" hidden>Акумулятор: —</p></section>
+<section class="card current-readings"><div class="co2-reading"><span class="eyebrow">CO₂ · зараз</span><button type="button" id="co2Value" class="metric metric-link" title="Графік CO₂">— ppm</button><div id="riskStatus" class="risk-label">—</div></div><div class="grid secondary-readings"><div><span class="eyebrow">Температура</span><button type="button" id="temperature" class="metric metric-link" title="Графік температури">—</button></div><div><span class="eyebrow">Вологість</span><button type="button" id="humidity" class="metric metric-link" title="Графік вологості">—</button></div></div><p id="lastUpdate" role="status">Очікування показників</p><p id="battery" hidden>Акумулятор: —</p></section>
 <section class="card charge-card"><div id="batteryPanel" class="battery-panel" data-tone="unknown">
       <div class="battery-heading"><span>Акумулятор датчика</span><strong id="batteryPercent">—</strong></div>
       <div class="battery-track" aria-hidden="true"><div id="batteryFill"></div></div>
@@ -117,7 +212,27 @@
   <button id="backMonitor" class="btn">← Поточні показники</button>
   <h2 id="historyTitle">Історія вимірювань</h2>
   <p>CO₂, температура й вологість на спільній часовій шкалі.</p>
-  <div class="archive-actions"><button id="fetchArchive" class="btn" disabled>Зчитати архів із датчика</button><button id="abortArchive" class="btn btn-danger" hidden>Зупинити зчитування</button></div>
+  <details id="archiveStorage" class="chart-panel">
+  <summary>Пам’ять і очищення</summary>
+  <dl class="storage-sizes">
+    
+    <dt>Дані сайту в браузері</dt><dd id="appDataBytes">Недоступно</dd>
+    <dt>Записи архіву</dt><dd id="archiveStorageBytes">Очікування</dd>
+  </dl>
+  <p>Браузер оцінює сховище всього домену, а не лише цієї сторінки. Розмір записів — оцінка за JSON; база може звільнити місце не одразу.</p>
+  <button id="archiveRefreshSizes" class="btn" type="button">Оновити розміри</button>
+  <label for="archiveKeepMonths">Залишити записи за останні</label>
+  <select id="archiveKeepMonths"><option value="36">3 роки</option><option value="12" selected>1 рік</option><option value="6">6 місяців</option><option value="3">3 місяці</option><option value="1">1 місяць</option></select>
+  <p id="archiveTrimPreview"></p>
+  <button id="archiveTrim" class="btn btn-danger" type="button" disabled>Видалити старі локальні записи</button>
+  <button id="archiveResetCutoff" class="btn" type="button" disabled>Зняти межу збереження</button>
+  <p id="archiveStorageResult" role="status"></p>
+</details>
+<div id="archiveReadIndicator" class="archive-loading" hidden>
+  <label for="archiveLoadingBar">Триває зчитування архіву</label>
+  <progress id="archiveLoadingBar"></progress>
+</div>
+<div class="archive-actions"><button id="fetchArchive" class="btn" disabled>Зчитати архів із датчика</button><button id="abortArchive" class="btn btn-danger" hidden>Зупинити зчитування</button></div>
   <details class="archive-options"><summary>Параметри зчитування і часу</summary><label for="archiveReadMode">Як завантажувати архів</label><select id="archiveReadMode"><option value="auto">Довантажити / продовжити автоматично</option><option value="full">Прочитати весь архів з початку</option></select><label for="archiveClock">Часова шкала архіву</label><select id="archiveClock"><option value="device">Час приладу · без додаткового зсуву</option><option value="utc">Записи UTC · перевести в місцевий час</option></select><p id="clockStatus"></p></details><p id="archiveProgress" role="status" aria-live="polite">Для зчитування спочатку підключіть датчик на головному екрані.</p>
   <p id="archiveSource">Архів ще не завантажено</p>
   <details class="compact-help"><summary>Локальне збереження архіву</summary><p id="archiveCache">Архів автоматично зберігається в цьому браузері під час зчитування і відновлюється після оновлення сторінки. Для резервної копії завантажте JSON. Дані нікуди не надсилаються.</p></details>
@@ -125,7 +240,18 @@
   <div class="archive-actions"><button id="zoomIn" class="btn" aria-label="Наблизити графік">＋ Наблизити</button><button id="zoomOut" class="btn" aria-label="Віддалити графік">− Віддалити</button><button id="allTime" class="btn">Весь період</button></div>
   <div class="archive-actions"><button id="range1" class="btn">Остання година</button><button id="range24" class="btn">Остання доба</button><button id="range168" class="btn">Останній тиждень</button></div>
   <p id="archiveRange">Період ще не вибрано</p>
-  <div class="chart-panel"><h3 style="color:#38bdf8">CO₂ <span id="co2Point">—</span></h3><p id="co2Summary">Очікування даних</p><canvas id="archiveCanvas" class="archive-chart" tabindex="0" aria-label="Історія CO₂, ppm. Спільна часова шкала" role="img"></canvas></div>
+  <section class="chart-panel combined-chart" aria-labelledby="combinedTitle">
+  <h3 id="combinedTitle">Усі показники</h3>
+  <p>Спільний час; кожна лінія має власний вертикальний масштаб.</p>
+  <canvas id="archiveCanvasCombined" class="archive-chart" tabindex="0" role="img" aria-label="CO₂, температура й вологість на спільній шкалі часу"></canvas>
+  <p id="combinedTime">Натисніть на графік, щоб побачити значення за цей час.</p>
+  <div class="combined-legend">
+    <span style="--series:#38bdf8">CO₂ <strong id="combined-co2">—</strong></span>
+    <span style="--series:#fbbf24">Температура <strong id="combined-temperature">—</strong></span>
+    <span style="--series:#34d399">Вологість <strong id="combined-humidity">—</strong></span>
+  </div>
+</section>
+<div class="chart-panel"><h3 style="color:#38bdf8">CO₂ <span id="co2Point">—</span></h3><p id="co2Summary">Очікування даних</p><canvas id="archiveCanvas" class="archive-chart" tabindex="0" aria-label="Історія CO₂, ppm. Спільна часова шкала" role="img"></canvas></div>
 <div class="chart-panel"><h3 style="color:#fbbf24">Температура <span id="tempPoint">—</span></h3><p id="tempSummary">Очікування даних</p><canvas id="archiveCanvasTemp" class="archive-chart" tabindex="0" aria-label="Історія температури, градуси Цельсія. Спільна часова шкала" role="img"></canvas></div>
 <div class="chart-panel"><h3 style="color:#34d399">Вологість <span id="humidityPoint">—</span></h3><p id="humiditySummary">Очікування даних</p><canvas id="archiveCanvasHumidity" class="archive-chart" tabindex="0" aria-label="Історія вологості, відсотки. Спільна часова шкала" role="img"></canvas></div>
   <p id="pointDetails" aria-live="polite">Виберіть точку на графіку для перегляду деталей.</p>
@@ -972,6 +1098,66 @@ class SingleHistoryChart {
 }
 
 
+// Runs inside the existing chart module to share selection, zoom and time mode.
+class CombinedHistoryChart extends SingleHistoryChart {
+  draw(){
+    const rect=this.canvas.getBoundingClientRect();
+    if(rect.width<100)return;
+    const w=rect.width,h=Math.max(180,rect.height||220),dpr=Math.min(3,window.devicePixelRatio||1);
+    this.canvas.width=w*dpr;this.canvas.height=h*dpr;
+    const ctx=this.canvas.getContext('2d');
+    ctx.scale(dpr,dpr);ctx.fillStyle='#071121';ctx.fillRect(0,0,w,h);
+    ctx.font='11px system-ui';ctx.fillStyle='#a8b8ce';
+    const selection=this.records[this.selected];
+    document.getElementById('combinedTime').textContent=selection?this.formatTime(selection.timestamp):'Натисніть на графік, щоб побачити значення за цей час.';
+    for(const [key,m] of Object.entries(metrics)){
+      const value=selection?.[key];
+      document.getElementById('combined-'+key).textContent=Number.isFinite(value)?value+' '+m.unit:'—';
+    }
+    if(!this.records.length){ctx.textAlign='center';ctx.fillText('Зчитайте архів або відкрийте JSON',w/2,h/2);return;}
+    const left=55,right=w-20,top=16,bottom=h-46;
+    const x=t=>left+(t-this.start)/(this.end-this.start)*(right-left);
+    const first=nearestIndex(this.records,this.start),last=nearestIndex(this.records,this.end);
+    const visible=this.records.slice(Math.max(0,first-1),last+2);
+    ctx.strokeStyle='#203149';
+    for(let i=0;i<5;i++){const y=top+(bottom-top)*i/4;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();}
+    ctx.save();ctx.beginPath();ctx.rect(left,top,right-left,bottom-top);ctx.clip();
+    for(const [key,m] of Object.entries(metrics)){
+      let min=Infinity,max=-Infinity;
+      for(const r of visible)if(Number.isFinite(r[key])){min=Math.min(min,r[key]);max=Math.max(max,r[key]);}
+      if(!Number.isFinite(min))continue;
+      const pad=Math.max((max-min)*.12,key==='co2'?25:1);
+      const y=v=>bottom-(v-min+pad)/(max-min+2*pad)*(bottom-top);
+      ctx.strokeStyle=m.color;ctx.fillStyle=m.color;ctx.lineWidth=1.7;ctx.beginPath();
+      let pen=false,previous=null,column=null,bucket=[];
+      const flush=()=>{
+        if(!bucket.length)return;
+        let lo=0,hi=0;
+        for(let i=1;i<bucket.length;i++){if(bucket[i][key]<bucket[lo][key])lo=i;if(bucket[i][key]>bucket[hi][key])hi=i;}
+        for(const i of [...new Set([0,lo,hi,bucket.length-1])].sort((a,b)=>a-b)){
+          const r=bucket[i];if(pen)ctx.lineTo(x(r.timestamp),y(r[key]));else{ctx.moveTo(x(r.timestamp),y(r[key]));pen=true;}
+        }
+        bucket=[];
+      };
+      for(const r of visible){
+        if(hasHistoryGap(previous,r)||!Number.isFinite(r[key])){flush();pen=false;column=null;}
+        previous=r;if(!Number.isFinite(r[key]))continue;
+        const c=Math.floor(x(r.timestamp));if(column!==null&&c!==column)flush();column=c;bucket.push(r);
+      }
+      flush();ctx.stroke();
+      if(visible.length<80)for(const r of visible)if(Number.isFinite(r[key])){ctx.beginPath();ctx.arc(x(r.timestamp),y(r[key]),2,0,Math.PI*2);ctx.fill();}
+      if(selection&&Number.isFinite(selection[key])){ctx.beginPath();ctx.arc(x(selection.timestamp),y(selection[key]),4,0,Math.PI*2);ctx.fill();}
+    }
+    if(selection){
+      const px=x(selection.timestamp);ctx.setLineDash([4,4]);ctx.strokeStyle='#dbeafe';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();
+    }
+    ctx.restore();
+    ctx.fillStyle='#a8b8ce';ctx.textAlign='left';ctx.fillText(this.formatTime(this.start),left,h-22);
+    ctx.textAlign='right';ctx.fillText(this.formatTime(this.end),right,h-6);
+  }
+}
+
 class HistoryChart {
   constructor(canvas,onSelect,onWindow){
     this.onSelect=onSelect;this.onWindow=onWindow;this.syncing=false;
@@ -980,6 +1166,9 @@ class HistoryChart {
       if(!element)throw Error('Не знайдено панель графіка '+metric);
       const panel=new SingleHistoryChart(element,record=>this.select(panel,record),(start,end)=>this.changed(panel,start,end));panel.metric=metric;return panel;
     });this.primary=this.charts[0];
+    const combined = new CombinedHistoryChart(document.getElementById('archiveCanvasCombined'),
+      record=>this.select(combined,record),(start,end)=>this.changed(combined,start,end));
+    this.charts.push(combined);
   }
   setTimeMode(mode){for(const panel of this.charts)panel.formatTime=t=>formatArchiveDate(t,mode);this.draw();}
   get records(){return this.primary.records;}get min(){return this.primary.min;}get max(){return this.primary.max;}get start(){return this.primary.start;}get end(){return this.primary.end;}
@@ -1017,12 +1206,12 @@ class HistoryUI {
     $('openArchive').onclick=()=>this.show(true);$('backMonitor').onclick=()=>this.show(false);
     window.addEventListener('hashchange',()=>{if(!this.navigate)this.show(location.hash==='#history',false);});
     this.show(location.hash==='#history',false);this.buttons(false);
-    const generation=this.generation;this.restorePromise=cache().then(saved=>{if(saved&&this.generation===generation&&!this.abort){this.records=normalizeRecords(saved.records);this.meta=saved.meta;this.refresh();$('archiveProgress').textContent='Відновлено останній архів із цього браузера';}}).catch(()=>{$('archiveCache').textContent='Не вдалося відкрити локальне сховище. Для резервної копії завантажте JSON.';});
+    const generation=this.generation;this.restorePromise=cache().then(saved=>{if(saved&&this.generation===generation&&!this.abort){this.cutoff=saved.cutoff??null;this.records=retained(normalizeRecords(saved.records),this.cutoff);this.meta=saved.meta;this.refresh();$('archiveProgress').textContent='Відновлено останній архів із цього браузера';}}).catch(()=>{$('archiveCache').textContent='Не вдалося відкрити локальне сховище. Для резервної копії завантажте JSON.';});
   }
   show(open,update=true){if(this.navigate)return this.navigate(open?'history':'monitor',update);$('monitorPage').hidden=open;$('historyPage').hidden=!open;document.querySelector('.container').classList.toggle('archive-wide',open);if(update)history.replaceState(null,'',open?'#history':location.pathname+location.search);if(open)requestAnimationFrame(()=>this.chart.draw());}
   setConnected(enabled){this.enabled=enabled;$('fetchArchive').disabled=!enabled||!!this.abort;}
-  buttons(active){$('abortArchive').hidden=!active;$('importJson').disabled=active;$('archiveReadMode').disabled=active;$('fetchArchive').disabled=active||!this.enabled;}
-  refresh(keepWindow=false){const before=keepWindow&&this.chart.records.length?{start:this.chart.start,end:this.chart.end,min:this.chart.min,max:this.chart.max}:null;const mode=$('archiveClock').value||'device';const displayed=this.records.filter(r=>!$('hide2021').checked||new Date(r.timestamp*1000)[r.source==='live'||mode==='utc'?'getFullYear':'getUTCFullYear']()!==2021).map(r=>{if(r.source!=='live'||mode==='utc')return r;const d=new Date(r.timestamp*1000);return {...r,rawTimestamp:r.timestamp,timestamp:Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds())/1000};}).sort((a,b)=>a.timestamp-b.timestamp);this.chart.setData(displayed);const gaps=displayed.reduce((n,r,i)=>n+(i>0&&r.timestamp-displayed[i-1].timestamp>300?1:0),0);$('historyQuality').textContent='У сховищі: '+this.records.length+' · показано: '+displayed.length+' · прогалин понад 5 хв: '+gaps+'. Записи 2021 року '+($('hide2021').checked?'приховані':'видимі')+'; на датчику й у повному JSON вони залишаються.';if(before){const full=before.start===before.min&&before.end===before.max;if(!full){const width=before.end-before.start;this.chart.setWindow(before.end===before.max?this.chart.max-width:before.start,before.end===before.max?this.chart.max:before.end);}}this.details(this.chart.primary.selected>=0?this.chart.records[this.chart.primary.selected]:null);this.source();if(!displayed.length){$('archiveStats').textContent='Записів: 0';$('archiveRange').textContent='Архів порожній';}for(const id of ['csvAll','csvView','jsonAll'])$(id).disabled=!this.records.length;}
+  buttons(active){$('archiveReadIndicator').hidden=!active;this.storagePreview();$('abortArchive').hidden=!active;$('importJson').disabled=active;$('archiveReadMode').disabled=active;$('fetchArchive').disabled=active||!this.enabled;}
+  refresh(keepWindow=false){this.records=retained(this.records,this.cutoff);if($('archiveStorage').open)this.storagePreview();const before=keepWindow&&this.chart.records.length?{start:this.chart.start,end:this.chart.end,min:this.chart.min,max:this.chart.max}:null;const mode=$('archiveClock').value||'device';const displayed=this.records.filter(r=>!$('hide2021').checked||new Date(r.timestamp*1000)[r.source==='live'||mode==='utc'?'getFullYear':'getUTCFullYear']()!==2021).map(r=>{if(r.source!=='live'||mode==='utc')return r;const d=new Date(r.timestamp*1000);return {...r,rawTimestamp:r.timestamp,timestamp:Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds())/1000};}).sort((a,b)=>a.timestamp-b.timestamp);this.chart.setData(displayed);const gaps=displayed.reduce((n,r,i)=>n+(i>0&&r.timestamp-displayed[i-1].timestamp>300?1:0),0);$('historyQuality').textContent='У сховищі: '+this.records.length+' · показано: '+displayed.length+' · прогалин понад 5 хв: '+gaps+'. Записи 2021 року '+($('hide2021').checked?'приховані':'видимі')+'; на датчику й у повному JSON вони залишаються.';if(before){const full=before.start===before.min&&before.end===before.max;if(!full){const width=before.end-before.start;this.chart.setWindow(before.end===before.max?this.chart.max-width:before.start,before.end===before.max?this.chart.max:before.end);}}this.details(this.chart.primary.selected>=0?this.chart.records[this.chart.primary.selected]:null);this.source();if(!displayed.length){$('archiveStats').textContent='Записів: 0';$('archiveRange').textContent='Архів порожній';}for(const id of ['csvAll','csvView','jsonAll'])$(id).disabled=!this.records.length;}
   report(dayOnly=false){
     try{const mode=$('archiveClock').value||'device';const rows=this.chart.records;const date=$('reportDate').value||fmt(rows.at(-1)?.timestamp??Date.now()/1000).slice(0,10);$('reportDate').value=date;const result=dailyReports(rows,date,mode);$('reportVisual').innerHTML=reportMarkup(result,dayOnly);const metric=(v,unit)=>v?`${v.min} / ${v.mean.toFixed(1)} / ${v.max} ${unit} (${v.count})`:'немає даних';const line=(name,r)=>`${name} · записів: ${r.count}\nCO₂: ${metric(r.co2,'ppm')}\nТемпература: ${metric(r.temperature,'°C')}\nВологість: ${metric(r.humidity,'%')}`;$('reportOutput').textContent=(dayOnly?line(date,result.days[6]):[line('Тиждень до '+date,result.week),...result.days.map(d=>line(d.date,d))].join('\n\n'))+'\n\nМінімум / середнє за записами / максимум; у дужках — кількість значень. Пропущені дні не заповнюються. Це наявні записи, а не підтвердження безперервних вимірювань. Джерело: '+($('archiveSource').textContent||'локальна історія');}catch(e){$('reportVisual').innerHTML='';$('reportOutput').textContent=e.message;}
   }
@@ -1039,7 +1228,7 @@ class HistoryUI {
   }
   export(view){const rows=view?this.records.filter(r=>{const t=r.source==='live'&&($('archiveClock').value||'device')!=='utc'?parseArchiveDate(formatLocalDate(r.timestamp)):r.timestamp;return t>=this.chart.start&&t<=this.chart.end;}):this.records;saveFile(`htram-${this.meta.demo?'demo-':''}${view?'period':'archive'}.csv`,csv(rows,{clockMode:$('archiveClock').value||'device'}),'text/csv;charset=utf-8');}
   async download(link){
-    await this.restorePromise;++this.generation;this.abort=new AbortController();this.buttons(true);this.show(true);
+    await this.restorePromise;if(this.pruning||this.importing||this.abort)return 'Дочекайтеся завершення поточної операції';++this.generation;this.abort=new AbortController();this.buttons(true);this.show(true);
     const same=this.meta.deviceId&&this.meta.deviceId===link.device?.id;const previous=same?this.meta:{};let plan=archivePlan(previous,!!same,$('archiveReadMode').value==='full');const base=same?this.records.slice():[];const knownKeys=new Set(base.filter(r=>r.source!=='live').map(recordKey));const incoming=[];let lastDraw=0,lastSave=0,blocks=0,complete=false,error=null;
     const meta={...previous,name:link.device?.name??'HTRAM',deviceId:link.device?.id??'',savedAt:new Date().toISOString(),complete:false,cursor:plan.startAddress.slice()};let previousRange=plan.kind==='resume'?previous.lastRange:null;if(plan.kind==='full'){meta.direction=null;meta.directionCandidate=null;meta.directionMatches=0;}
     $('archiveProgress').textContent=plan.description;
@@ -1064,15 +1253,15 @@ class HistoryUI {
     $('archiveProgress').textContent=result;return result;
   }
   async addLive(reading,device){
-    await this.restorePromise;if(this.abort||!device||this.meta.deviceId&&this.meta.deviceId!==device.id)return;
+    await this.restorePromise;if(this.abort||this.pruning||this.importing||!device||this.meta.deviceId&&this.meta.deviceId!==device.id)return;
     const record={timestamp:Math.floor(Date.now()/1000),co2:reading.co2,temperature:reading.temperature,humidity:reading.humidity,source:'live'};
     this.records=normalizeRecords([...this.records,record]);this.meta={...this.meta,name:device.name??'HTRAM',deviceId:device.id,complete:this.meta.complete===true};++this.generation;this.refresh(true);
     if(!this.lastLiveSave||Date.now()-this.lastLiveSave>=5000){this.lastLiveSave=Date.now();await this.persist();}
   }
-  async addStoredLive(records,device){await this.restorePromise;if(this.abort)throw Error('Дочекайтеся завершення архіву');if(this.meta.deviceId&&this.meta.deviceId!==device.id)throw Error('Фонові записи належать іншому датчику; спершу збережіть поточний архів');this.records=normalizeRecords([...this.records,...records.map(r=>({...r,source:'live'}))]);this.meta={...this.meta,name:device.name,deviceId:device.id};++this.generation;this.refresh(true);if(!await this.persist())throw Error('Фонові записи ще не збережено в історію');}
-  async persist(){try{await cache({meta:this.meta,records:this.records});$('archiveCache').textContent=`Локально збережено ${this.records.length.toLocaleString('uk-UA')} записів. Після оновлення сторінки відновиться остання збережена копія.`;return true;}catch{$('archiveCache').textContent='Не вдалося зберегти в цьому браузері. Завантажте JSON або CSV для резервної копії.';return false;}}
+  async addStoredLive(records,device){await this.restorePromise;if(this.abort||this.pruning||this.importing)throw Error('Дочекайтеся завершення архіву');if(this.meta.deviceId&&this.meta.deviceId!==device.id)throw Error('Фонові записи належать іншому датчику; спершу збережіть поточний архів');this.records=normalizeRecords([...this.records,...records.map(r=>({...r,source:'live'}))]);this.meta={...this.meta,name:device.name,deviceId:device.id};++this.generation;this.refresh(true);if(!await this.persist())throw Error('Фонові записи ще не збережено в історію');}
+  async persist(){try{await this.queueSave({meta:this.meta,records:retained(this.records,this.cutoff),cutoff:this.cutoff});$('archiveCache').textContent=`Локально збережено ${this.records.length.toLocaleString('uk-UA')} записів. Після оновлення сторінки відновиться остання збережена копія.`;return true;}catch{$('archiveCache').textContent='Не вдалося зберегти в цьому браузері. Завантажте JSON або CSV для резервної копії.';return false;}}
   async importFile(file){
-    if(!file||this.abort)return;
+    if(!file||this.abort||this.pruning||this.importing)return;this.importing=true;this.storagePreview();
     try{
       if(file.size>100*1024*1024)throw Error('Файл більший за 100 МБ');
       const data=JSON.parse(await file.text());
@@ -1081,9 +1270,73 @@ class HistoryUI {
       if(data.meta?.demo)throw Error('Демонстраційні дані не імпортуються');
       ++this.generation;this.records=normalizeRecords(data.records);this.meta={name:String(data.meta?.name??'Локальний файл'),deviceId:String(data.meta?.deviceId??''),complete:data.meta?.complete===true,cursor:validAddress(data.meta?.cursor)?data.meta.cursor:null,tailAddress:validAddress(data.meta?.tailAddress)?data.meta.tailAddress:null,direction:['ascending','descending'].includes(data.meta?.direction)?data.meta.direction:null,directionCandidate:['ascending','descending'].includes(data.meta?.directionCandidate)?data.meta.directionCandidate:null,directionMatches:Number.isInteger(data.meta?.directionMatches)?data.meta.directionMatches:0,lastRange:Array.isArray(data.meta?.lastRange)?data.meta.lastRange:null,savedAt:data.meta?.savedAt??new Date().toISOString()};this.refresh();await this.persist();$('archiveProgress').textContent='Архів відновлено з файлу JSON';
     }catch(e){$('archiveProgress').textContent='Файл не завантажено: '+e.message;}
-    finally{$('importJson').value='';}
+    finally{this.importing=false;$('importJson').value='';this.storagePreview();}
   }
 }
+
+// Included inside HistoryUI's module. Retention applies only to the local copy.
+function archiveCutoff(months,mode,now=new Date()){
+  const date=new Date(now);
+  const day=date.getDate();
+  date.setDate(1);
+  date.setMonth(date.getMonth()-months);
+  const last=new Date(date.getFullYear(),date.getMonth()+1,0).getDate();
+  date.setDate(Math.min(day,last));
+  return {utc:Math.floor(date.getTime()/1000),device:Date.UTC(date.getFullYear(),date.getMonth(),date.getDate(),date.getHours(),date.getMinutes(),date.getSeconds())/1000,mode};
+}
+function retained(records,cutoff){
+  return cutoff?records.filter(r=>r.timestamp>=(r.source==='live'||cutoff.mode==='utc'?cutoff.utc:cutoff.device)):records;
+}
+function bytesLabel(bytes){
+  if(!Number.isFinite(bytes)||bytes<0)return 'Недоступно';
+  const unit=bytes>=1048576?'МіБ':bytes>=1024?'КіБ':'Б';
+  const divisor=unit==='МіБ'?1048576:unit==='КіБ'?1024:1;
+  return (bytes/divisor).toLocaleString('uk-UA',{maximumFractionDigits:1})+' '+unit;
+}
+HistoryUI.prototype.queueSave=function(value){
+  const pending=(this.pendingSave||Promise.resolve()).catch(()=>{}).then(()=>cache(value));
+  this.pendingSave=pending;return pending;
+};
+HistoryUI.prototype.storagePreview=function(){
+  const months=Number($('archiveKeepMonths').value)||12;
+  const cutoff=archiveCutoff(months,$('archiveClock').value||'device');
+  const kept=retained(this.records,cutoff).length;
+  const removed=this.records.length-kept;
+  $('archiveTrim').disabled=!removed||!!this.abort||!!this.pruning||!!this.importing;
+  $('archiveResetCutoff').disabled=!this.cutoff||!!this.abort||!!this.pruning||!!this.importing;
+  $('archiveTrimPreview').textContent='Буде видалено: '+removed.toLocaleString('uk-UA')+' · залишиться: '+kept.toLocaleString('uk-UA')+(this.cutoff?' · діє межа збереження':'');
+};
+HistoryUI.prototype.storageSizes=async function(){
+  const saved=await cache().catch(()=>null);
+  $('archiveStorageBytes').textContent=saved?bytesLabel(new Blob([JSON.stringify(saved.records)]).size)+' (еквівалент JSON) · '+saved.records.length.toLocaleString('uk-UA')+' записів':'Немає збереженої копії або сховище недоступне';
+  try{
+    const {usage}=await navigator.storage.estimate();
+    $('appDataBytes').textContent=bytesLabel(usage);
+  }catch{}
+};
+HistoryUI.prototype.changeRetention=async function(reset=false){
+  await this.restorePromise;
+  if(this.abort||this.importing||this.pruning)return;
+  const months=Number($('archiveKeepMonths').value);
+  if(!reset&&![36,12,6,3,1].includes(months))return;
+  const cutoff=reset?null:archiveCutoff(months,$('archiveClock').value||'device');
+  const records=retained(this.records,cutoff);
+  const removed=this.records.length-records.length;
+  if(reset?!this.cutoff:!removed)return;
+  if(!window.confirm(reset?'Зняти межу? Видалені записи самі не відновляться.':`Видалити ${removed} старих записів із пам’яті AirOK? Архів датчика й експортовані файли залишаться. За потреби спочатку збережіть JSON.`))return;
+  this.pruning=true;this.buttons(false);
+  try{
+    await this.queueSave({meta:this.meta,records,cutoff});
+    this.records=records;this.cutoff=cutoff;++this.generation;
+    this.refresh();$('reportVisual').innerHTML='';$('reportOutput').textContent='Сформуйте звіт заново.';
+    $('archiveCache').textContent='Локально збережено '+records.length.toLocaleString('uk-UA')+' записів.';
+    $('archiveStorageResult').textContent=reset?'Межу знято. Старі записи можна відновити з JSON або повторно зчитати з датчика.':`Видалено ${removed} записів. Межа діятиме також при наступному імпорті та зчитуванні.`;
+  }catch{
+    $('archiveStorageResult').textContent='Зміни не збережено. Локальний архів не змінено.';
+  }finally{
+    this.pruning=false;this.buttons(false);await this.storageSizes();
+  }
+};
 
 return HistoryUI;})();
 
@@ -1190,6 +1443,11 @@ try{notificationsOn=localStorage.getItem('htram-alerts')==='true';$('notifyEnabl
 log('HTRAM 1.5.2 · перевірка годинника / фонова служба Android');
 
 const navigation=new Navigation(archive);
+$('archiveStorage').ontoggle=()=>{if($('archiveStorage').open){archive.storagePreview();archive.storageSizes();}};
+$('archiveKeepMonths').onchange=()=>archive.storagePreview();
+$('archiveTrim').onclick=()=>archive.changeRetention();
+$('archiveResetCutoff').onclick=()=>archive.changeRetention(true);
+$('archiveRefreshSizes').onclick=()=>archive.storageSizes();
 $('readState').onclick=()=>action(async()=>{
   const values=[];let failed=0;
   const add=(label,value)=>values.push([label,String(value)]);
@@ -1211,6 +1469,40 @@ $('readState').onclick=()=>action(async()=>{
 });
 
 boot.hidden=true;document.documentElement.dataset.htramVersion='history-sync-6';}catch(e){fail(e.message);console.error(e);}
+})();
+</script>
+<script>
+(() => {
+  const menu = document.getElementById('airMenu');
+  const trigger = menu.querySelector('summary');
+  for (const button of menu.querySelectorAll('button')) {
+    button.addEventListener('click', () => { menu.open = false; trigger.focus(); });
+  }
+  document.addEventListener('click', event => {
+    if (menu.open && !menu.contains(event.target)) menu.open = false;
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && menu.open) {
+      event.preventDefault();
+      menu.open = false;
+      trigger.focus();
+    }
+  });
+  for (const [metric, canvas] of [
+    ['co2Value', 'archiveCanvas'],
+    ['temperature', 'archiveCanvasTemp'],
+    ['humidity', 'archiveCanvasHumidity']
+  ]) {
+    document.getElementById(metric).addEventListener('click', () => {
+      document.getElementById('openArchive').click();
+      requestAnimationFrame(() => {
+        const chart = document.getElementById(canvas);
+        if (document.getElementById('historyPage').hidden) return;
+        chart.closest('.chart-panel').scrollIntoView({block:'start', behavior:'instant'});
+        chart.focus({preventScroll:true});
+      });
+    });
+  }
 })();
 </script>
 
