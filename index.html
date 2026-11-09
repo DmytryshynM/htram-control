@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AirOK</title>
+  <title>AirOK</title><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20108%20108%22%3E%3Crect%20width%3D%22108%22%20height%3D%22108%22%20rx%3D%2226%22%20fill%3D%22%23123632%22%2F%3E%3Cpath%20d%3D%22M23%2C35H54C63%2C35%2066%2C24%2059%2C21C55%2C19%2050%2C21%2049%2C25M18%2C51H58M25%2C67H45C51%2C67%2054%2C72%2052%2C77C50%2C82%2044%2C83%2040%2C80%22%20fill%3D%22none%22%20stroke%3D%22%23dcfff5%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M65%2C67L75%2C77L92%2C56%22%20fill%3D%22none%22%20stroke%3D%22%2365f2c5%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --subtext: #94a3b8;
@@ -40,7 +40,7 @@
   input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin:8px 0 16px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f8fafc;font:inherit}p{font-size:14px;color:#94a3b8;line-height:1.5}.metric{overflow-wrap:anywhere}@media(max-width:380px){.grid{grid-template-columns:1fr}} [hidden]{display:none!important}.archive-wide{max-width:1100px}.archive-actions{display:flex;flex-wrap:wrap;gap:8px}.archive-actions .btn{width:auto;flex:1;min-width:130px}.archive-chart{display:block;width:100%;height:240px;box-sizing:border-box;touch-action:none;border:1px solid #334155;border-radius:12px;cursor:crosshair}#pointDetails{min-height:44px;color:#e2e8f0;background:#0f172a;padding:12px;border-radius:8px}#archivePosition{padding:0;accent-color:#38bdf8}#historyPage h2{margin-top:24px}.chart-panel{margin:20px 0;padding:12px;background:#0f172a;border:1px solid #334155;border-radius:12px}.chart-panel h3{display:flex;justify-content:space-between;gap:12px;margin:0}.chart-panel p{margin:8px 0 12px;font-size:12px}.chart-panel span{font-variant-numeric:tabular-nums}.battery-panel{margin:14px 0;padding:16px;border-radius:14px;border:1px solid #334155;background:#101d31}.battery-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;color:#cbd5e1}.battery-heading strong{font-size:30px;color:#34d399;font-variant-numeric:tabular-nums}.battery-track{height:9px;background:#334155;border-radius:8px;overflow:hidden;margin:12px 0 8px}#batteryFill{height:100%;width:0;background:#34d399;transition:width .3s}.battery-caption{font-size:12px!important;color:#94a3b8}.eco-switch{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:14px}.eco-switch input{appearance:none;flex:none;width:44px;height:26px;border:0;border-radius:20px;background:#475569;margin:0;padding:3px;cursor:pointer}.eco-switch input:before{content:'';display:block;width:20px;height:20px;border-radius:50%;background:#f8fafc;transition:transform .2s}.eco-switch input:checked{background:#2563eb}.eco-switch input:checked:before{transform:translateX(18px)}.battery-panel[data-tone=low]{border-color:#f87171}.battery-panel[data-tone=low] strong{color:#f87171}.battery-panel[data-tone=low] #batteryFill{background:#f87171}
 .battery-panel[data-charging=true] #batteryFill{background:repeating-linear-gradient(110deg,#34d399 0px,#34d399 12px,#6ee7b7 12px,#6ee7b7 22px);background-size:44px 100%;animation:charge-flow 1.2s linear infinite}.battery-panel[data-charging=true] #batteryChargeState{color:#6ee7b7;font-weight:700}@keyframes charge-flow{to{background-position:44px 0}}@media(prefers-reduced-motion:reduce){.battery-panel[data-charging=true] #batteryFill{animation:none}}.setting-switch{margin:12px 0;padding:14px;border:1px solid #334155;border-radius:12px;background:#0f172a}.setting-switch .eco-switch{margin:0}.setting-switch p{font-size:12px;margin:8px 0 0}.switch-subtitle{display:block;font-size:12px;color:#94a3b8;font-weight:400;margin-top:5px;line-height:1.5}.sync-status{padding:12px;border:1px solid #475569;border-radius:10px;line-height:1.6}.sync-status[data-state=success]{color:#6ee7b7;border-color:#34d399}.sync-status[data-state=error]{color:#fca5a5;border-color:#ef4444}.eco-switch input:disabled{opacity:.45;cursor:wait}.report-visual-card{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;margin:14px 0}.report-visual-card h4{margin:0 0 8px}.report-legend{color:#cbd5e1!important} 
 *{box-sizing:border-box}body{padding:12px 12px calc(16px + env(safe-area-inset-bottom))}.container{min-width:0}.header{margin:4px 0 16px}.header h2{font-size:24px}.header p{margin-bottom:0}.card{padding:16px}.page-nav{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#0f172af5;padding:8px 0 12px;backdrop-filter:blur(8px)}.page-nav button{min-height:48px;min-width:0;padding:9px 2px;border:1px solid #334155;border-radius:10px;background:#1e293b;color:#cbd5e1;font:inherit;font-size:clamp(10px,2.7vw,12px);white-space:nowrap;cursor:pointer}.page-nav button[aria-current=page]{background:#2563eb;border-color:#60a5fa;color:#fff;font-weight:650}.back-link{border:0;background:none;color:#93c5fd;font:inherit;padding:8px 0 16px;min-height:44px;cursor:pointer}.connection-card .status{font-size:14px;overflow-wrap:anywhere}.connection-card p{font-size:12px;margin:4px 0 8px}.connection-card .btn{margin-top:4px}.current-readings{text-align:center}.co2-reading .metric{font-size:clamp(40px,12vw,64px);letter-spacing:-2px;margin:8px 0}.eyebrow{font-size:13px;color:#94a3b8}.risk-label{display:inline-block;border:1px solid #334155;border-radius:99px;padding:5px 14px;font-size:14px;font-weight:650}.secondary-readings{padding-top:20px;margin-top:20px;border-top:1px solid #334155;grid-template-columns:1fr 1fr}.secondary-readings .metric{font-size:clamp(24px,7vw,34px)}#lastUpdate{font-size:12px;margin-bottom:0}.charge-card{padding:0}.charge-card .battery-panel{margin:0;border:0;background:transparent}.battery-heading strong{font-size:26px}.compact-help{margin-top:12px}summary{cursor:pointer;color:#cbd5e1;font-size:14px;line-height:1.5}details.card>summary{min-height:28px}#actionStatus:empty{display:none}#actionStatus{font-size:13px;border-left:3px solid #38bdf8;padding:8px 12px;margin:0 0 12px}.page-intro{margin-top:-8px}.state-values{margin:12px 0 0}.state-values dt{font-size:12px;color:#94a3b8;margin-top:16px}.state-values dd{margin:4px 0 0;overflow-wrap:anywhere;font-size:16px}.chart-panel{min-width:0;padding:10px}.archive-chart{height:220px}.archive-wide{max-width:1100px}#historyPage{padding:12px}#historyPage #backMonitor{display:none}.grid{min-width:0}.grid>*{min-width:0}fieldset{min-width:0}.log-box{overflow-wrap:anywhere}button,input,select{max-width:100%}@media(min-width:600px){.page-nav button{font-size:14px}.archive-chart{height:260px}}@media(max-width:360px){body{padding:8px}.card{padding:12px}.page-nav button{font-size:10px}.secondary-readings{grid-template-columns:1fr 1fr}}
-.archive-options{margin:14px 0}.archive-options[open]{padding:12px;background:#0f172a;border-radius:10px}#archiveSource,#archiveProgress{font-size:12px}.native-options h3{display:none}.native-options{padding-top:12px}.brand-home{appearance:none;border:0;background:none;color:inherit;font:inherit;letter-spacing:inherit;padding:0;min-height:44px;cursor:pointer}
+.archive-options{margin:14px 0}.archive-options[open]{padding:12px;background:#0f172a;border-radius:10px}#archiveSource,#archiveProgress{font-size:12px}.native-options h3{display:none}.native-options{padding-top:12px}.brand-home{appearance:none;border:0;background:none;color:inherit;font:inherit;letter-spacing:inherit;padding:0;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:11px}
 .brand-home:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
 .home-thresholds{margin:10px 0 0;font-size:12px}
 .home-thresholds span{margin-left:6px;color:var(--text);font-variant-numeric:tabular-nums}
@@ -52,10 +52,10 @@
   --accent:#8cf0d1; --accent-hover:#b0f8e2; --line:#304058;
   color-scheme:dark;
 }
-body{padding:16px 14px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(ellipse 520px 340px at top,#1a3245,transparent),var(--bg)}
+body{padding:16px 14px calc(24px + env(safe-area-inset-bottom));min-height:100vh;background:radial-gradient(ellipse 720px 520px at 0% 0%,#1b4544 0,transparent 73%),radial-gradient(ellipse 780px 570px at 100% 0%,#203950 0,transparent 76%),linear-gradient(155deg,#101e2b,#0b1621 62%)}
 .container{max-width:620px}
-.header{text-align:left;margin:0 2px 18px;position:relative;padding:8px 0 8px 58px}
-.header::before{content:"";position:absolute;left:0;top:11px;width:44px;height:44px;border-radius:15px;background:radial-gradient(circle at 50% 50%,#8cf0d1 0 15%,transparent 17% 29%,#8cf0d1 31% 35%,transparent 37%),#244943;border:1px solid #427567}
+.header{text-align:left;margin:0 2px 18px;position:relative;padding:8px 0}
+
 .header h2{margin:0;letter-spacing:-.045em;font-size:28px;line-height:1.15}
 .header p{margin:5px 0 0!important}
 .page-nav{padding:5px;gap:3px;margin-bottom:14px;border:1px solid var(--line);border-radius:17px;background:#111c30f8}
@@ -122,12 +122,6 @@ summary{min-height:44px!important;align-content:center}
   body{padding:28px 32px 40px}
   .container,.container.archive-wide{max-width:1160px}
   .header{margin-bottom:22px}
-  #monitorPage{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr);gap:16px;align-items:start}
-  #monitorPage>.current-readings{grid-column:1;grid-row:1/span 2;padding:32px}
-  #monitorPage>.connection-card{grid-column:2;grid-row:1}
-  #monitorPage>.charge-card{grid-column:2;grid-row:2}
-  #settingsPage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
-  #settingsPage>h2,#settingsPage>.page-intro{grid-column:1/-1;margin-block:0}
   #historyPage{padding:22px}
   #historyPage .archive-chart{height:310px}
   #historyPage .combined-chart .archive-chart{height:360px}
@@ -135,6 +129,14 @@ summary{min-height:44px!important;align-content:center}
   .storage-sizes{max-width:520px}
 }
 
+</style>
+<style>
+.container,.container.archive-wide{max-width:760px}
+.grid,.secondary-readings{grid-template-columns:minmax(0,1fr)}
+.archive-actions{display:grid;grid-template-columns:minmax(0,1fr)}
+.fold-panel>summary{font-weight:600;padding-block:4px}
+.fold-panel[open]>summary{margin-bottom:12px}
+.fold-panel>summary span{float:right}
 </style>
 </head>
 <body>
@@ -145,7 +147,7 @@ summary{min-height:44px!important;align-content:center}
       <summary aria-label="Меню розділів">⋮</summary>
       <nav class="air-menu-items" aria-label="Розділи"><button id="navHome" hidden type="button">Показники</button><button id="navSettings" type="button">Налаштування</button><button id="navStatus" type="button">Стан датчика</button><button id="openArchive" type="button">Історія</button></nav>
     </details>
-    <h2><button id="brandHome" class="brand-home" type="button" aria-label="AirOK · Головна">AirOK</button></h2>
+    <h2><button id="brandHome" class="brand-home" type="button" aria-label="AirOK · Головна"><img width="44" height="44" alt="" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20108%20108%22%3E%3Crect%20width%3D%22108%22%20height%3D%22108%22%20rx%3D%2226%22%20fill%3D%22%23123632%22%2F%3E%3Cpath%20d%3D%22M23%2C35H54C63%2C35%2066%2C24%2059%2C21C55%2C19%2050%2C21%2049%2C25M18%2C51H58M25%2C67H45C51%2C67%2054%2C72%2052%2C77C50%2C82%2044%2C83%2040%2C80%22%20fill%3D%22none%22%20stroke%3D%22%23dcfff5%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M65%2C67L75%2C77L92%2C56%22%20fill%3D%22none%22%20stroke%3D%22%2365f2c5%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">AirOK</button></h2>
 
   </div>
 
@@ -157,15 +159,14 @@ summary{min-height:44px!important;align-content:center}
 
 <div hidden><button id="muteOnBtn" disabled>Вимкнути звук</button><button id="muteOffBtn" disabled>Увімкнути звук</button></div>
 </main>
-<section id="settingsPage" hidden aria-labelledby="settingsTitle"><h2 id="settingsTitle">Налаштування</h2><p class="page-intro">Параметри датчика та робота застосунку.</p><section class="card charge-card"><div id="batteryPanel" class="battery-panel" data-tone="unknown">
+<section id="settingsPage" hidden aria-labelledby="settingsTitle"><h2 id="settingsTitle">Налаштування</h2><p class="page-intro">Параметри датчика та робота застосунку.</p><details class="card fold-panel"><summary>Акумулятор датчика</summary><div id="batteryPanel" class="battery-panel" data-tone="unknown">
       <div class="battery-heading"><span>Акумулятор датчика</span><strong id="batteryPercent">—</strong></div>
       <div class="battery-track" aria-hidden="true"><div id="batteryFill"></div></div>
       <div id="batteryChargeState" class="battery-caption" role="status">Очікування даних</div>
       <button id="checkCharge" class="btn" disabled>Перевірити заряд зараз</button>
       
       
-    </div></section><div class="card">
-    <h3>Налаштування пристрою</h3>
+    </div></details><details class="card fold-panel"><summary>Налаштування пристрою</summary>
     <fieldset id="controls" disabled style="border:0;padding:0;margin:0">
       <label for="low">Нижній поріг CO₂, ppm</label>
       <input id="low" type="number" min="400" max="5000" step="1">
@@ -188,8 +189,7 @@ summary{min-height:44px!important;align-content:center}
       <button id="syncTime" class="btn">Синхронізувати час</button><button id="readClock" class="btn">Перевірити час датчика</button><p id="deviceClock">Час датчика ще не зчитано</p><p id="syncStatus" class="sync-status" role="status" aria-live="polite">Підключіть датчик для синхронізації часу.</p>
     </fieldset>
     
-  </div><div class="card">
-    <h3>Оновлення показників</h3>
+  </details><details class="card fold-panel"><summary>Оновлення показників</summary>
     <label for="pollSeconds">Інтервал опитування й оновлення показників</label>
     <select id="pollSeconds"><option value="5">5 секунд</option><option value="60">1 хвилина</option><option value="300">5 хвилин</option><option value="600" selected>10 хвилин</option><option value="1800">30 хвилин</option><option value="3600">1 година</option><option value="43200">12 годин</option><option value="86400">24 години</option></select>
     <button id="savePoll" class="btn">Застосувати інтервал</button>
@@ -197,17 +197,16 @@ summary{min-height:44px!important;align-content:center}
     <label for="webUnit">Температура в інтерфейсі</label>
     <select id="webUnit"><option value="C">°C</option><option value="F">°F</option></select>
     
-  </div><section class="card"><h3>Сповіщення</h3><label class="eco-switch"><input type="checkbox" id="notifyEnabled"> Сповіщати про високий CO₂</label><p id="notifyState">Після ввімкнення дозвольте сповіщення. Перевірка відбувається при отриманні свіжих показників під час активного підключення; після закриття застосунку моніторинг припиняється.</p><button class="btn" id="testNotification">Перевірити сповіщення</button></section><section class="card" id="backgroundPanel" hidden><h3>Фонове опитування Android</h3><label class="eco-switch"><input id="backgroundMode" type="checkbox"> Продовжувати опитування у фоні</label><p id="backgroundStatus">Спочатку підключіть датчик. Служба опитує датчик за вибраним інтервалом.</p><p>Постійне повідомлення містить кнопку «Зупинити». Служба підтримує зв’язок і використовує заряд смартфона. Після примусового зупинення Android її потрібно ввімкнути знову.</p></section><section class="card"><button id="openResearch" type="button" class="btn">Дослідження</button></section></section>
+  </details><details class="card fold-panel"><summary>Сповіщення</summary><label class="eco-switch"><input type="checkbox" id="notifyEnabled"> Сповіщати про високий CO₂</label><p id="notifyState">Після ввімкнення дозвольте сповіщення. Перевірка відбувається при отриманні свіжих показників під час активного підключення; після закриття застосунку моніторинг припиняється.</p><button class="btn" id="testNotification">Перевірити сповіщення</button></details><details class="card fold-panel" id="backgroundPanel" hidden><summary>Фонове опитування Android</summary><label class="eco-switch"><input id="backgroundMode" type="checkbox"> Продовжувати опитування у фоні</label><p id="backgroundStatus">Спочатку підключіть датчик. Служба опитує датчик за вибраним інтервалом.</p><p>Постійне повідомлення містить кнопку «Зупинити». Служба підтримує зв’язок і використовує заряд смартфона. Після примусового зупинення Android її потрібно ввімкнути знову.</p></details><section class="card"><button id="openResearch" type="button" class="btn">Дослідження</button></section></section>
 
 <section id="researchPage" hidden aria-labelledby="researchTitle">
   <h2 id="researchTitle">Дослідження</h2>
   <p class="page-intro">Експериментальні функції та результати перевірок HTRAM‑V1‑W.</p>
-  <div class="card"><h3>Ощадний зв’язок</h3>
+  <details class="card fold-panel"><summary>Ощадний зв’язок</summary>
     <label class="eco-switch" for="ecoMode"><input id="ecoMode" type="checkbox"><span>Ощадний зв’язок<span id="ecoInterval" class="switch-subtitle"></span></span></label>
     <p>Коли перемикач увімкнено, AirOK опитує датчик щонайбільше раз на 60 секунд. Довший вибраний інтервал зберігається. Вплив на автономність датчика ще не виміряно. Частота внутрішніх вимірювань цим перемикачем не керується.</p>
-  </div>
-  <div class="card">
-    <h3>Інтервал журналу датчика</h3><p>Після трьох пробних записів 0x2264 архів і далі поповнювався приблизно раз на хвилину.</p>
+  </details>
+  <details class="card fold-panel"><summary>Інтервал журналу датчика</summary><p>Після трьох пробних записів 0x2264 архів і далі поповнювався приблизно раз на хвилину.</p>
     <p>SENSOR_LOG_INTERVAL стосується журналу. Його вплив на внутрішній період вимірювань CO₂, температури й вологості не підтверджено.</p>
     <label for="sensorLogSeconds">Бажаний інтервал, секунди</label>
     <input id="sensorLogSeconds" type="number" min="1" step="1" inputmode="numeric" value="600" aria-describedby="sensorLogHelp">
@@ -216,18 +215,18 @@ summary{min-height:44px!important;align-content:center}
     <button id="applyLogInterval" class="btn" disabled aria-describedby="sensorLogHelp">Запис у датчик недоступний</button>
     <p id="sensorLogHelp">Формат запису 0x2264 для HTRAM не встановлено. Збереження поля залишає лише локальну чернетку й не змінює прилад. Перевірка надсилає тільки запит читання 0x2064.</p>
     <p id="sensorLogState" role="status" aria-live="polite">Інтервал датчика не зчитано. Значення поля не є поточним налаштуванням приладу.</p>
-  </div>
-  <div class="card"><h3>Режими живлення та радіозв’язку</h3>
+  </details>
+  <details class="card fold-panel"><summary>Режими живлення та радіозв’язку</summary>
     <p>Для DC_MODE (0x40A3) та DC_MODE_V2 (0x40A2) знайдено оголошення в APK. Призначення й формат команд лишаються невідомими.</p>
     <p>Пробні записи бездротового інтервалу (0x270D) і радіопотужності (0x2707) дали відповіді без значень. Зміни параметрів не підтверджено.</p>
-  </div>
-  <div class="card"><h3>Інші відкриті питання</h3>
+  </details>
+  <details class="card fold-panel"><summary>Інші відкриті питання</summary>
     <p>Частота фізичних вимірювань CO₂, температури й вологості невідома. Для пасивного прийому через BLE ще треба перевірити, чи рекламні пакети містять показники.</p>
     <p>Команди очищення пам’яті датчика, скидання й калібрування для цієї моделі не підтверджено. Сумісний пакет оновлення прошивки поки не знайдено.</p>
-  </div>
+  </details>
   <details class="card" id="nativeCompatibility" hidden><summary>Сумісність Bluetooth</summary><section class="native-options" id="nativeTransport" hidden><h3>Сумісність Bluetooth</h3><label class="eco-switch"><input type="checkbox" id="legacyBle"> Не запитувати великий MTU</label><p>Застосовується при наступному підключенні. Для перевірки архіву спробуйте цей режим, потім звичайний; журнал містить фактичний MTU.</p></section></details>
 </section>
-<section id="statusPage" hidden aria-labelledby="stateTitle"><h2 id="stateTitle">Стан датчика</h2><p class="page-intro">Окремий знімок на момент запиту. Для нового знімка натисніть кнопку ще раз.</p><div class="card"><button id="readState" class="btn" disabled>Запитати стан зараз</button><p id="stateReadAt" role="status">Стан ще не запитували</p><dl id="stateValues" class="state-values"></dl></div><section class="card"><h3>Паспорт датчика</h3><p>Модель: Honeywell HTRAM-V1-W · вимірює CO₂, температуру та вологість.</p><p id="passportIdentity">Серійний номер буде визначено з імені підключеного датчика.</p><p id="passportSku">SKU: ще не зчитано</p><p id="passportFirmware">Прошивка: ще не зчитано</p><p>Акумулятор передає 4 поділки: відсоток приблизний.</p></section><details class="card"><summary>Журнал і діагностика</summary><button id="exportLog" class="btn">Зберегти журнал для діагностики</button><div class="card">
+<section id="statusPage" hidden aria-labelledby="stateTitle"><h2 id="stateTitle">Стан датчика</h2><p class="page-intro">Окремий знімок на момент запиту. Для нового знімка натисніть кнопку ще раз.</p><details class="card fold-panel"><summary>Поточний стан</summary><button id="readState" class="btn" disabled>Запитати стан зараз</button><p id="stateReadAt" role="status">Стан ще не запитували</p><dl id="stateValues" class="state-values"></dl></details><details class="card fold-panel"><summary>Паспорт датчика</summary><p>Модель: Honeywell HTRAM-V1-W · вимірює CO₂, температуру та вологість.</p><p id="passportIdentity">Серійний номер буде визначено з імені підключеного датчика.</p><p id="passportSku">SKU: ще не зчитано</p><p id="passportFirmware">Прошивка: ще не зчитано</p><p>Акумулятор передає 4 поділки: відсоток приблизний.</p></details><details class="card"><summary>Журнал і діагностика</summary><button id="exportLog" class="btn">Зберегти журнал для діагностики</button><div class="card">
     <h3>Системний лог · HTRAM 1.5.3</h3>
     <div id="log" class="log-box">Очікування підключення...<br></div>
   </div></details></section>
@@ -263,8 +262,8 @@ summary{min-height:44px!important;align-content:center}
   <div class="archive-actions"><button id="zoomIn" class="btn" aria-label="Наблизити графік">＋ Наблизити</button><button id="zoomOut" class="btn" aria-label="Віддалити графік">− Віддалити</button><button id="allTime" class="btn">Весь період</button></div>
   <div class="archive-actions"><button id="range1" class="btn">Остання година</button><button id="range24" class="btn">Остання доба</button><button id="range168" class="btn">Останній тиждень</button></div>
   <p id="archiveRange">Період ще не вибрано</p>
-  <section class="chart-panel combined-chart" aria-labelledby="combinedTitle">
-  <h3 id="combinedTitle">Усі показники</h3>
+  <details class="chart-panel combined-chart fold-panel" open>
+  <summary id="combinedTitle">Усі показники</summary>
   <p>Спільний час; кожна лінія має власний вертикальний масштаб.</p>
   <canvas id="archiveCanvasCombined" class="archive-chart" tabindex="0" role="img" aria-label="CO₂, температура й вологість на спільній шкалі часу"></canvas>
   <p id="combinedTime">Натисніть на графік, щоб побачити значення за цей час.</p>
@@ -273,16 +272,16 @@ summary{min-height:44px!important;align-content:center}
     <span style="--series:#fbbf24">Температура <strong id="combined-temperature">—</strong></span>
     <span style="--series:#34d399">Вологість <strong id="combined-humidity">—</strong></span>
   </div>
-</section>
-<div class="chart-panel"><h3 style="color:#38bdf8">CO₂ <span id="co2Point">—</span></h3><p id="co2Summary">Очікування даних</p><canvas id="archiveCanvas" class="archive-chart" tabindex="0" aria-label="Історія CO₂, ppm. Спільна часова шкала" role="img"></canvas></div>
-<div class="chart-panel"><h3 style="color:#fbbf24">Температура <span id="tempPoint">—</span></h3><p id="tempSummary">Очікування даних</p><canvas id="archiveCanvasTemp" class="archive-chart" tabindex="0" aria-label="Історія температури, градуси Цельсія. Спільна часова шкала" role="img"></canvas></div>
-<div class="chart-panel"><h3 style="color:#34d399">Вологість <span id="humidityPoint">—</span></h3><p id="humiditySummary">Очікування даних</p><canvas id="archiveCanvasHumidity" class="archive-chart" tabindex="0" aria-label="Історія вологості, відсотки. Спільна часова шкала" role="img"></canvas></div>
+</details>
+<details class="chart-panel fold-panel"><summary style="color:#38bdf8">CO₂ <span id="co2Point">—</span></summary><p id="co2Summary">Очікування даних</p><canvas id="archiveCanvas" class="archive-chart" tabindex="0" aria-label="Історія CO₂, ppm. Спільна часова шкала" role="img"></canvas></details>
+<details class="chart-panel fold-panel"><summary style="color:#fbbf24">Температура <span id="tempPoint">—</span></summary><p id="tempSummary">Очікування даних</p><canvas id="archiveCanvasTemp" class="archive-chart" tabindex="0" aria-label="Історія температури, градуси Цельсія. Спільна часова шкала" role="img"></canvas></details>
+<details class="chart-panel fold-panel"><summary style="color:#34d399">Вологість <span id="humidityPoint">—</span></summary><p id="humiditySummary">Очікування даних</p><canvas id="archiveCanvasHumidity" class="archive-chart" tabindex="0" aria-label="Історія вологості, відсотки. Спільна часова шкала" role="img"></canvas></details>
   <p id="pointDetails" aria-live="polite">Виберіть точку на графіку для перегляду деталей.</p>
   <div class="archive-actions"><button id="panLeft" class="btn">← Раніше</button><button id="panRight" class="btn">Пізніше →</button></div>
   <label for="archivePosition">Положення на шкалі часу</label><input id="archivePosition" type="range" min="0" max="1000" value="0" disabled>
   <p>Масштаб: кнопки ＋ / −, коліщатко миші або два пальці. Пересування: перетягування графіка, повзунок або кнопки «Раніше / Пізніше».</p>
   <div class="grid"><div><label for="dateFrom">Початок періоду</label><input id="dateFrom" type="text" placeholder="15.10.2026, 03:00:00" maxlength="20" autocomplete="off"></div><div><label for="dateTo">Кінець періоду</label><input id="dateTo" type="text" placeholder="15.10.2026, 03:00:00" maxlength="20" autocomplete="off"></div></div><button id="applyDates" class="btn">Показати вибраний період</button>
-  <label for="importJson">Відновити локальний архів із JSON-файлу</label><input id="importJson" type="file" accept=".json,application/json"><p>Дати вводяться у форматі ДД.ММ.РРРР, ГГ:ХХ:СС, у вибраному режимі часової шкали. Остання точка — час запису, а не поточний час.</p><section class="chart-panel"><h3>Звіти за день і тиждень</h3><label for="reportDate">Дата дня або останнього дня тижня · ДД.ММ.РРРР</label><input id="reportDate" placeholder="22.10.2026" inputmode="numeric"><div class="archive-actions"><button class="btn" id="reportDay">Звіт за день</button><button class="btn" id="makeReport">Тиждень по днях</button><button class="btn" id="exportReport">Зберегти звіт TXT</button></div><p class="report-legend">Лінія — від мінімуму до максимуму; точка — середнє наявних значень. Праворуч — середнє за день. Дні без записів показані окремо.</p><div id="reportVisual" aria-live="polite"></div><details><summary>Текстові подробиці звіту</summary><pre id="reportOutput" style="white-space:pre-wrap;line-height:1.6;overflow-wrap:anywhere">Оберіть дату. Звіт використовує часову шкалу графіка та збережені записи.</pre></details></section><label class="eco-switch"><input id="hide2021" type="checkbox"> Приховати записи за 2021 рік</label><p id="historyQuality">Оригінальні записи залишаються у резервній копії й на датчику. Лінії перериваються на прогалинах понад 5 хвилин.</p><p id="archiveStats">Записів: 0</p>
+  <label for="importJson">Відновити локальний архів із JSON-файлу</label><input id="importJson" type="file" accept=".json,application/json"><p>Дати вводяться у форматі ДД.ММ.РРРР, ГГ:ХХ:СС, у вибраному режимі часової шкали. Остання точка — час запису, а не поточний час.</p><details class="chart-panel fold-panel"><summary>Звіти за день і тиждень</summary><label for="reportDate">Дата дня або останнього дня тижня · ДД.ММ.РРРР</label><input id="reportDate" placeholder="22.10.2026" inputmode="numeric"><div class="archive-actions"><button class="btn" id="reportDay">Звіт за день</button><button class="btn" id="makeReport">Тиждень по днях</button><button class="btn" id="exportReport">Зберегти звіт TXT</button></div><p class="report-legend">Лінія — від мінімуму до максимуму; точка — середнє наявних значень. Праворуч — середнє за день. Дні без записів показані окремо.</p><div id="reportVisual" aria-live="polite"></div><details><summary>Текстові подробиці звіту</summary><pre id="reportOutput" style="white-space:pre-wrap;line-height:1.6;overflow-wrap:anywhere">Оберіть дату. Звіт використовує часову шкалу графіка та збережені записи.</pre></details></details><label class="eco-switch"><input id="hide2021" type="checkbox"> Приховати записи за 2021 рік</label><p id="historyQuality">Оригінальні записи залишаються у резервній копії й на датчику. Лінії перериваються на прогалинах понад 5 хвилин.</p><p id="archiveStats">Записів: 0</p>
   <div class="archive-actions"><button id="csvAll" class="btn" disabled>CSV: весь архів</button><button id="csvView" class="btn" disabled>CSV: видимий період</button><button id="jsonAll" class="btn" disabled>JSON: весь архів</button></div>
   <p>Пропущені показники відображаються розривами лінії. Дати залежать від годинника датчика; під час читання архіву його час не змінюється.</p>
 </section>
@@ -1469,6 +1468,9 @@ try{notificationsOn=localStorage.getItem('htram-alerts')==='true';$('notifyEnabl
 log('HTRAM 1.5.2 · перевірка годинника / фонова служба Android');
 
 const navigation=new Navigation(archive);
+ for(const panel of document.querySelectorAll('#historyPage details.chart-panel')){
+   panel.addEventListener('toggle',()=>{if(panel.open)archive.chart.draw();});
+ }
 $('archiveStorage').ontoggle=()=>{if($('archiveStorage').open){archive.storagePreview();archive.storageSizes();}};
 $('archiveKeepMonths').onchange=()=>archive.storagePreview();
 $('archiveTrim').onclick=()=>archive.changeRetention();
@@ -1524,7 +1526,9 @@ boot.hidden=true;document.documentElement.dataset.htramVersion='history-sync-6';
       requestAnimationFrame(() => {
         const chart = document.getElementById(canvas);
         if (document.getElementById('historyPage').hidden) return;
-        chart.closest('.chart-panel').scrollIntoView({block:'start', behavior:'instant'});
+        const panel = chart.closest('.chart-panel');
+        panel.open = true;
+        panel.scrollIntoView({block:'start', behavior:'instant'});
         chart.focus({preventScroll:true});
       });
     });
